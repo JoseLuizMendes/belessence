@@ -28,7 +28,7 @@ export const PRODUCTS: Product[] = [
     badgeVariant: "default",
     rating: 5,
     reviews: 47,
-    images: ["/assets/midnight-velvet-1.jpg", "/assets/midnight-velvet-2.jpg", "/assets/midnight-velvet-3.jpg",],
+    images: ["/assets/Perf1.jpg"],
     collection: "night",
     features: ["Longa duração (8-10h)", "Projeção intensa", "Família olfativa: Oriental Baunilha"]
   },
@@ -43,7 +43,7 @@ export const PRODUCTS: Product[] = [
     badgeVariant: "secondary",
     rating: 5,
     reviews: 89,
-    images: ["/assets/golden-essence-1.jpg", "/assets/golden-essence-2.jpg"],
+    images: ["/assets/Perf2.jpg"],
     collection: "day",
     features: ["Versátil dia/noite", "Toque aveludado", "Família olfativa: Floral Amadeirado"]
   },
@@ -58,7 +58,7 @@ export const PRODUCTS: Product[] = [
     badgeVariant: "destructive",
     rating: 5,
     reviews: 23,
-    images: ["/assets/rare-bloom-1.jpg"],
+    images: ["/assets/Perf3.jpg"],
     collection: "limited",
     features: ["Ingredientes raros", "Edição numerada", "Família olfativa: Floral Oriental"]
   },
@@ -71,7 +71,7 @@ export const PRODUCTS: Product[] = [
     price: 159.90,
     rating: 4,
     reviews: 32,
-    images: ["/assets/ocean-breeze-1.jpg"],
+    images: ["/assets/Perf4.jpg"],
     collection: "day",
     features: ["Frescor imediato", "Ideal para o calor", "Família olfativa: Aquático Cítrico"]
   },
@@ -84,8 +84,23 @@ export const PRODUCTS: Product[] = [
     price: 289.90,
     rating: 5,
     reviews: 56,
-    images: ["/assets/noir-intense-1.jpg"],
+    images: ["/assets/Perf5.jpg"],
     collection: "night",
     features: ["Alta fixação", "Notas de couro", "Família olfativa: Couro Especiado"]
+  },
+  {
+    id: "6",
+    slug: "royal-amber",
+    name: "Royal Amber",
+    shortDescription: "A majestade do âmbar em uma composição luxuosa",
+    description: "Royal Amber é uma homenagem à realeza. Uma fragrância quente, envolvente e profundamente luxuosa. Notas de âmbar, especiarias douradas e um toque de mel criam uma aura de poder e sofisticação.",
+    price: 319.90,
+    badge: "Exclusivo",
+    badgeVariant: "outline",
+    rating: 5,
+    reviews: 18,
+    images: ["/assets/Perf6.jpg"],
+    collection: "limited",
+    features: ["Luxo extremo", "Notas quentes", "Família olfativa: Oriental Ambarado"]
   },
 ];
