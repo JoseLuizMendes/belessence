@@ -1,14 +1,23 @@
-import { NavigationMenu, NavigationMenuContent, NavigationMenuTrigger, NavigationMenuLink, NavigationMenuItem, NavigationMenuList } from "@radix-ui/react-navigation-menu";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "./ui/navigation-menu";
+import { Input } from "./ui/input";
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
-import { Menu, Search, Sheet, ShoppingBag } from "lucide-react";
+import { Menu, Search, ShoppingBag } from "lucide-react";
 import { Badge } from "./ui/badge";
-import { SheetContent, SheetTrigger } from "./ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { Separator } from "./ui/separator";
-import { useState } from "react";
+import { useCart } from "./cart";
 
 
 export default function Header() {
+    const { cartCount } = useCart();
     
   return (
     <div>
@@ -72,9 +81,14 @@ export default function Header() {
 
             {/* Actions */}
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="icon" className="hidden md:flex">
-                <Search className="h-5 w-   5" />
-              </Button>
+              <div className="relative hidden md:block">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Buscar..."
+                  className="w-64 pl-9 rounded-full bg-muted/50 border-transparent focus:bg-background focus:border-primary transition-all duration-300"
+                />
+              </div>
 
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingBag className="h-5 w-5" />
