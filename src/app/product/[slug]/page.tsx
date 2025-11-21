@@ -12,6 +12,7 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function ProductPage() {
   const params = useParams();
@@ -63,7 +64,8 @@ export default function ProductPage() {
             badge: product.badge,
             badgeVariant: product.badgeVariant,
             rating: product.rating,
-            reviews: product.reviews
+            reviews: product.reviews,
+            image: product.images[0]
         });
     }
   };
@@ -82,26 +84,38 @@ export default function ProductPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
+                 <Image
+                    src={product.images[selectedImage] || product.images[0]}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                 />
                 {product.badge && (
                     <Badge className="absolute top-4 left-4 z-10" variant={product.badgeVariant}>
                         {product.badge}
                     </Badge>
                 )}
-                <ShoppingBag className="h-32 w-32 text-white/50" />
             </motion.div>
-            <div className="grid grid-cols-4 gap-4">
-              {[0, 1, 2].map((i) => (
-                <button
-                  key={i}
-                  className={`aspect-square rounded-lg border-2 flex items-center justify-center bg-muted/50 ${
-                    selectedImage === i ? "border-primary" : "border-transparent"
-                  }`}
-                  onClick={() => setSelectedImage(i)}
-                >
-                   <ShoppingBag className="h-8 w-8 text-muted-foreground/50" />
-                </button>
-              ))}
-            </div>
+            {product.images.length > 1 && (
+                <div className="grid grid-cols-4 gap-4">
+                {product.images.map((img, i) => (
+                    <button
+                    key={i}
+                    className={`aspect-square rounded-lg border-2 flex items-center justify-center bg-muted/50 overflow-hidden relative ${
+                        selectedImage === i ? "border-primary" : "border-transparent"
+                    }`}
+                    onClick={() => setSelectedImage(i)}
+                    >
+                    <Image
+                        src={img}
+                        alt={`${product.name} thumbnail ${i + 1}`}
+                        fill
+                        className="object-cover"
+                    />
+                    </button>
+                ))}
+                </div>
+            )}
           </div>
 
           {/* Product Info */}

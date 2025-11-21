@@ -19,6 +19,7 @@ import { useCart } from "@/components/cart";
 import { useParams } from "next/navigation";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import Image from "next/image";
 
 export default function CollectionPage() {
     const params = useParams();
@@ -83,7 +84,13 @@ export default function CollectionPage() {
                     {products.map((product, index) => (
                         <motion.div key={index} variants={fadeInUp} className="h-full">
                             <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col">
-                                <div className="relative h-64 gradient-card shrink-0">
+                                <div className="relative h-64 gradient-card shrink-0 overflow-hidden">
+                                    <Image
+                                        src={product.images[0]}
+                                        alt={product.name}
+                                        fill
+                                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                    />
                                     {product.badge && (
                                         <Badge
                                             className="absolute top-4 left-4 z-10"
@@ -115,7 +122,8 @@ export default function CollectionPage() {
                                                     badge: product.badge,
                                                     badgeVariant: product.badgeVariant,
                                                     rating: product.rating,
-                                                    reviews: product.reviews
+                                                    reviews: product.reviews,
+                                                    image: product.images[0]
                                                 })}
                                             >
                                                 Adicionar

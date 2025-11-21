@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { fadeInUp } from "@/components/ui/fadeInUp";
 import { staggerContainer } from "@/components/ui/staggerContainer";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function CollectionsProducts() {
   return (
@@ -42,8 +43,14 @@ export default function CollectionsProducts() {
           >
             <motion.div variants={fadeInUp}>
               <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300">
-                <div className="relative h-64 gradient-card">
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+                <div className="relative h-64 gradient-card overflow-hidden">
+                  <Image
+                    src="/assets/Perf5.jpg"
+                    alt="Essência Noturna"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <Link href="/collections/essencia-noturna">
                         <Button
@@ -71,8 +78,14 @@ export default function CollectionsProducts() {
 
             <motion.div variants={fadeInUp}>
               <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300">
-                <div className="relative h-64 gradient-card">
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+                <div className="relative h-64 gradient-card overflow-hidden">
+                  <Image
+                    src="/assets/Perf4.jpg"
+                    alt="Elegância Diurna"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <Link href="/collections/elegancia-diurna">
                         <Button
@@ -100,8 +113,14 @@ export default function CollectionsProducts() {
 
             <motion.div variants={fadeInUp}>
               <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300">
-                <div className="relative h-64 gradient-card">
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+                <div className="relative h-64 gradient-card overflow-hidden">
+                  <Image
+                    src="/assets/Perf6.jpg"
+                    alt="Edição Limitada"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <Link href="/collections/edicao-limitada">
                         <Button

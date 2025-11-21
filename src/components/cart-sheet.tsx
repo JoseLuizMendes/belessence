@@ -12,6 +12,7 @@ import {
 import { useCart } from "./cart";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
+import Image from "next/image";
 
 export function CartSheet({ children }: { children: React.ReactNode }) {
   const { items, removeFromCart, updateQuantity, cartTotal, isCartOpen, setIsCartOpen } = useCart();
@@ -39,8 +40,17 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
             <div className="space-y-6">
                 {items.map((item) => (
                     <div key={item.id} className="flex gap-4">
-                        <div className="h-20 w-20 bg-muted rounded-md flex items-center justify-center flex-shrink-0">
-                             <ShoppingBag className="h-8 w-8 opacity-20" />
+                        <div className="h-20 w-20 bg-muted rounded-md flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                             {item.image ? (
+                                <Image 
+                                    src={item.image} 
+                                    alt={item.name} 
+                                    fill 
+                                    className="object-cover" 
+                                />
+                             ) : (
+                                <ShoppingBag className="h-8 w-8 opacity-20" />
+                             )}
                         </div>
                         <div className="flex-1 flex flex-col justify-between">
                             <div>
