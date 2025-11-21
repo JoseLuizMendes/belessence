@@ -28,7 +28,7 @@ export const PRODUCTS: Product[] = [
     badgeVariant: "default",
     rating: 5,
     reviews: 47,
-    images: ["/assets/midnight-velvet-1.jpg", "/assets/midnight-velvet-2.jpg", "/assets/midnight-velvet-3.jpg"],
+    images: ["/assets/midnight-velvet-1.jpg", "/assets/midnight-velvet-2.jpg", "/assets/midnight-velvet-3.jpg",],
     collection: "night",
     features: ["Longa duração (8-10h)", "Projeção intensa", "Família olfativa: Oriental Baunilha"]
   },

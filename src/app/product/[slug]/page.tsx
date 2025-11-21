@@ -11,6 +11,7 @@ import { useState } from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function ProductPage() {
   const params = useParams();
@@ -29,7 +30,7 @@ export default function ProductPage() {
             <h1 className="text-2xl font-playfair font-bold mb-4">Produto não encontrado</h1>
             <p className="text-muted-foreground">O produto que você está procurando não existe.</p>
             <Button className="mt-6" asChild>
-                <a href="/">Voltar para a loja</a>
+                <Link href="/">Voltar para a loja</Link>
             </Button>
           </div>
         </div>

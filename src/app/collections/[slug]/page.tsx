@@ -46,7 +46,7 @@ export default function CollectionPage() {
           <div className="text-center">
             <h1 className="text-2xl font-playfair font-bold mb-4">Coleção não encontrada</h1>
             <Button className="mt-6" asChild>
-                <a href="/">Voltar para a loja</a>
+                <Link href="/">Voltar para a loja</Link>
             </Button>
           </div>
         </div>
