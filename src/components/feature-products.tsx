@@ -11,9 +11,17 @@ import { fadeInUp } from "@/components/ui/fadeInUp";
 import { staggerContainer } from "@/components/ui/staggerContainer";
 import { Star } from "lucide-react";
 import { useCart } from "./cart";
+import { PRODUCTS } from "@/lib/products";
+import Link from "next/link";
+import { formatPrice } from "@/lib/utils";
 
 
-export default function CollectionsProducts() {
+export default function FeatureProducts() {
+  const { addToCart } = useCart();
+
+  // Filter only first 3 products for the homepage feature section
+  const displayedProducts = PRODUCTS.slice(0, 3);
+
   return (
     <div>
       {/* Featured Products */}
@@ -41,82 +49,63 @@ export default function CollectionsProducts() {
             whileInView="animate"
             viewport={{ once: true }}
           >
-            {[
-              {
-                name: "Midnight Velvet",
-                description:
-                  "Uma experiência olfativa envolvente com notas de baunilha e sândalo",
-                price: "R$ 189,90",
-                originalPrice: "R$ 229,90",
-                badge: "Novo",
-                badgeVariant: "default" as const,
-                rating: 5,
-                reviews: 47,
-              },
-              {
-                name: "Golden Essence",
-                description:
-                  "Sofisticação em cada borrifo com acordes florais e amadeirados",
-                price: "R$ 249,90",
-                badge: "Bestseller",
-                badgeVariant: "secondary" as const,
-                rating: 5,
-                reviews: 89,
-              },
-              {
-                name: "Rare Bloom",
-                description:
-                  "Edição exclusiva com essências raras e ingredientes premium",
-                price: "R$ 349,90",
-                badge: "Limitado",
-                badgeVariant: "destructive" as const,
-                rating: 5,
-                reviews: 23,
-              },
-            ].map((product, index) => (
-              <motion.div key={index} variants={fadeInUp}>
-                <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300">
-                  <div className="relative h-64 gradient-card">
-                    <Badge
-                      className="absolute top-4 left-4 z-10"
-                      variant={product.badgeVariant}
-                    >
-                      {product.badge}
-                    </Badge>
+            {displayedProducts.map((product, index) => (
+              <motion.div key={index} variants={fadeInUp} className="h-full">
+                <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col">
+                  <div className="relative h-64 gradient-card shrink-0">
+                    {product.badge && (
+                      <Badge
+                        className="absolute top-4 left-4 z-10"
+                        variant={product.badgeVariant}
+                      >
+                        {product.badge}
+                      </Badge>
+                    )}
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          className="bg-white/90 text-primary hover:bg-white"
-                        >
-                          Ver Detalhes
-                        </Button>
+                        <Link href={`/product/${product.slug}`}>
+                            <Button
+                            size="sm"
+                            className="bg-white/90 text-primary hover:bg-white"
+                            >
+                            Ver Detalhes
+                            </Button>
+                        </Link>
                         <Button
                           size="sm"
                           variant="outline"
                           className="bg-white/90 text-primary border-primary hover:bg-primary hover:text-white"
-                          onClick={() => addToCart(product)}
+                          onClick={() => addToCart({
+                              name: product.name,
+                              description: product.shortDescription,
+                              price: formatPrice(product.price),
+                              originalPrice: product.originalPrice ? formatPrice(product.originalPrice) : undefined,
+                              badge: product.badge,
+                              badgeVariant: product.badgeVariant,
+                              rating: product.rating,
+                              reviews: product.reviews
+                          })}
                         >
                           Adicionar
                         </Button>
                       </div>
                     </div>
                   </div>
-                  <CardHeader>
+                  <CardHeader className="flex-1 flex flex-col">
                     <CardTitle className="font-playfair">
                       {product.name}
                     </CardTitle>
-                    <CardDescription className="text-sm">
-                      {product.description}
+                    <CardDescription className="text-sm line-clamp-2">
+                      {product.shortDescription}
                     </CardDescription>
-                    <div className="flex items-center gap-2 mt-2">
+                    <div className="flex items-center gap-2 mt-auto pt-4">
                       <span className="text-xl font-bold text-primary">
-                        {product.price}
+                        {formatPrice(product.price)}
                       </span>
                       {product.originalPrice && (
                         <span className="text-sm text-muted-foreground line-through">
-                          {product.originalPrice}
+                          {formatPrice(product.originalPrice)}
                         </span>
                       )}
                     </div>

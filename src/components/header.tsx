@@ -14,6 +14,7 @@ import { Badge } from "./ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { Separator } from "./ui/separator";
 import { useCart } from "./cart";
+import { CartSheet } from "./cart-sheet";
 
 
 export default function Header() {
@@ -90,14 +91,16 @@ export default function Header() {
                 />
               </div>
 
-              <Button variant="ghost" size="icon" className="relative">
-                <ShoppingBag className="h-5 w-5" />
-                {cartCount > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-secondary text-secondary-foreground">
-                    {cartCount}
-                  </Badge>
-                )}
-              </Button>
+              <CartSheet>
+                <Button variant="ghost" size="icon" className="relative">
+                  <ShoppingBag className="h-5 w-5" />
+                  {cartCount > 0 && (
+                    <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-secondary text-secondary-foreground">
+                      {cartCount}
+                    </Badge>
+                  )}
+                </Button>
+              </CartSheet>
 
               {/* Mobile Menu */}
               <Sheet>   

@@ -9,6 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { fadeInUp } from "@/components/ui/fadeInUp";
 import { staggerContainer } from "@/components/ui/staggerContainer";
+import Link from "next/link";
 
 export default function CollectionsProducts() {
   return (
@@ -44,12 +45,14 @@ export default function CollectionsProducts() {
                 <div className="relative h-64 gradient-card">
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      variant="outline"
-                      className="bg-white/90 text-primary"
-                    >
-                      Explorar
-                    </Button>
+                    <Link href="/collections/essencia-noturna">
+                        <Button
+                        variant="outline"
+                        className="bg-white/90 text-primary"
+                        >
+                        Explorar
+                        </Button>
+                    </Link>
                   </div>
                 </div>
                 <CardHeader>
@@ -71,12 +74,14 @@ export default function CollectionsProducts() {
                 <div className="relative h-64 gradient-card">
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      variant="outline"
-                      className="bg-white/90 text-primary"
-                    >
-                      Explorar
-                    </Button>
+                    <Link href="/collections/elegancia-diurna">
+                        <Button
+                        variant="outline"
+                        className="bg-white/90 text-primary"
+                        >
+                        Explorar
+                        </Button>
+                    </Link>
                   </div>
                 </div>
                 <CardHeader>
@@ -98,12 +103,14 @@ export default function CollectionsProducts() {
                 <div className="relative h-64 gradient-card">
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      variant="outline"
-                      className="bg-white/90 text-primary"
-                    >
-                      Explorar
-                    </Button>
+                    <Link href="/collections/edicao-limitada">
+                        <Button
+                        variant="outline"
+                        className="bg-white/90 text-primary"
+                        >
+                        Explorar
+                        </Button>
+                    </Link>
                   </div>
                 </div>
                 <CardHeader>
