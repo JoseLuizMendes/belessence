@@ -2,116 +2,37 @@
 
 import { motion } from "framer-motion";
 import {
-  Search,
-  ShoppingBag,
-  Menu,
   Star,
-  Sparkles,
-  Heart,
-  Truck,
-  Shield,
-  Award,
   ChevronDown,
   ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
 import Footer from "@/components/footer";
 import Newsletter from "@/components/newsletter";
 import { fadeInUp } from "@/components/ui/fadeInUp";
 import { staggerContainer } from "@/components/ui/staggerContainer";
 import Features from "@/components/features";
 import Header from "@/components/header";
+import { useCart } from "@/components/cart";
+import Hero from "@/components/hero";
 
 
 export default function Home() {
+  const { addToCart } = useCart();
 
 
   return (
     <div className="min-h-screen bg-background">
       <Header/>
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden gradient-hero">
-        <div className="absolute inset-0 bg-black/30" />
-
-        <motion.div
-          className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto"
-          variants={staggerContainer}
-          initial="initial"
-          animate="animate">
-          <motion.p
-            variants={fadeInUp}
-            className="text-sm md:text-base font-medium tracking-[0.2em] uppercase text-belessence-champagne mb-4">
-            Desperte Seus Sentidos
-          </motion.p>
-
-          <motion.h1
-            variants={fadeInUp}
-            className="text-4xl md:text-6xl lg:text-7xl font-playfair font-bold mb-6 leading-tight text-shadow-gold">
-            Fragrâncias que Contam
-            <br />
-            <span className="text-belessence-gold">Sua História</span>
-          </motion.h1>
-
-          <motion.p
-            variants={fadeInUp}
-            className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Descubra perfumes únicos que transcendem o comum. Cada fragrância é
-            uma experiência sensorial cuidadosamente selecionada para expressar
-            sua essência mais autêntica.
-          </motion.p>
-
-          <motion.div
-            variants={fadeInUp}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button
-              size="lg"
-              className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-8 py-3">
-              Explorar Coleção
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-white text-white hover:bg-white hover:text-primary px-8 py-3">
-              Descobrir Mais
-            </Button>
-          </motion.div>
-        </motion.div>
-
-        {/* Scroll Indicator */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/70"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}>
-          <div className="flex flex-col items-center">
-            <span className="text-xs uppercase tracking-wider mb-2">
-              Role para descobrir
-            </span>
-            <ChevronDown className="h-5 w-5" />
-          </div>
-        </motion.div>
-      </section>
+    
+      <Hero />
 
       <Features />
 
