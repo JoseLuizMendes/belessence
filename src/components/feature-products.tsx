@@ -16,7 +16,6 @@ import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import Image from "next/image";
 
-
 export default function FeatureProducts() {
   const { addToCart } = useCart();
 
@@ -52,86 +51,84 @@ export default function FeatureProducts() {
           >
             {displayedProducts.map((product, index) => (
               <motion.div key={index} variants={fadeInUp} className="h-full">
-                <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col">
-                  <div className="relative h-64 gradient-card shrink-0 overflow-hidden">
-                    <Image
+                <Link href={`/product/${product.slug}`}>
+                  <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col">
+                    <div className="relative h-64 gradient-card shrink-0 overflow-hidden">
+                      <Image
                         src={product.images[0]}
                         alt={product.name}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    {product.badge && (
-                      <Badge
-                        className="absolute top-4 left-4 z-10"
-                        variant={product.badgeVariant}
-                      >
-                        {product.badge}
-                      </Badge>
-                    )}
-                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="flex gap-2">
-                        <Link href={`/product/${product.slug}`}>
-                            <Button
-                            size="sm"
-                            className="bg-white/90 text-primary hover:bg-white"
-                            >
-                            Ver Detalhes
-                            </Button>
-                        </Link>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="bg-white/90 text-primary border-primary hover:bg-primary hover:text-white"
-                          onClick={() => addToCart({
-                              name: product.name,
-                              description: product.shortDescription,
-                              price: formatPrice(product.price),
-                              originalPrice: product.originalPrice ? formatPrice(product.originalPrice) : undefined,
-                              badge: product.badge,
-                              badgeVariant: product.badgeVariant,
-                              rating: product.rating,
-                              reviews: product.reviews,
-                              image: product.images[0]
-                          })}
+                      />
+                      {product.badge && (
+                        <Badge
+                          className="absolute top-4 left-4 z-10"
+                          variant={product.badgeVariant}
                         >
-                          Adicionar
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                  <CardHeader className="flex-1 flex flex-col">
-                    <CardTitle className="font-playfair">
-                      {product.name}
-                    </CardTitle>
-                    <CardDescription className="text-sm line-clamp-2">
-                      {product.shortDescription}
-                    </CardDescription>
-                    <div className="flex items-center gap-2 mt-auto pt-4">
-                      <span className="text-xl font-bold text-primary">
-                        {formatPrice(product.price)}
-                      </span>
-                      {product.originalPrice && (
-                        <span className="text-sm text-muted-foreground line-through">
-                          {formatPrice(product.originalPrice)}
-                        </span>
+                          {product.badge}
+                        </Badge>
                       )}
-                    </div>
-                    <div className="flex items-center gap-2 mt-2">
-                      <div className="flex">
-                        {[...Array(product.rating)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className="h-4 w-4 fill-secondary text-secondary"
-                          />
-                        ))}
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="bg-white/90 text-primary border-primary hover:bg-primary hover:text-white"
+                            onClick={() =>
+                              addToCart({
+                                name: product.name,
+                                description: product.shortDescription,
+                                price: formatPrice(product.price),
+                                originalPrice: product.originalPrice
+                                  ? formatPrice(product.originalPrice)
+                                  : undefined,
+                                badge: product.badge,
+                                badgeVariant: product.badgeVariant,
+                                rating: product.rating,
+                                reviews: product.reviews,
+                                image: product.images[0],
+                              })
+                            }
+                          >
+                            Adicionar
+                          </Button>
+                        </div>
                       </div>
-                      <span className="text-sm text-muted-foreground">
-                        ({product.reviews})
-                      </span>
                     </div>
-                  </CardHeader>
-                </Card>
+                    <CardHeader className="flex-1 flex flex-col">
+                      <CardTitle className="font-playfair">
+                        {product.name}
+                      </CardTitle>
+                      <CardDescription className="text-sm line-clamp-2">
+                        {product.shortDescription}
+                      </CardDescription>
+                      <div className="flex items-center gap-2 mt-auto pt-4">
+                        <span className="text-xl font-bold text-primary">
+                          {formatPrice(product.price)}
+                        </span>
+                        {product.originalPrice && (
+                          <span className="text-sm text-muted-foreground line-through">
+                            {formatPrice(product.originalPrice)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <div className="flex">
+                          {[...Array(product.rating)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className="h-4 w-4 fill-secondary text-secondary"
+                            />
+                          ))}
+                        </div>
+                        <span className="text-sm text-muted-foreground">
+                          ({product.reviews})
+                        </span>
+                      </div>
+                    </CardHeader>
+                  </Card>
+                </Link>
               </motion.div>
             ))}
           </motion.div>
@@ -143,8 +140,8 @@ export default function FeatureProducts() {
             whileInView="animate"
             viewport={{ once: true }}
           >
-            <Button size="lg" variant="outline" className="px-8">
-              Ver Todas as Fragrâncias
+            <Button size="lg" variant="outline" className="px-8" asChild>
+              <Link href="/products">Ver Todas as Fragrâncias</Link>
             </Button>
           </motion.div>
         </div>

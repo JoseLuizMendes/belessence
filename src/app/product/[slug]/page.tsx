@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PRODUCTS } from "@/lib/products";
 import { formatPrice } from "@/lib/utils";
-import { Minus, Plus, ShoppingBag, Star } from "lucide-react";
+import { Minus, Plus, Star } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import Header from "@/components/header";
