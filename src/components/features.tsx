@@ -1,3 +1,5 @@
+"use client"
+
 import { motion } from "framer-motion";
 import { Sparkles, Heart, Truck} from "lucide-react";
 import { fadeInUp } from "./ui/fadeInUp";

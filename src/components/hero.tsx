@@ -1,3 +1,5 @@
+"use client"
+
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { Button } from "./ui/button";
 import { fadeInUp } from "./ui/fadeInUp";
