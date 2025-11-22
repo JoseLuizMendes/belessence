@@ -141,7 +141,7 @@ export default function FeatureProducts() {
             viewport={{ once: true }}
           >
             <Button size="lg" variant="outline" className="px-8" asChild>
-              <Link href="/products">Ver Todas as Fragrâncias</Link>
+              <Link href="/allProducts">Ver Todas as Fragrâncias</Link>
             </Button>
           </motion.div>
         </div>
