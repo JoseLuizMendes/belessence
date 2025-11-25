@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Sparkles, Timer, Tag } from "lucide-react";
-import { getSalesDisplayData, SalesProduct } from "@/lib/api";
+import { getSalesDisplayData, getSalesIdsFromIndices, SalesProduct } from "@/lib/api";
 
 // Helper component to render icon by name
 const IconRenderer = ({ name, className }: { name?: string; className?: string }) => {
@@ -23,17 +23,27 @@ const IconRenderer = ({ name, className }: { name?: string; className?: string }
   return null;
 };
 
-export default function Sales() {
+interface SalesProps {
+  indices?: number[];
+}
+
+export default function Sales({ indices = [0, 1, 2] }: SalesProps) {
   const [salesData, setSalesData] = React.useState<SalesProduct[]>([]);
 
+  // Create a stable key for the indices array to prevent unnecessary re-renders or errors
+  const indicesKey = JSON.stringify(indices);
+
   React.useEffect(() => {
-    // In a real app, these IDs would come from a CMS or props
     const fetchSales = async () => {
-      const data = await getSalesDisplayData(["sale-1", "sale-2", "sale-3"]);
+      // Convert indices to IDs and fetch data
+      // We parse the key back to ensure we use the data that triggered the effect
+      const currentIndices = JSON.parse(indicesKey);
+      const ids = getSalesIdsFromIndices(currentIndices);
+      const data = await getSalesDisplayData(ids);
       setSalesData(data);
     };
     fetchSales();
-  }, []);
+  }, [indicesKey]); 
 
   if (salesData.length === 0) return null;
 
@@ -52,8 +62,8 @@ export default function Sales() {
         }}
       >
         <CarouselContent className="h-full ml-0">
-          {salesData.map((sale) => (
-            <CarouselItem key={sale.id} className="pl-0 h-full min-h-screen w-full">
+          {salesData.map((sale, index) => (
+            <CarouselItem key={`${sale.id}-${index}`} className="pl-0 h-full min-h-screen w-full">
               <div className="relative w-full h-screen flex items-center justify-center overflow-hidden">
                 
                 {/* Background Gradient Decoration */}

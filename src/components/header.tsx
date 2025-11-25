@@ -11,16 +11,40 @@ import {
 import { Input } from "./ui/input";
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
-import { Menu, Search, ShoppingBag } from "lucide-react";
+import {Menu, Search, ShoppingBag } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { Separator } from "./ui/separator";
 import { useCart } from "./cart";
 import { CartSheet } from "./cart-sheet";
+import Link from "next/link";
+
 
 
 export default function Header() {
     const { cartCount } = useCart();
+    
+    const scrollToSection = (sectionId: string) => {
+      const element = document.getElementById(sectionId);
+      const isProductPage = window.location.pathname.startsWith("/product/");
+      
+      if (isProductPage) {
+        // Se estiver em uma página de produto, navega para a home com a seção como hash
+        window.location.href = `/#${sectionId}`;
+      } else if (element) {
+        // Se estiver na home, faz scroll suave para a seção
+        const headerOffset = 80;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth"
+        });
+      }
+    };
+
+    
     
   return (
     <div>
@@ -36,18 +60,21 @@ export default function Header() {
             <motion.div
               whileHover={{ scale: 1.05 }}
               className="flex items-center space-x-2">
-              <h1 className="text-2xl font-playfair font-bold text-primary">
+              <Link href="/" className="text-2xl font-playfair font-bold text-primary">
                 Belessence
-              </h1>
+              </Link>
             </motion.div>
 
             {/* Desktop Navigation */}
             <NavigationMenu  className="hidden md:flex">
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <NavigationMenuLink className="px-4 py-2 text-sm font-medium hover:text-secondary transition-colors">
+                  <Button
+                    variant={"ghost"}
+                    onClick={() => scrollToSection('inicio')} 
+                    className="px-4 py-2 text-sm font-medium hover:text-secondary transition-colors cursor-pointer">
                     Início
-                  </NavigationMenuLink>
+                  </Button>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className="px-4 py-2 text-sm font-medium">
@@ -70,14 +97,20 @@ export default function Header() {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <NavigationMenuLink className="px-4 py-2 text-sm font-medium hover:text-secondary transition-colors">
+                  <Button
+                    variant={"ghost"}
+                    onClick={() => scrollToSection('colecoes')} 
+                    className="px-4 py-2 text-sm font-medium hover:text-secondary transition-colors cursor-pointer">
                     Coleções
-                  </NavigationMenuLink>
+                  </Button>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <NavigationMenuLink className="px-4 py-2 text-sm font-medium hover:text-secondary transition-colors">
+                  <Button
+                    variant={"ghost"}
+                    onClick={() => scrollToSection('sobre')} 
+                    className="px-4 py-2 text-sm font-medium hover:text-secondary transition-colors cursor-pointer">
                     Sobre
-                  </NavigationMenuLink>
+                  </Button>
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
@@ -113,16 +146,25 @@ export default function Header() {
                 </SheetTrigger>
                 <SheetContent side="right" className="w-80">
                   <div className="flex flex-col space-y-4 mt-8">
-                    <Button variant="ghost" className="justify-start">
+                    <Button 
+                      variant="ghost" 
+                      className="justify-start"
+                      onClick={() => scrollToSection('inicio')}>
                       Início
                     </Button>
                     <Button variant="ghost" className="justify-start">
                       Fragrâncias
                     </Button>
-                    <Button variant="ghost" className="justify-start">
+                    <Button 
+                      variant="ghost" 
+                      className="justify-start"
+                      onClick={() => scrollToSection('colecoes')}>
                       Coleções
                     </Button>
-                    <Button variant="ghost" className="justify-start">
+                    <Button 
+                      variant="ghost" 
+                      className="justify-start"
+                      onClick={() => scrollToSection('sobre')}>
                       Sobre
                     </Button>
                     <Separator />
