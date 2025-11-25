@@ -150,7 +150,7 @@ export default function CollectionPage() {
                                     </div>
                                     <div className="flex items-center gap-2 mt-2">
                                         <div className="flex">
-                                            {[...Array(product.rating)].map((_, i) => (
+                                            {[...Array(Math.floor(product.rating))].map((_, i) => (
                                                 <Star
                                                     key={i}
                                                     className="h-4 w-4 fill-secondary text-secondary"
