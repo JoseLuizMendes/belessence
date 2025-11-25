@@ -1,7 +1,8 @@
 import { PRODUCTS, SALES, Product } from "./products";
 
 // Combine all products for searching/filtering
-const ALL_PRODUCTS = [...PRODUCTS, ...SALES];
+// FIX: Use only PRODUCTS to avoid duplicates, as SALES items are already in PRODUCTS
+const ALL_PRODUCTS = PRODUCTS;
 
 export interface SalesProduct extends Product {
   promoTitle?: string;
@@ -68,21 +69,22 @@ export async function getSalesDisplayData(saleIds: string[]): Promise<SalesProdu
   return products.map(product => {
     let promoData = {};
     // Hardcoded logic for demo purposes, simulating CMS data injection
-    if (product.id === "sale-1") {
+    // FIX: Match the actual IDs from products.ts (7, 8, 9) instead of sale-1, sale-2...
+    if (product.id === "7") {
       promoData = {
         promoTitle: "Oferta da Madrugada",
         promoText: "20% OFF na segunda unidade",
         promoGradient: "from-indigo-400 via-purple-400 to-pink-400",
         iconName: "Timer"
       };
-    } else if (product.id === "sale-2") {
+    } else if (product.id === "8") {
       promoData = {
         promoTitle: "Exclusividade",
         promoText: "Brinde especial na compra",
         promoGradient: "from-rose-400 via-red-400 to-orange-400",
         iconName: "Sparkles"
       };
-    } else if (product.id === "sale-3") {
+    } else if (product.id === "9") {
       promoData = {
         promoTitle: "Últimas Unidades",
         promoText: "Preço especial de lançamento",
@@ -96,4 +98,11 @@ export async function getSalesDisplayData(saleIds: string[]): Promise<SalesProdu
       ...promoData
     };
   });
+}
+
+/**
+ * Helper to get IDs from SALES array indices
+ */
+export function getSalesIdsFromIndices(indices: number[]): string[] {
+  return indices.map(i => SALES[i]?.id).filter(id => id !== undefined);
 }
