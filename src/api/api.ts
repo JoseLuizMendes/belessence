@@ -36,9 +36,9 @@ export async function getBestsellers(
   category?: string
 ): Promise<Product[]> {
   let filtered = ALL_PRODUCTS;
-  
+
   if (category) {
-    filtered = filtered.filter(p => p.category === category);
+    filtered = filtered.filter((p) => p.category === category);
   }
 
   return filtered
@@ -53,7 +53,9 @@ export async function getBestsellers(
 /**
  * Simulates fetching a single product by slug.
  */
-export async function getProductBySlug(slug: string): Promise<Product | undefined> {
+export async function getProductBySlug(
+  slug: string
+): Promise<Product | undefined> {
   return ALL_PRODUCTS.find((p) => p.slug === slug);
 }
 
@@ -61,12 +63,14 @@ export async function getProductBySlug(slug: string): Promise<Product | undefine
  * Helper to get specific sales products with promo data.
  * In a real app, this might join a 'Promotions' table.
  */
-export async function getSalesDisplayData(saleIds: string[]): Promise<SalesProduct[]> {
+export async function getSalesDisplayData(
+  saleIds: string[]
+): Promise<SalesProduct[]> {
   const products = await getProductsByIds(saleIds);
-  
+
   // We map the additional promo data here, which in a real DB might come from a join
   // or a separate config object passed from the CMS.
-  return products.map(product => {
+  return products.map((product) => {
     let promoData = {};
     // Hardcoded logic for demo purposes, simulating CMS data injection
     // FIX: Match the actual IDs from products.ts (7, 8, 9) instead of sale-1, sale-2...
@@ -75,27 +79,27 @@ export async function getSalesDisplayData(saleIds: string[]): Promise<SalesProdu
         promoTitle: "Oferta da Madrugada",
         promoText: "20% OFF na segunda unidade",
         promoGradient: "from-indigo-400 via-purple-400 to-pink-400",
-        iconName: "Timer"
+        iconName: "Timer",
       };
     } else if (product.id === "8") {
       promoData = {
         promoTitle: "Exclusividade",
         promoText: "Brinde especial na compra",
         promoGradient: "from-rose-400 via-red-400 to-orange-400",
-        iconName: "Sparkles"
+        iconName: "Sparkles",
       };
     } else if (product.id === "9") {
       promoData = {
         promoTitle: "Últimas Unidades",
         promoText: "Preço especial de lançamento",
         promoGradient: "from-amber-400 via-yellow-400 to-orange-400",
-        iconName: "Tag"
+        iconName: "Tag",
       };
     }
-    
+
     return {
       ...product,
-      ...promoData
+      ...promoData,
     };
   });
 }
@@ -104,5 +108,5 @@ export async function getSalesDisplayData(saleIds: string[]): Promise<SalesProdu
  * Helper to get IDs from SALES array indices
  */
 export function getSalesIdsFromIndices(indices: number[]): string[] {
-  return indices.map(i => SALES[i]?.id).filter(id => id !== undefined);
+  return indices.map((i) => SALES[i]?.id).filter((id) => id !== undefined);
 }

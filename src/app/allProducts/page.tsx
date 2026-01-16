@@ -11,8 +11,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { fadeInUp } from "@/components/ui/fadeInUp";
 import { staggerContainer } from "@/components/ui/staggerContainer";
-import { PRODUCTS } from "@/lib/products";
-import { formatPrice } from "@/lib/utils";
+import { PRODUCTS } from "@/api/products";
+import { formatPrice } from "@/api/utils";
 import Link from "next/link";
 import { Star } from "lucide-react";
 import { useCart } from "@/components/cart";

@@ -3,8 +3,8 @@
 import { useCart } from "@/components/cart";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { PRODUCTS } from "@/lib/products";
-import { formatPrice } from "@/lib/utils";
+import { PRODUCTS } from "@/api/products";
+import { formatPrice } from "@/api/utils";
 import { Minus, Plus, Star } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";

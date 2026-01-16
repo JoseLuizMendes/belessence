@@ -13,9 +13,9 @@ import { fadeInUp } from "@/components/ui/fadeInUp";
 import { staggerContainer } from "@/components/ui/staggerContainer";
 import { Star } from "lucide-react";
 import { useCart } from "./cart";
-import { PRODUCTS } from "@/lib/products";
+import { PRODUCTS } from "@/api/products";
 import Link from "next/link";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice } from "@/api/utils";
 import Image from "next/image";
 
 export default function FeatureProducts() {
