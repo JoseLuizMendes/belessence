@@ -62,7 +62,7 @@ export default function Sales({ indices = [0, 1, 2] }: SalesProps) {
   if (salesData.length === 0) return null;
 
   return (
-    <section className="relative mb-20 max-w-[1800px] mx-auto bg-linear-to-br from-gray-900 via-purple-900 to-black overflow-hidden h-[72vh] min-h-[520px] max-h-[720px] rounded-3xl">
+    <section className="relative mb-10 sm:mb-16 md:mb-20 max-w-[1800px] mx-auto bg-linear-to-br from-gray-900 via-purple-900 to-black overflow-hidden rounded-2xl sm:rounded-3xl md:h-[72vh] md:min-h-[520px] md:max-h-[720px]">
       <Carousel
         plugins={[
           Autoplay({
@@ -70,15 +70,15 @@ export default function Sales({ indices = [0, 1, 2] }: SalesProps) {
             stopOnInteraction: false,
           }),
         ]}
-        className="w-full h-full"
+        className="w-full md:h-full"
         opts={{
           loop: true,
         }}
       >
-        <CarouselContent className="h-full ml-0">
+        <CarouselContent className="ml-0 md:h-full">
           {salesData.map((sale, index) => (
-            <CarouselItem key={`${sale.id}-${index}`} className="pl-0 h-full w-full">
-              <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+            <CarouselItem key={`${sale.id}-${index}`} className="pl-0 w-full md:h-full">
+              <div className="relative w-full flex items-center justify-center overflow-hidden md:h-full">
                 
                 {/* Background Gradient Decoration */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -87,46 +87,46 @@ export default function Sales({ indices = [0, 1, 2] }: SalesProps) {
                 </div>
 
                 {/* Content Container */}
-                <div className="container relative z-10 mx-auto px-4 h-full">
-                  <div className="flex flex-col-reverse md:flex-row items-center justify-center h-full gap-8 md:gap-12 py-10">
+                <div className="container relative z-10 mx-auto px-4 sm:px-6">
+                  <div className="flex flex-col-reverse md:flex-row items-center justify-center gap-6 sm:gap-8 md:gap-12 py-8 sm:py-10 md:h-full">
                   
                     {/* Text Content - Left Side */}
-                    <div className="flex-1 text-white space-y-6 md:space-y-8 flex flex-col items-center md:items-start text-center md:text-left">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
-                        <IconRenderer name={sale.iconName} className="w-5 h-5 mr-2" />
-                        <span className="uppercase tracking-widest text-sm font-bold">{sale.promoTitle}</span>
+                    <div className="flex-1 text-white space-y-4 sm:space-y-6 md:space-y-8 flex flex-col items-center md:items-start text-center md:text-left">
+                      <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
+                        <IconRenderer name={sale.iconName} className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
+                        <span className="uppercase tracking-widest text-[11px] sm:text-sm font-bold">{sale.promoTitle}</span>
                       </div>
                       
                       <div className="space-y-2">
-                        <h2 className="text-5xl md:text-7xl lg:text-8xl font-playfair font-bold leading-tight tracking-tight">
+                        <h2 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-playfair font-bold leading-tight tracking-tight">
                           {sale.name}
                         </h2>
-                        <p className={`text-2xl md:text-4xl font-bold bg-linear-to-r ${sale.promoGradient} bg-clip-text text-transparent`}>
+                        <p className={`text-lg sm:text-2xl md:text-4xl font-bold bg-linear-to-r ${sale.promoGradient} bg-clip-text text-transparent`}>
                           {sale.promoText}
                         </p>
                       </div>
 
-                      <p className="text-lg md:text-xl text-gray-300 max-w-xl leading-relaxed">
+                      <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-xl leading-relaxed">
                         {sale.shortDescription}
                       </p>
 
-                      <div className="flex flex-col sm:flex-row items-center gap-6 pt-4">
+                      <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 pt-2 sm:pt-4 w-full sm:w-auto">
                         <div className="flex flex-col items-center md:items-start">
-                          <span className="text-gray-400 text-lg line-through decoration-destructive/50">
+                          <span className="text-gray-400 text-sm sm:text-lg line-through decoration-destructive/50">
                              R$ {sale.price.toFixed(2).replace('.', ',')}
                           </span>
                           <div className="flex items-baseline gap-2">
-                            <span className="text-4xl md:text-5xl font-bold text-white tracking-tighter">
+                            <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tighter">
                               R$ {(sale.price * 0.8).toFixed(2).replace('.', ',')}
                             </span>
-                            <span className="text-sm font-medium text-belessence-gold px-2 py-0.5 rounded bg-belessence-gold/10 border border-belessence-gold/20">
+                            <span className="text-[11px] sm:text-sm font-medium text-belessence-gold px-2 py-0.5 rounded bg-belessence-gold/10 border border-belessence-gold/20">
                               20% OFF
                             </span>
                           </div>
                         </div>
                         
                         <Link href={`/product/${sale.slug}`}>
-                          <Button size="lg" className="rounded-full h-14 px-8 text-lg bg-white text-black hover:bg-gray-100 transition-all hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                          <Button size="lg" className="w-full sm:w-auto rounded-full h-12 sm:h-14 px-7 sm:px-8 text-base sm:text-lg bg-white text-black hover:bg-gray-100 transition-all sm:hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.3)]">
                             Eu quero! <ArrowRight className="ml-2 h-5 w-5" />
                           </Button>
                         </Link>
@@ -134,8 +134,8 @@ export default function Sales({ indices = [0, 1, 2] }: SalesProps) {
                     </div>
 
                     {/* Product Image - Right Side */}
-                    <div className="flex-1 w-full max-w-md md:max-w-xl lg:max-w-2xl relative aspect-square md:aspect-4/3 flex items-center justify-center">
-                      <div className="relative w-full h-full max-h-60 sm:max-h-70 md:max-h-[420px] lg:max-h-[520px]">
+                    <div className="flex-1 w-full max-w-md md:max-w-xl lg:max-w-2xl relative aspect-4/3 sm:aspect-square md:aspect-4/3 flex items-center justify-center">
+                      <div className="relative w-full h-full max-h-56 sm:max-h-72 md:max-h-[420px] lg:max-h-[520px]">
                         <Image
                           src={sale.images[0]}
                           alt={sale.name}
@@ -155,18 +155,18 @@ export default function Sales({ indices = [0, 1, 2] }: SalesProps) {
         </CarouselContent>
 
         {/* Navigation Buttons */}
-        <CarouselPrevious className="left-4 md:left-8 bg-white/10 hover:bg-white/20 border-none text-white h-12 w-12" />
-        <CarouselNext className="right-4 md:right-8 bg-white/10 hover:bg-white/20 border-none text-white h-12 w-12" />
+        <CarouselPrevious className="left-3 sm:left-4 md:left-8 bg-white/10 hover:bg-white/20 border-none text-white h-10 w-10 sm:h-12 sm:w-12" />
+        <CarouselNext className="right-3 sm:right-4 md:right-8 bg-white/10 hover:bg-white/20 border-none text-white h-10 w-10 sm:h-12 sm:w-12" />
       </Carousel>
 
-      <div className="absolute bottom-28 left-1/2 -translate-x-1/2">
+      <div className="flex justify-center px-4 pb-5 pt-2 md:hidden">
         <button
           type="button"
           onClick={() => scrollToSection("destaques")}
-          className="group pointer-events-auto inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs uppercase tracking-[0.18em] text-white/80 backdrop-blur-md transition hover:bg-white/15 hover:text-white"
+          className="group pointer-events-auto inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[11px] uppercase tracking-[0.18em] text-white/80 backdrop-blur-md transition hover:bg-white/15 hover:text-white"
           aria-label="Ver destaques"
         >
-          <span>Role para ver mais</span>
+          <span>Ver mais</span>
           <ChevronDown className="h-4 w-4 transition-transform group-hover:translate-y-0.5" />
         </button>
       </div>

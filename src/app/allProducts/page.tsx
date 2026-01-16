@@ -26,7 +26,7 @@ export default function AllProductsPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-20 sm:pt-24 pb-10 sm:pb-12">
         <div className="container mx-auto px-4">
           <motion.div
             className="text-center mb-16"
@@ -34,16 +34,16 @@ export default function AllProductsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-4xl md:text-5xl font-playfair font-bold mb-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-playfair font-bold mb-3 sm:mb-4">
               Todas as Fragrâncias
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
               Explore nossa coleção completa de perfumes exclusivos
             </p>
           </motion.div>
 
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8"
             variants={staggerContainer}
             initial="initial"
             animate="animate"
@@ -51,7 +51,7 @@ export default function AllProductsPage() {
             {PRODUCTS.map((product, index) => (
               <motion.div key={index} variants={fadeInUp} className="h-full">
                 <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col">
-                  <div className="relative h-64 gradient-card shrink-0 overflow-hidden">
+                  <div className="relative h-52 sm:h-64 gradient-card shrink-0 overflow-hidden">
                     <Image
                       src={product.images[0]}
                       alt={product.name}
@@ -67,7 +67,7 @@ export default function AllProductsPage() {
                       </Badge>
                     )}
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute inset-0 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <div className="flex gap-2">
                         <Link href={`/product/${product.slug}`}>
                           <Button

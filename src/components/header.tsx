@@ -54,13 +54,13 @@ export default function Header() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}>
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <motion.div
               whileHover={{ scale: 1.05 }}
               className="flex items-center space-x-2">
-              <Link href="/" className="text-2xl font-playfair font-bold text-primary">
+              <Link href="/" className="text-xl sm:text-2xl font-playfair font-bold text-primary">
                 Belessence
               </Link>
             </motion.div>
@@ -116,7 +116,7 @@ export default function Header() {
             </NavigationMenu>
 
             {/* Actions */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="relative hidden md:block">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -144,8 +144,16 @@ export default function Header() {
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-80">
-                  <div className="flex flex-col space-y-4 mt-8">
+                <SheetContent side="right" className="w-[85vw] max-w-sm">
+                  <div className="flex flex-col space-y-5 mt-8">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="search"
+                        placeholder="Buscar..."
+                        className="w-full pl-9 rounded-full bg-muted/50 border-transparent focus:bg-background focus:border-primary transition-all duration-300"
+                      />
+                    </div>
                     <Button 
                       variant="ghost" 
                       className="justify-start"
@@ -168,10 +176,6 @@ export default function Header() {
                       Sobre
                     </Button>
                     <Separator />
-                    <Button variant="ghost" className="justify-start">
-                      <Search className="h-4 w-4 mr-2" />
-                      Buscar
-                    </Button>
                   </div>
                 </SheetContent>
               </Sheet>

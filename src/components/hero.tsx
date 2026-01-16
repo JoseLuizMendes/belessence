@@ -51,7 +51,7 @@ export default function Hero() {
             <Button
               size="lg"
               variant="outline"
-              className="border-white text-white hover:bg-white hover:text-primary px-8 py-3">
+              className="border-white text-primary hover:bg-white hover:text-primary px-8 py-3">
               Descobrir Mais
             </Button>
           </motion.div>

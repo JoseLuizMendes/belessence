@@ -74,8 +74,8 @@ export default function ProductPage() {
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
       
-      <main className="flex-1 container mx-auto px-4 py-12 mt-20">
-        <div className="grid md:grid-cols-2 gap-12">
+      <main className="flex-1 container mx-auto px-4 pt-20 sm:pt-24 pb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12">
           {/* Product Images */}
           <div className="space-y-4">
             <motion.div 
@@ -97,7 +97,7 @@ export default function ProductPage() {
                 )}
             </motion.div>
             {product.images.length > 1 && (
-                <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-4 gap-2 sm:gap-4">
                 {product.images.map((img, i) => (
                     <button
                     key={i}
@@ -122,7 +122,7 @@ export default function ProductPage() {
           <div className="space-y-8">
             <div>
               <motion.h1 
-                className="text-4xl md:text-5xl font-playfair font-bold text-primary mb-4"
+                className="text-3xl sm:text-4xl md:text-5xl font-playfair font-bold text-primary mb-4"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
@@ -130,7 +130,7 @@ export default function ProductPage() {
                 {product.name}
               </motion.h1>
               <motion.div 
-                className="flex items-center gap-4 mb-6"
+                className="flex flex-wrap items-center gap-3 sm:gap-4 mb-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
@@ -148,7 +148,7 @@ export default function ProductPage() {
                 <span className="text-muted-foreground">({product.reviews} avaliações)</span>
               </motion.div>
               <motion.p 
-                className="text-lg text-muted-foreground leading-relaxed"
+                className="text-base sm:text-lg text-muted-foreground leading-relaxed"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
@@ -158,7 +158,7 @@ export default function ProductPage() {
             </div>
 
             <div className="space-y-6 pt-6 border-t">
-              <div className="flex items-end gap-4">
+              <div className="flex flex-wrap items-end gap-3 sm:gap-4">
                 <span className="text-4xl font-bold text-primary">
                   {formatPrice(product.price)}
                 </span>
@@ -169,7 +169,7 @@ export default function ProductPage() {
                 )}
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
                 <div className="flex items-center border rounded-md">
                   <Button
                     variant="ghost"
@@ -188,7 +188,7 @@ export default function ProductPage() {
                     <Plus className="h-4 w-4" />
                   </Button>
                 </div>
-                <Button size="lg" className="flex-1 text-lg h-12" onClick={handleAddToCart}>
+                <Button size="lg" className="w-full sm:flex-1 text-base sm:text-lg h-12" onClick={handleAddToCart}>
                   Adicionar ao Carrinho
                 </Button>
               </div>

@@ -1,13 +1,13 @@
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
-import { Instagram, Facebook, Twitter, Youtube, X } from "lucide-react";
+import { Instagram, Facebook, Youtube, X } from "lucide-react";
 export default function Footer() {
   return (
     <section>
       {/* Footer */}
-      <footer className="bg-muted py-16">
+      <footer className="bg-muted py-10 sm:py-14 md:py-16">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10">
             <div>
               <h3 className="text-xl font-playfair font-bold mb-4">
                 Belessence

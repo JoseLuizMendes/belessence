@@ -1,11 +1,13 @@
 "use client";
 
+import * as React from "react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,21 +16,27 @@ import { Product, useCart } from "./cart";
 
 interface ProductDetailsDialogProps {
   product: Product | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+    triggerLabel?: string;
 }
 
-export function ProductDetailsDialog({ product, open, onOpenChange }: ProductDetailsDialogProps) {
+export function ProductDetailsDialog({
+    product,
+    triggerLabel = "Ver detalhes",
+}: ProductDetailsDialogProps) {
   const { addToCart } = useCart();
+    const [open, setOpen] = React.useState(false);
 
   if (!product) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl overflow-hidden">
-        <div className="grid md:grid-cols-2 gap-6">
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button variant="outline">{triggerLabel}</Button>
+            </DialogTrigger>
+            <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-2xl overflow-hidden">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Image Section */}
-            <div className="h-64 md:h-full w-full rounded-md gradient-card relative flex items-center justify-center">
+                        <div className="h-56 sm:h-64 md:h-full w-full rounded-md gradient-card relative flex items-center justify-center">
                 {product.badge && (
                     <Badge className="absolute top-4 left-4 z-10" variant={product.badgeVariant}>
                         {product.badge}
@@ -70,7 +78,7 @@ export function ProductDetailsDialog({ product, open, onOpenChange }: ProductDet
                 <div className="pt-4 flex gap-3">
                     <Button className="flex-1" size="lg" onClick={() => {
                         addToCart(product);
-                        onOpenChange(false);
+                        setOpen(false);
                     }}>
                         Adicionar ao Carrinho
                     </Button>

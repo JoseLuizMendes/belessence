@@ -27,25 +27,25 @@ export default function FeatureProducts() {
   return (
     <div>
       {/* Featured Products */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-12 sm:py-16 md:py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <motion.div
-            className="text-center mb-16"
+            className="text-center mb-10 sm:mb-14 md:mb-16"
             variants={fadeInUp}
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-playfair font-bold mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-playfair font-bold mb-3 sm:mb-4">
               Destaques da Semana
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
               Fragrâncias selecionadas especialmente para você
             </p>
           </motion.div>
 
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8"
             variants={staggerContainer}
             initial="initial"
             whileInView="animate"
@@ -55,7 +55,7 @@ export default function FeatureProducts() {
               <motion.div key={index} variants={fadeInUp} className="h-full">
                 <Link href={`/product/${product.slug}`}>
                   <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col">
-                    <div className="relative h-64 gradient-card shrink-0 overflow-hidden">
+                    <div className="relative h-52 sm:h-64 gradient-card shrink-0 overflow-hidden">
                       <Image
                         src={product.images[0]}
                         alt={product.name}
@@ -71,13 +71,15 @@ export default function FeatureProducts() {
                         </Badge>
                       )}
                       <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute inset-0 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                         <div className="flex gap-2">
                           <Button
                             size="sm"
                             variant="outline"
                             className="bg-white/90 text-primary border-primary hover:bg-primary hover:text-white"
-                            onClick={() =>
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
                               addToCart({
                                 name: product.name,
                                 description: product.shortDescription,
@@ -90,8 +92,8 @@ export default function FeatureProducts() {
                                 rating: product.rating,
                                 reviews: product.reviews,
                                 image: product.images[0],
-                              })
-                            }
+                              });
+                            }}
                           >
                             Adicionar
                           </Button>
@@ -142,7 +144,7 @@ export default function FeatureProducts() {
             whileInView="animate"
             viewport={{ once: true }}
           >
-            <Button size="lg" variant="outline" className="px-8" asChild>
+            <Button size="lg" variant="outline" className="px-8 w-full sm:w-auto" asChild>
               <Link href="/allProducts">Ver Todas as Fragrâncias</Link>
             </Button>
           </motion.div>
