@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowRight, ChevronDown } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "./ui/button";
 import { fadeInUp } from "./ui/fadeInUp";
 import { staggerContainer } from "./ui/staggerContainer";
@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 export default function Hero() {
     {/* Hero Section */}
     return (
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden gradient-hero">
+        <section className="relative py-20 md:py-28 overflow-hidden gradient-hero">
         <div className="absolute inset-0 bg-black/30" />
 
         <motion.div
@@ -51,23 +51,10 @@ export default function Hero() {
             <Button
               size="lg"
               variant="outline"
-              className="border-white text-black hover:bg-white hover:text-primary px-8 py-3">
+              className="border-white text-white hover:bg-white hover:text-primary px-8 py-3">
               Descobrir Mais
             </Button>
           </motion.div>
-        </motion.div>
-
-        {/* Scroll Indicator */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/70"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}>
-          <div className="flex flex-col items-center">
-            <span className="text-xs uppercase tracking-wider mb-2">
-              Role para descobrir
-            </span>
-            <ChevronDown className="h-5 w-5" />
-          </div>
         </motion.div>
       </section>
     )

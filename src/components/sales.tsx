@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Sparkles, Timer, Tag } from "lucide-react";
+import { ArrowRight, ChevronDown, Sparkles, Timer, Tag } from "lucide-react";
 import { getSalesDisplayData, getSalesIdsFromIndices, SalesProduct } from "@/lib/api";
 
 // Helper component to render icon by name
@@ -45,10 +45,24 @@ export default function Sales({ indices = [0, 1, 2] }: SalesProps) {
     fetchSales();
   }, [indicesKey]); 
 
+  const scrollToSection = React.useCallback((sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (!element) return;
+
+    const headerOffset = 80;
+    const elementPosition = element.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: "smooth",
+    });
+  }, []);
+
   if (salesData.length === 0) return null;
 
   return (
-    <section className="relative w-full min-h-screen bg-linear-to-br from-gray-900 via-purple-900 to-black overflow-hidden">
+    <section className="relative mb-20 max-w-[1800px] mx-auto bg-linear-to-br from-gray-900 via-purple-900 to-black overflow-hidden h-[72vh] min-h-[520px] max-h-[720px] rounded-3xl">
       <Carousel
         plugins={[
           Autoplay({
@@ -63,8 +77,8 @@ export default function Sales({ indices = [0, 1, 2] }: SalesProps) {
       >
         <CarouselContent className="h-full ml-0">
           {salesData.map((sale, index) => (
-            <CarouselItem key={`${sale.id}-${index}`} className="pl-0 h-full min-h-screen w-full">
-              <div className="relative w-full h-screen flex items-center justify-center overflow-hidden">
+            <CarouselItem key={`${sale.id}-${index}`} className="pl-0 h-full w-full">
+              <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
                 
                 {/* Background Gradient Decoration */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -74,7 +88,7 @@ export default function Sales({ indices = [0, 1, 2] }: SalesProps) {
 
                 {/* Content Container */}
                 <div className="container relative z-10 mx-auto px-4 h-full">
-                  <div className="flex flex-col-reverse md:flex-row items-center justify-center h-full gap-8 md:gap-12">
+                  <div className="flex flex-col-reverse md:flex-row items-center justify-center h-full gap-8 md:gap-12 py-10">
                   
                     {/* Text Content - Left Side */}
                     <div className="flex-1 text-white space-y-6 md:space-y-8 flex flex-col items-center md:items-start text-center md:text-left">
@@ -121,7 +135,7 @@ export default function Sales({ indices = [0, 1, 2] }: SalesProps) {
 
                     {/* Product Image - Right Side */}
                     <div className="flex-1 w-full max-w-md md:max-w-xl lg:max-w-2xl relative aspect-square md:aspect-4/3 flex items-center justify-center">
-                      <div className="relative w-full h-full max-h-[50vh] md:max-h-[70vh]">
+                      <div className="relative w-full h-full max-h-60 sm:max-h-70 md:max-h-[420px] lg:max-h-[520px]">
                         <Image
                           src={sale.images[0]}
                           alt={sale.name}
@@ -144,6 +158,18 @@ export default function Sales({ indices = [0, 1, 2] }: SalesProps) {
         <CarouselPrevious className="left-4 md:left-8 bg-white/10 hover:bg-white/20 border-none text-white h-12 w-12" />
         <CarouselNext className="right-4 md:right-8 bg-white/10 hover:bg-white/20 border-none text-white h-12 w-12" />
       </Carousel>
+
+      <div className="absolute bottom-28 left-1/2 -translate-x-1/2">
+        <button
+          type="button"
+          onClick={() => scrollToSection("destaques")}
+          className="group pointer-events-auto inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs uppercase tracking-[0.18em] text-white/80 backdrop-blur-md transition hover:bg-white/15 hover:text-white"
+          aria-label="Ver destaques"
+        >
+          <span>Role para ver mais</span>
+          <ChevronDown className="h-4 w-4 transition-transform group-hover:translate-y-0.5" />
+        </button>
+      </div>
     </section>
   );
 }

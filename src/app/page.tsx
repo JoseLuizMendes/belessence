@@ -33,13 +33,21 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-24">
       <Header/>
       {/* Pass the indices of the SALE items you want to display: 0, 1, 2, etc. */}
       <div id="inicio">
         <Sales indices={[0, 1, 2]} />
+
+        {/* Conteúdo já “aparece” logo abaixo do carrossel */}
+        <div
+          id="destaques"
+          className="relative z-10 -mt-12 bg-background pt-6 shadow-[0_-12px_40px_rgba(0,0,0,0.10)] border-t border-border/40"
+        >
+          <Features />
+        </div>
+
         <Hero />
-        <Features />
       </div>
       <div id="colecoes">
         <CollectionsProducts />

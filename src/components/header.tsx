@@ -66,7 +66,7 @@ export default function Header() {
             </motion.div>
 
             {/* Desktop Navigation */}
-            <NavigationMenu  className="hidden md:flex">
+            <NavigationMenu  className="hidden md:flex justify-between">
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <Button

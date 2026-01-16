@@ -9,7 +9,7 @@ export default function Features() {
   return (
     <div>
       {/* Features Section */}
-      <section className="py-16">
+      <section className="py-16 mb-4">
         <div className="container mx-auto px-4">
           <motion.div
             className="grid grid-cols-1 md:grid-cols-3 gap-8"
@@ -18,7 +18,7 @@ export default function Features() {
             whileInView="animate"
             viewport={{ once: true }}>
             <motion.div variants={fadeInUp} className="text-center">
-              <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-secondary/10 flex items-center justify-center mx-auto mb-4">
                 <Sparkles className="h-8 w-8 text-secondary" />
               </div>
               <h3 className="text-xl font-playfair font-semibold mb-2">
