@@ -11,7 +11,6 @@ import Footer from "@/components/footer";
 import { useEffect } from "react";
 
 export default function Home() {
-
   useEffect(() => {
     // Verifica se há hash na URL e faz scroll para a seção
     if (window.location.hash) {
@@ -21,11 +20,12 @@ export default function Home() {
         if (element) {
           const headerOffset = 80;
           const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-          
+          const offsetPosition =
+            elementPosition + window.pageYOffset - headerOffset;
+
           window.scrollTo({
             top: offsetPosition,
-            behavior: "smooth"
+            behavior: "smooth",
           });
         }
       }, 100);
@@ -34,7 +34,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background pt-20 sm:pt-24">
-      <Header/>
+      <Header />
       {/* Pass the indices of the SALE items you want to display: 0, 1, 2, etc. */}
       <div id="inicio">
         <Sales indices={[0, 1, 2]} />
@@ -52,8 +52,10 @@ export default function Home() {
       <div id="colecoes">
         <CollectionsProducts />
       </div>
-      <div id="sobre">
+      <div>
         <FeatureProducts />
+      </div>
+      <div id="sobre">
         <Newsletter />
       </div>
       <Footer />
