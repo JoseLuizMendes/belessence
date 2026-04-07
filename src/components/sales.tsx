@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronDown, Sparkles, Timer, Tag } from "lucide-react";
-import { getSalesDisplayData, getSalesIdsFromIndices, SalesProduct } from "@/api/api";
+import type { SalesProduct } from "@/lib/products-db";
 
 // Helper component to render icon by name
 const IconRenderer = ({ name, className }: { name?: string; className?: string }) => {
@@ -24,39 +24,15 @@ const IconRenderer = ({ name, className }: { name?: string; className?: string }
 };
 
 interface SalesProps {
-  indices?: number[];
+  products: SalesProduct[];
 }
 
-export default function Sales({ indices = [0, 1, 2] }: SalesProps) {
-  const [salesData, setSalesData] = React.useState<SalesProduct[]>([]);
-
-  // Create a stable key for the indices array to prevent unnecessary re-renders or errors
-  const indicesKey = JSON.stringify(indices);
-
-  React.useEffect(() => {
-    const fetchSales = async () => {
-      // Convert indices to IDs and fetch data
-      // We parse the key back to ensure we use the data that triggered the effect
-      const currentIndices = JSON.parse(indicesKey);
-      const ids = getSalesIdsFromIndices(currentIndices);
-      const data = await getSalesDisplayData(ids);
-      setSalesData(data);
-    };
-    fetchSales();
-  }, [indicesKey]); 
+export default function Sales({ products }: SalesProps) {
+  const salesData = products;
 
   const scrollToSection = React.useCallback((sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (!element) return;
-
-    const headerOffset = 80;
-    const elementPosition = element.getBoundingClientRect().top;
-    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-    window.scrollTo({
-      top: offsetPosition,
-      behavior: "smooth",
-    });
+    const el = document.getElementById(sectionId);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
   }, []);
 
   if (salesData.length === 0) return null;
@@ -113,11 +89,11 @@ export default function Sales({ indices = [0, 1, 2] }: SalesProps) {
                       <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 pt-2 sm:pt-4 w-full sm:w-auto">
                         <div className="flex flex-col items-center md:items-start">
                           <span className="text-gray-400 text-sm sm:text-lg line-through decoration-destructive/50">
-                             R$ {sale.price.toFixed(2).replace('.', ',')}
+                             R$ {sale.priceNum.toFixed(2).replace('.', ',')}
                           </span>
                           <div className="flex items-baseline gap-2">
                             <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tighter">
-                              R$ {(sale.price * 0.8).toFixed(2).replace('.', ',')}
+                              R$ {(sale.priceNum * 0.8).toFixed(2).replace('.', ',')}
                             </span>
                             <span className="text-[11px] sm:text-sm font-medium text-belessence-gold px-2 py-0.5 rounded bg-belessence-gold/10 border border-belessence-gold/20">
                               20% OFF

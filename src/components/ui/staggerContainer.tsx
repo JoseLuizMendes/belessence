@@ -1,7 +1,5 @@
-export const staggerContainer = {
-    animate: {
-        transition: {
-          staggerChildren: 0.1
-        }
-      }
-}
+/**
+ * @deprecated Framer Motion removido da stack.
+ * Use: import { staggerIn } from '@/lib/gsap-utils'
+ */
+export const staggerContainer = {} as const;

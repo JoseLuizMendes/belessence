@@ -50,7 +50,7 @@ export function ProductDetailsDialog({
                 <DialogHeader>
                     <DialogTitle className="text-3xl font-playfair">{product.name}</DialogTitle>
                     <DialogDescription className="text-base">
-                        {product.description}
+                        {product.description ?? product.shortDescription}
                     </DialogDescription>
                 </DialogHeader>
                 
@@ -59,11 +59,11 @@ export function ProductDetailsDialog({
                         {[...Array(5)].map((_, i) => (
                             <Star
                                 key={i}
-                                className={`h-4 w-4 ${i < product.rating ? "fill-secondary text-secondary" : "text-muted"}`}
+                                className={`h-4 w-4 ${i < (product.rating ?? 0) ? "fill-secondary text-secondary" : "text-muted"}`}
                             />
                         ))}
                     </div>
-                    <span className="text-sm text-muted-foreground">({product.reviews} avaliações)</span>
+                    <span className="text-sm text-muted-foreground">({product.reviews ?? 0} avaliações)</span>
                 </div>
 
                 <div className="space-y-1">

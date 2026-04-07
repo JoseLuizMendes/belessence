@@ -55,10 +55,10 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
                         <div className="flex-1 flex flex-col justify-between">
                             <div>
                                 <h3 className="font-medium leading-none">{item.name}</h3>
-                                <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{item.description}</p>
+                                <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{item.shortDescription}</p>
                             </div>
                             <div className="flex items-center justify-between mt-2">
-                                <div className="font-semibold text-primary">{formatPrice(item.numericPrice)}</div>
+                                <div className="font-semibold text-primary">{formatPrice(item.price)}</div>
                                 <div className="flex items-center gap-2">
                                     <Button 
                                         variant="outline" 

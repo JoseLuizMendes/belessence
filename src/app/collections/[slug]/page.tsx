@@ -1,174 +1,86 @@
-"use client";
+/**
+ * CollectionPage — Server Component
+ * Busca produtos da coleção via Prisma e renderiza via ProductsGrid (client).
+ */
 
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { fadeInUp } from "@/components/ui/fadeInUp";
-import { staggerContainer } from "@/components/ui/staggerContainer";
-import { PRODUCTS } from "@/api/products";
-import { formatPrice } from "@/api/utils";
-import Link from "next/link";
-import { Star } from "lucide-react";
-import { useCart } from "@/components/cart";
-import { useParams } from "next/navigation";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import Image from "next/image";
+import ProductsGrid from "@/components/products-grid";
+import { getProductsByCollection } from "@/lib/products-db";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
-export default function CollectionPage() {
-    const params = useParams();
-    const slug = params.slug as string;
-    const { addToCart } = useCart();
+// Mapeamento slug → collection (deve refletir o schema.prisma)
+const COLLECTION_MAP: Record<string, { type: string; name: string; description: string }> = {
+  "essencia-noturna": {
+    type: "night",
+    name: "Essência Noturna",
+    description: "Fragrâncias intensas e sedutoras para momentos especiais",
+  },
+  "elegancia-diurna": {
+    type: "day",
+    name: "Elegância Diurna",
+    description: "Perfumes sofisticados para o dia a dia refinado",
+  },
+  "edicao-limitada": {
+    type: "limited",
+    name: "Edição Limitada",
+    description: "Criações exclusivas em quantidades limitadas",
+  },
+};
 
-    // Map slug to collection type in PRODUCTS
-    const collectionType = 
-        slug === "essencia-noturna" ? "night" :
-        slug === "elegancia-diurna" ? "day" :
-        slug === "edicao-limitada" ? "limited" : null;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const collection = COLLECTION_MAP[slug];
+  if (!collection) return { title: "Coleção não encontrada" };
+  return { title: collection.name, description: collection.description };
+}
 
-    const collectionName =
-        slug === "essencia-noturna" ? "Essência Noturna" :
-        slug === "elegancia-diurna" ? "Elegância Diurna" :
-        slug === "edicao-limitada" ? "Edição Limitada" : "Coleção";
+export default async function CollectionPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const collection = COLLECTION_MAP[slug];
 
-    const products = PRODUCTS.filter(p => p.collection === collectionType);
+  if (!collection) notFound();
 
-  if (!collectionType) {
-    return (
-        <div className="min-h-screen flex flex-col">
-        <Header />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-playfair font-bold mb-4">Coleção não encontrada</h1>
-            <Button className="mt-6" asChild>
-                <Link href="/">Voltar para a loja</Link>
-            </Button>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    )
-  }
+  const products = await getProductsByCollection(collection.type);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-        <Header />
-        <main className="flex-1 pt-20 sm:pt-24 pb-10 sm:pb-12">
-            <div className="container mx-auto px-4">
-                <motion.div
-                    className="text-center mb-16"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                >
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-playfair font-bold mb-3 sm:mb-4">
-                        {collectionName}
-                    </h1>
-                    <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-                        Descubra fragrâncias únicas selecionadas para você
-                    </p>
-                </motion.div>
+      <Header />
+      <main className="flex-1 pt-20 sm:pt-24 pb-10 sm:pb-12">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-playfair font-bold mb-3 sm:mb-4">
+              {collection.name}
+            </h1>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
+              {collection.description}
+            </p>
+          </div>
 
-                <motion.div
-                    className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8"
-                    variants={staggerContainer}
-                    initial="initial"
-                    animate="animate"
-                >
-                    {products.map((product, index) => (
-                        <motion.div key={index} variants={fadeInUp} className="h-full">
-                            <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 h-full flex flex-col">
-                                <div className="relative h-52 sm:h-64 gradient-card shrink-0 overflow-hidden">
-                                    <Image
-                                        src={product.images[0]}
-                                        alt={product.name}
-                                        fill
-                                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                    />
-                                    {product.badge && (
-                                        <Badge
-                                            className="absolute top-4 left-4 z-10"
-                                            variant={product.badgeVariant}
-                                        >
-                                            {product.badge}
-                                        </Badge>
-                                    )}
-                                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-                                    <div className="absolute inset-0 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                                        <div className="flex gap-2">
-                                            <Link href={`/product/${product.slug}`}>
-                                                <Button
-                                                    size="sm"
-                                                    className="bg-white/90 text-primary hover:bg-white"
-                                                >
-                                                    Ver Detalhes
-                                                </Button>
-                                            </Link>
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                className="bg-white/90 text-primary border-primary hover:bg-primary hover:text-white"
-                                                onClick={() => addToCart({
-                                                    name: product.name,
-                                                    description: product.shortDescription,
-                                                    price: formatPrice(product.price),
-                                                    originalPrice: product.originalPrice ? formatPrice(product.originalPrice) : undefined,
-                                                    badge: product.badge,
-                                                    badgeVariant: product.badgeVariant,
-                                                    rating: product.rating,
-                                                    reviews: product.reviews,
-                                                    image: product.images[0]
-                                                })}
-                                            >
-                                                Adicionar
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <CardHeader className="flex-1 flex flex-col">
-                                    <CardTitle className="font-playfair">
-                                        {product.name}
-                                    </CardTitle>
-                                    <CardDescription className="text-sm line-clamp-2">
-                                        {product.shortDescription}
-                                    </CardDescription>
-                                    <div className="flex items-center gap-2 mt-auto pt-4">
-                                        <span className="text-xl font-bold text-primary">
-                                            {formatPrice(product.price)}
-                                        </span>
-                                        {product.originalPrice && (
-                                            <span className="text-sm text-muted-foreground line-through">
-                                                {formatPrice(product.originalPrice)}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className="flex items-center gap-2 mt-2">
-                                        <div className="flex">
-                                            {[...Array(product.rating)].map((_, i) => (
-                                                <Star
-                                                    key={i}
-                                                    className="h-4 w-4 fill-secondary text-secondary"
-                                                />
-                                            ))}
-                                        </div>
-                                        <span className="text-sm text-muted-foreground">
-                                            ({product.reviews})
-                                        </span>
-                                    </div>
-                                </CardHeader>
-                            </Card>
-                        </motion.div>
-                    ))}
-                </motion.div>
+          {products.length > 0 ? (
+            <ProductsGrid products={products} />
+          ) : (
+            <div className="text-center py-20">
+              <p className="text-muted-foreground mb-6">Nenhuma fragrância disponível nesta coleção ainda.</p>
+              <Button asChild variant="outline">
+                <Link href="/allProducts">Ver todas as fragrâncias</Link>
+              </Button>
             </div>
-        </main>
-        <Footer />
+          )}
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }

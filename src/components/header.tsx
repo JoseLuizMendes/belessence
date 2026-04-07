@@ -1,5 +1,16 @@
-"use client"
+"use client";
 
+/**
+ * Header — Belessence
+ * Visual: glass ivory, logo Playfair italic, nav uppercase tracking — referência MFK
+ * Animação: GSAP entrada slide-down + blur scroll progressivo (GSAP scrub = rgba dinâmico, exceção aceita)
+ * Regra: zero style={} com valores hardcoded — apenas classes CSS
+ */
+
+import { useRef } from "react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -9,181 +20,183 @@ import {
   NavigationMenuTrigger,
 } from "./ui/navigation-menu";
 import { Input } from "./ui/input";
-import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { Menu, Search, ShoppingBag } from "lucide-react";
-import { Badge } from "./ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { Separator } from "./ui/separator";
 import { useCart } from "./cart";
 import { CartSheet } from "./cart-sheet";
 import Link from "next/link";
 
+gsap.registerPlugin(ScrollTrigger);
+
+const NAV_LINKS = [
+  { label: "Início",   id: "inicio" },
+  { label: "Coleções", id: "colecoes" },
+  { label: "Sobre",    id: "sobre" },
+];
+
 export default function Header() {
-    const { cartCount } = useCart();
-    
-    const scrollToSection = (sectionId: string) => {
-      const element = document.getElementById(sectionId);
-      const isProductPage = window.location.pathname.startsWith("/product/");
-      
-      if (isProductPage) {
-        window.location.href = `/#${sectionId}`;
-      } else if (element) {
-        const headerOffset = 80;
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-        
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: "smooth"
+  const headerRef = useRef<HTMLElement>(null);
+  const logoRef   = useRef<HTMLAnchorElement>(null);
+  const { cartCount } = useCart();
+
+  useGSAP(() => {
+    const header = headerRef.current;
+    if (!header) return;
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!reduced) {
+      gsap.from(header, { y: -100, opacity: 0, duration: 0.8, ease: "power4.out" });
+    }
+
+    // Nota: rgba() dinâmico no scrub é exceção aceita — não há alternativa CSS para
+    // animar alpha de background-color de forma contínua com GSAP scrub.
+    ScrollTrigger.create({
+      start: "top top",
+      end: "+=160",
+      scrub: true,
+      onUpdate: (self) => {
+        const p = self.progress;
+        gsap.set(header, {
+          backgroundColor: `rgba(248, 245, 241, ${0.94 + p * 0.05})`,
+          backdropFilter: `blur(${10 + p * 16}px)`,
+          borderBottomColor: `rgba(216, 210, 203, ${0.10 + p * 0.34})`,
+          boxShadow: `0 6px 24px rgba(15, 15, 15, ${0.02 + p * 0.10})`,
         });
-      }
-    };
+      },
+    });
+  }, { scope: headerRef });
+
+  const scrollTo = (id: string) => {
+    if (window.location.pathname !== "/") {
+      window.location.assign(`/#${id}`);
+      return;
+    }
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
-    <div>
-      {/* Header */}
-      <motion.header
-        className="fixed top-0 left-0 right-0 z-50 glass-effect border-b border-border/50"
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}>
-        <div className="w-full mx-auto px-4 py-3 sm:py-4">
-          
-          {/* ALTERAÇÃO 1: Removi space-x-[1200px] e usei justify-between e w-full */}
-          <div className="flex items-center justify-between w-full">
-            
-            {/* Logo (Ficará na Esquerda) */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="flex items-center shrink-0"> {/* Adicionei flex-shrink-0 para garantir que o logo não encolha */}
-              <Link href="/" className="text-xl sm:text-2xl font-playfair font-bold text-primary">
-                Belessence
-              </Link>
-            </motion.div>
+    <header
+      ref={headerRef}
+      className="fixed left-0 right-0 top-0 z-50 border-b header-glass-base"
+    >
+      <div className="container-belessence py-4 sm:py-5">
+        <div className="flex items-center justify-between">
 
-            {/* Desktop Navigation (Centralizado) */}
-            {/* ALTERAÇÃO 2: Envolvi o Menu em uma div que ocupa o espaço livre (flex-1) e centraliza (justify-center) */}
-            <div className="hidden md:flex flex-1 justify-center px-4">
-                <NavigationMenu className="flex justify-between">
-                <NavigationMenuList>
-                    <NavigationMenuItem>
-                    <Button
-                        variant={"ghost"}
-                        onClick={() => scrollToSection('inicio')} 
-                        className="px-4 py-2 text-sm font-medium hover:text-secondary transition-colors cursor-pointer">
-                        Início
-                    </Button>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                    <NavigationMenuTrigger className="px-4 py-2 text-sm font-medium">
-                        Fragrâncias
-                    </NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                        <div className="w-64 p-4">
-                        <div className="space-y-2">
-                            <NavigationMenuLink className="block px-3 py-2 text-sm hover:bg-accent rounded-md">
-                            Femininas
-                            </NavigationMenuLink>
-                            <NavigationMenuLink className="block px-3 py-2 text-sm hover:bg-accent rounded-md">
-                            Masculinas
-                            </NavigationMenuLink>
-                            <NavigationMenuLink className="block px-3 py-2 text-sm hover:bg-accent rounded-md">
-                            Unissex
-                            </NavigationMenuLink>
-                        </div>
-                        </div>
-                    </NavigationMenuContent>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                    <Button
-                        variant={"ghost"}
-                        onClick={() => scrollToSection('colecoes')} 
-                        className="px-4 py-2 text-sm font-medium hover:text-secondary transition-colors cursor-pointer">
-                        Coleções
-                    </Button>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                    <Button
-                        variant={"ghost"}
-                        onClick={() => scrollToSection('sobre')} 
-                        className="px-4 py-2 text-sm font-medium hover:text-secondary transition-colors cursor-pointer">
-                        Sobre
-                    </Button>
-                    </NavigationMenuItem>
-                </NavigationMenuList>
-                </NavigationMenu>
-            </div>
+          {/* Logo — Playfair italic weight-400 tracking-tight */}
+          <Link
+            ref={logoRef}
+            href="/"
+            className="font-playfair italic font-normal tracking-[-0.01em] text-ink-strong text-xl transition-opacity hover:opacity-70 sm:text-2xl"
+          >
+            Belessence
+          </Link>
 
-            {/* Actions (Pesquisa e Sacola - Ficará na Direita) */}
-            <div className="flex items-center justify-end space-x-2 sm:space-x-4 shrink-0">
-              <div className="relative hidden md:block">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Buscar..."
-                  className="w-64 pl-9 rounded-full bg-muted/50 border-transparent focus:bg-background focus:border-primary transition-all duration-300"
-                />
-              </div>
+          {/* Desktop Nav */}
+          <nav className="hidden items-center gap-1 md:flex">
+            {NAV_LINKS.map(({ label, id }) => (
+              <button
+                key={id}
+                onClick={() => scrollTo(id)}
+                className="cursor-pointer border-none bg-transparent px-4 py-2 text-[11px] font-medium tracking-[0.14em] uppercase text-ink-soft transition-colors hover:opacity-60"
+              >
+                {label}
+              </button>
+            ))}
 
-              <CartSheet>
-                <Button variant="ghost" size="icon" className="relative">
-                  <ShoppingBag className="h-5 w-5" />
-                  {cartCount > 0 && (
-                    <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-secondary text-secondary-foreground">
-                      {cartCount}
-                    </Badge>
-                  )}
-                </Button>
-              </CartSheet>
-
-              {/* Mobile Menu */}
-              <Sheet>   
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="md:hidden">
-                    <Menu className="h-5 w-5" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-[85vw] max-w-sm">
-                   {/* ... conteúdo do mobile mantido igual ... */}
-                  <div className="flex flex-col space-y-5 mt-8">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        type="search"
-                        placeholder="Buscar..."
-                        className="w-full pl-9 rounded-full bg-muted/50 border-transparent focus:bg-background focus:border-primary transition-all duration-300"
-                      />
+            {/* Dropdown Fragrâncias */}
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="h-auto bg-transparent px-4 py-2 text-[11px] font-medium tracking-[0.14em] uppercase text-ink-soft">
+                    Fragrâncias
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <div className="w-52 space-y-0.5 p-3">
+                      {["Femininas", "Masculinas", "Unissex"].map((cat) => (
+                        <NavigationMenuLink
+                          key={cat}
+                          className="block cursor-pointer rounded-sm px-3 py-2.5 text-xs tracking-[0.08em] uppercase text-ink-soft transition-colors hover:bg-accent"
+                        >
+                          {cat}
+                        </NavigationMenuLink>
+                      ))}
                     </div>
-                    <Button 
-                      variant="ghost" 
-                      className="justify-start"
-                      onClick={() => scrollToSection('inicio')}>
-                      Início
-                    </Button>
-                    <Button variant="ghost" className="justify-start">
-                      Fragrâncias
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="justify-start"
-                      onClick={() => scrollToSection('colecoes')}>
-                      Coleções
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="justify-start"
-                      onClick={() => scrollToSection('sobre')}>
-                      Sobre
-                    </Button>
-                    <Separator />
-                  </div>
-                </SheetContent>
-              </Sheet>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </nav>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2 sm:gap-3">
+
+            {/* Busca — desktop */}
+            <div className="relative hidden md:block">
+              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-muted" />
+              <Input
+                type="search"
+                placeholder="buscar"
+                className="h-9 w-72 rounded-none border-0 bg-transparent pl-9 text-xs text-ink-strong placeholder:text-ink-muted placeholder:tracking-[0.02em] focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
+              />
             </div>
+
+            {/* Cart */}
+            <CartSheet>
+              <Button variant="ghost" size="icon" className="relative h-9 w-9 text-ink-strong hover:bg-transparent">
+                <ShoppingBag className="h-4.5 w-4.5" strokeWidth={1.5} />
+                {cartCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-gold text-[10px] font-semibold text-ink-strong">
+                    {cartCount}
+                  </span>
+                )}
+              </Button>
+            </CartSheet>
+
+            {/* Mobile menu */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9 text-ink-strong hover:bg-transparent md:hidden">
+                  <Menu className="h-4.5 w-4.5" strokeWidth={1.5} />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[75vw] max-w-xs border-l border-subtle bg-surface-base">
+                <div className="mt-10 flex flex-col gap-0">
+                  {/* Logo mobile */}
+                  <p className="mb-8 px-4 font-playfair italic font-normal text-2xl text-ink-strong">
+                    Belessence
+                  </p>
+
+                  {/* Search mobile */}
+                  <div className="relative mb-6 px-4">
+                    <Search className="absolute left-7 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-muted" />
+                    <Input
+                      type="search"
+                      placeholder="buscar"
+                      className="h-9 w-full rounded-none border-0 bg-transparent pl-9 text-xs text-ink-strong placeholder:text-ink-muted placeholder:tracking-[0.02em] focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
+                    />
+                  </div>
+
+                  <Separator className="bg-border-subtle" />
+
+                  {/* Nav links mobile */}
+                  {[...NAV_LINKS, { label: "Fragrâncias", id: "inicio" }].map(({ label, id }) => (
+                    <button
+                      key={label}
+                      onClick={() => scrollTo(id)}
+                      className="cursor-pointer border-b border-b-border bg-transparent px-4 py-4 text-left text-[11px] tracking-[0.16em] uppercase text-ink-soft transition-colors hover:bg-surface-section"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
-      </motion.header>
-    </div>
+      </div>
+    </header>
   );
 }

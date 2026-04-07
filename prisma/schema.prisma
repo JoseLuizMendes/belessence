@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Product {
+  // Mudamos para String para manter compatibilidade com seus IDs "1", "2"...
+  // Removemos o @default(uuid()) para podermos forçar o ID no seed
+  id               String   @id @default(uuid())
+  
+  slug             String   @unique
+  name             String
+  shortDescription String
+  description      String   @db.Text // @db.Text permite textos longos
+  
+  // Preços
+  price            Decimal  @db.Decimal(10, 2)
+  originalPrice    Decimal? @db.Decimal(10, 2) // Opcional (?)
+  
+  // Badges e UI
+  badge            String?
+  badgeVariant     String?
+  
+  // Avaliações
+  rating           Decimal  @default(0) @db.Decimal(2, 1)
+  reviews          Int      @default(0)
+  
+  images           String[] 
+  features         String[]
+  
+  // Categorização
+  collection       String
+  category         String
+  
+  // Métricas de Venda
+  totalSold        Int      @default(0)
+  seasonalSold     Int      @default(0)
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("products")
+}

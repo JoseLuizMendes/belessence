@@ -1,155 +1,145 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { fadeInUp } from "@/components/ui/fadeInUp";
-import { staggerContainer } from "@/components/ui/staggerContainer";
+/**
+ * CollectionsProducts — Belessence
+ * Visual: cards portrait editoriais com overlay, eyebrow, tipografia display — referência Byredo/MFK
+ * Regra: zero style={} hardcoded — gradientes e cores via classes CSS
+ */
+
+import { useRef } from "react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
+gsap.registerPlugin(ScrollTrigger);
+
+// accentClass referencia classes definidas em globals.css (.bg-accent-*)
+const COLLECTIONS = [
+  {
+    slug:        "essencia-noturna",
+    name:        "Essência Noturna",
+    subtitle:    "Intenso & Sedutor",
+    description: "Fragrâncias profundas para momentos que ficam na memória",
+    count:       "12 fragrâncias",
+    image:       "/assets/Perf5.jpg",
+    accentClass: "bg-accent-deep",
+  },
+  {
+    slug:        "elegancia-diurna",
+    name:        "Elegância Diurna",
+    subtitle:    "Sofisticado & Leve",
+    description: "Perfumes que acompanham cada momento do seu dia com refinamento",
+    count:       "8 fragrâncias",
+    image:       "/assets/Perf4.jpg",
+    accentClass: "bg-accent-mid",
+  },
+  {
+    slug:        "edicao-limitada",
+    name:        "Edição Limitada",
+    subtitle:    "Exclusivo & Raro",
+    description: "Criações únicas em quantidades cuidadosamente limitadas",
+    count:       "5 fragrâncias",
+    image:       "/assets/Perf6.jpg",
+    accentClass: "bg-accent-light",
+  },
+];
+
 export default function CollectionsProducts() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const headingRef = useRef<HTMLDivElement>(null);
+  const gridRef    = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+
+    if (headingRef.current) {
+      gsap.from(headingRef.current, {
+        opacity: 0, y: 30, duration: 0.9, ease: "power4.out",
+        scrollTrigger: { trigger: headingRef.current, start: "top 85%" },
+      });
+    }
+
+    if (gridRef.current) {
+      const cards = gridRef.current.querySelectorAll("[data-card]");
+      if (cards.length) {
+        gsap.from(cards, {
+          opacity: 0, y: 50, duration: 0.9, stagger: 0.15, ease: "power4.out",
+          scrollTrigger: { trigger: gridRef.current, start: "top 80%" },
+        });
+      }
+    }
+  }, { scope: sectionRef });
+
   return (
-    <div>
-      {/* Collections Section */}
-      <section className="py-12 sm:py-16 md:py-20">
-        <div className="container mx-auto px-4">
-          <motion.div
-            className="text-center mb-10 sm:mb-14 md:mb-16"
-            variants={fadeInUp}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-          >
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-playfair font-bold mb-3 sm:mb-4">
-              Coleções Exclusivas
-            </h2>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-              Cada coleção conta uma história única através de aromas
-              cuidadosamente selecionados
-            </p>
-          </motion.div>
+    <section ref={sectionRef} className="bg-surface-base py-20 md:py-28 lg:py-36">
+      <div className="container-belessence">
 
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8"
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-          >
-            <motion.div variants={fadeInUp}>
-              <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300">
-                <div className="relative h-52 sm:h-64 gradient-card overflow-hidden">
-                  <Image
-                    src="/assets/Perf5.jpg"
-                    alt="Essência Noturna"
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
-                  <div className="absolute inset-0 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                    <Link href="/collections/essencia-noturna">
-                        <Button
-                        variant="outline"
-                        className="bg-white/90 text-primary"
-                        >
-                        Explorar
-                        </Button>
-                    </Link>
-                  </div>
-                </div>
-                <CardHeader>
-                  <CardTitle className="font-playfair">
-                    Essência Noturna
-                  </CardTitle>
-                  <CardDescription>
-                    Fragrâncias intensas e sedutoras para momentos especiais
-                  </CardDescription>
-                  <Badge variant="secondary" className="w-fit">
-                    12 fragrâncias
-                  </Badge>
-                </CardHeader>
-              </Card>
-            </motion.div>
-
-            <motion.div variants={fadeInUp}>
-              <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300">
-                <div className="relative h-52 sm:h-64 gradient-card overflow-hidden">
-                  <Image
-                    src="/assets/Perf4.jpg"
-                    alt="Elegância Diurna"
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
-                  <div className="absolute inset-0 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                    <Link href="/collections/elegancia-diurna">
-                        <Button
-                        variant="outline"
-                        className="bg-white/90 text-primary"
-                        >
-                        Explorar
-                        </Button>
-                    </Link>
-                  </div>
-                </div>
-                <CardHeader>
-                  <CardTitle className="font-playfair">
-                    Elegância Diurna
-                  </CardTitle>
-                  <CardDescription>
-                    Perfumes sofisticados para o dia a dia refinado
-                  </CardDescription>
-                  <Badge variant="secondary" className="w-fit">
-                    8 fragrâncias
-                  </Badge>
-                </CardHeader>
-              </Card>
-            </motion.div>
-
-            <motion.div variants={fadeInUp}>
-              <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300">
-                <div className="relative h-52 sm:h-64 gradient-card overflow-hidden">
-                  <Image
-                    src="/assets/Perf6.jpg"
-                    alt="Edição Limitada"
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
-                  <div className="absolute inset-0 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                    <Link href="/collections/edicao-limitada">
-                        <Button
-                        variant="outline"
-                        className="bg-white/90 text-primary"
-                        >
-                        Explorar
-                        </Button>
-                    </Link>
-                  </div>
-                </div>
-                <CardHeader>
-                  <CardTitle className="font-playfair">
-                    Edição Limitada
-                  </CardTitle>
-                  <CardDescription>
-                    Criações exclusivas em quantidades limitadas
-                  </CardDescription>
-                  <Badge variant="secondary" className="w-fit">
-                    5 fragrâncias
-                  </Badge>
-                </CardHeader>
-              </Card>
-            </motion.div>
-          </motion.div>
+        {/* Heading */}
+        <div ref={headingRef} className="mb-14 text-center md:mb-20">
+          <p className="eyebrow mb-5 text-brand-gold">Universo Belessence</p>
+          <h2 className="display-title text-ink-strong text-[clamp(2rem,5vw,3.5rem)]">
+            Coleções Exclusivas
+          </h2>
+          <div className="mx-auto mt-6 h-px w-12 divider-gold" />
         </div>
-      </section>
-    </div>
+
+        {/* Grid */}
+        <div ref={gridRef} className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
+          {COLLECTIONS.map((col) => (
+            <Link
+              key={col.slug}
+              href={`/collections/${col.slug}`}
+              data-card
+              className="group relative block overflow-hidden rounded-token-xs"
+            >
+              <div className="relative aspect-product overflow-hidden">
+                <Image
+                  src={col.image}
+                  alt={col.name}
+                  fill
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
+
+                {/* Overlay — usa classe definida em globals.css */}
+                <div className="absolute inset-0 gradient-image-overlay transition-opacity duration-500" />
+
+                {/* Linha de acento por coleção — sem style={} */}
+                <div className={`absolute bottom-0 left-0 right-0 h-px opacity-60 ${col.accentClass}`} />
+
+                {/* Conteúdo */}
+                <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-7">
+                  <p className="eyebrow mb-3 text-brand-gold-light opacity-80">
+                    {col.subtitle}
+                  </p>
+
+                  <h3 className="mb-2 font-playfair font-normal leading-tight tracking-[-0.01em] text-surface-contrast text-[clamp(1.25rem,2.5vw,1.75rem)]">
+                    {col.name}
+                  </h3>
+
+                  <p className="mb-4 line-clamp-2 text-sm font-light leading-relaxed text-dark-warm">
+                    {col.description}
+                  </p>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] tracking-[0.12em] uppercase text-dark-soft">
+                      {col.count}
+                    </span>
+                    <span className="flex items-center gap-1.5 text-xs font-medium tracking-[0.08em] uppercase text-brand-gold-light transition-all duration-300 group-hover:gap-2.5">
+                      Explorar
+                      <ArrowRight className="h-3 w-3" />
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
