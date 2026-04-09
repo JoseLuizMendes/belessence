@@ -501,13 +501,72 @@
       var(--gradient-hero-noir);
   }
 
-  /* Overlay semitransparente para carrossel com foto — escurece sem cobrir a imagem */
-  .hero-carousel-overlay {
+  /* Glow dourado no produto — Apple product glow */
+  .product-glow {
+    filter:
+      drop-shadow(0 0 48px rgba(196, 164, 90, 0.20))
+      drop-shadow(0 28px 48px rgba(0, 0, 0, 0.55));
+  }
+
+  /* ── HERO BANNER ────────────────────────────────────────────── */
+  /*
+   * Razão das artes: 1440 × 600px = 12:5
+   * 41.67vw = (600/1440) × 100vw → mantém proporção exata até vp=1440px
+   * max 600px: imagem não estica além da resolução original
+   * min 240px: legibilidade mínima em mobile estreito
+   * O container usa max-w-[1440px] mx-auto → na prática height=min(41.67vw, 600px)
+   */
+  .hero-banner-height {
+    height: clamp(240px, 41.67vw, 600px);
+  }
+
+  /* Overlays por imagem — gradiente esquerda→transparente para legibilidade do texto */
+  .overlay-hero-teal {
     background: linear-gradient(
-      160deg,
-      rgba(10, 10, 10, 0.62) 0%,
-      rgba(10, 10, 10, 0.38) 60%,
-      rgba(10, 10, 10, 0.20) 100%
+      to right,
+      rgba(8, 45, 45, 0.70) 0%,
+      rgba(8, 45, 45, 0.40) 40%,
+      transparent 68%
+    );
+  }
+  .overlay-hero-dark {
+    background: linear-gradient(
+      to right,
+      rgba(5, 2, 2, 0.55) 0%,
+      rgba(5, 2, 2, 0.20) 42%,
+      transparent 68%
+    );
+  }
+  .overlay-hero-gold {
+    background: linear-gradient(
+      to right,
+      rgba(4, 2, 0, 0.65) 0%,
+      rgba(4, 2, 0, 0.25) 42%,
+      transparent 68%
+    );
+  }
+  .overlay-hero-amber {
+    background: linear-gradient(
+      to right,
+      rgba(18, 6, 0, 0.68) 0%,
+      rgba(18, 6, 0, 0.32) 42%,
+      transparent 68%
+    );
+  }
+  .overlay-hero-mystic {
+    background: linear-gradient(
+      to right,
+      rgba(4, 22, 28, 0.72) 0%,
+      rgba(4, 22, 28, 0.35) 42%,
+      transparent 68%
+    );
+  }
+  .overlay-hero-orange {
+    background: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0.72) 0%,
+      rgba(255, 255, 255, 0.40) 40%,
+      transparent 68%
     );
   }
 
@@ -644,4 +703,9 @@
       transition-duration: 0.01ms !important;
     }
   }
+}
+
+@keyframes progress-fill {
+  from { width: 0%; }
+  to   { width: 100%; }
 }

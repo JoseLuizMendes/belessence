@@ -32,7 +32,7 @@ export default async function Home() {
 
           <div
             id="destaques"
-            className="relative z-10 -mt-10 sm:-mt-12 bg-background pt-4 sm:pt-6 border-t"
+            className="relative z-10 -mt-10 sm:-mt-12 bg-background pt-4 sm:pt-6"
           >
             <Features />
           </div>
