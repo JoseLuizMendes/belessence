@@ -23,6 +23,7 @@ const PRODUCTS = [
     category: "perfume",
     totalSold: 120,
     seasonalSold: 45,
+    stock: 48,
   },
   {
     id: "2",
@@ -41,6 +42,7 @@ const PRODUCTS = [
     category: "perfume",
     totalSold: 450,
     seasonalSold: 120,
+    stock: 85,
   },
   {
     id: "3",
@@ -59,6 +61,7 @@ const PRODUCTS = [
     category: "perfume",
     totalSold: 50,
     seasonalSold: 15,
+    stock: 12,
   },
   {
     id: "4",
@@ -75,6 +78,7 @@ const PRODUCTS = [
     category: "cologne",
     totalSold: 80,
     seasonalSold: 60,
+    stock: 34,
   },
   {
     id: "5",
@@ -91,6 +95,7 @@ const PRODUCTS = [
     category: "perfume",
     totalSold: 210,
     seasonalSold: 75,
+    stock: 60,
   },
   {
     id: "6",
@@ -109,6 +114,7 @@ const PRODUCTS = [
     category: "perfume",
     totalSold: 30,
     seasonalSold: 10,
+    stock: 8,
   },
   {
     id: "7",
@@ -128,6 +134,7 @@ const PRODUCTS = [
     category: "perfume",
     totalSold: 500,
     seasonalSold: 150,
+    stock: 95,
   },
   {
     id: "8",
@@ -147,6 +154,7 @@ const PRODUCTS = [
     category: "cologne",
     totalSold: 320,
     seasonalSold: 90,
+    stock: 72,
   },
   {
     id: "9",
@@ -166,6 +174,7 @@ const PRODUCTS = [
     category: "perfume",
     totalSold: 280,
     seasonalSold: 110,
+    stock: 55,
   },
 ]
 
@@ -196,6 +205,7 @@ async function main() {
         category: product.category,
         totalSold: product.totalSold,
         seasonalSold: product.seasonalSold,
+        stock: product.stock,
       },
       create: {
         id: product.id, // Forçando o ID para manter compatibilidade com sua api.ts
@@ -215,6 +225,7 @@ async function main() {
         category: product.category,
         totalSold: product.totalSold,
         seasonalSold: product.seasonalSold,
+        stock: product.stock,
       },
     })
     console.log(`Created/Updated product: ${result.name}`)

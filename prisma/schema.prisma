@@ -6,41 +6,166 @@ datasource db {
   provider = "postgresql"
 }
 
+// ─── PRODUTO ──────────────────────────────────────────────────────────────────
+
 model Product {
-  // Mudamos para String para manter compatibilidade com seus IDs "1", "2"...
-  // Removemos o @default(uuid()) para podermos forçar o ID no seed
   id               String   @id @default(uuid())
-  
   slug             String   @unique
   name             String
   shortDescription String
-  description      String   @db.Text // @db.Text permite textos longos
-  
+  description      String   @db.Text
+
   // Preços
   price            Decimal  @db.Decimal(10, 2)
-  originalPrice    Decimal? @db.Decimal(10, 2) // Opcional (?)
-  
+  originalPrice    Decimal? @db.Decimal(10, 2)
+
   // Badges e UI
   badge            String?
   badgeVariant     String?
-  
-  // Avaliações
+
+  // Avaliações (rating calculado a partir das Reviews)
   rating           Decimal  @default(0) @db.Decimal(2, 1)
   reviews          Int      @default(0)
-  
-  images           String[] 
+
+  images           String[]
   features         String[]
-  
+
   // Categorização
   collection       String
   category         String
-  
+
   // Métricas de Venda
   totalSold        Int      @default(0)
   seasonalSold     Int      @default(0)
+
+  // Estoque — dado baixa no webhook de pagamento confirmado
+  stock            Int      @default(0)
+
+  // Relações
+  productReviews   Review[]
+  orderItems       OrderItem[]
 
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
   @@map("products")
+}
+
+// ─── PEDIDO ───────────────────────────────────────────────────────────────────
+
+model Order {
+  id     String      @id @default(uuid())
+  status OrderStatus @default(PENDING)
+
+  // Cliente (suporta guest e futuramente conta registrada)
+  userId           String?
+  customerName     String
+  customerEmail    String
+  customerPhone    String
+  customerCpf      String
+
+  // Endereço de entrega — snapshot (não FK, garante histórico imutável)
+  addressCep          String
+  addressStreet       String
+  addressNumber       String
+  addressComplement   String?
+  addressNeighborhood String
+  addressCity         String
+  addressState        String
+
+  // Valores
+  subtotal     Decimal @db.Decimal(10, 2)
+  shippingCost Decimal @db.Decimal(10, 2) @default(0)
+  discount     Decimal @db.Decimal(10, 2) @default(0)
+  total        Decimal @db.Decimal(10, 2)
+
+  // Pagamento — Mercado Pago
+  mpPaymentId   String?
+  mpStatus      String? // status interno do MP (approved, pending, rejected…)
+  paymentMethod String? // "pix" | "credit_card"
+
+  // Entrega
+  trackingCode String?
+  couponCode   String?
+
+  items     OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING            // Aguardando pagamento
+  PAYMENT_CONFIRMED  // Pagamento confirmado pelo webhook MP
+  PREPARING          // Em separação
+  SHIPPED            // Enviado (trackingCode preenchido)
+  DELIVERED          // Entregue
+  CANCELLED          // Cancelado
+}
+
+// ─── ITEM DO PEDIDO ───────────────────────────────────────────────────────────
+
+model OrderItem {
+  id      String @id @default(uuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // FK para o produto (para consultas) + snapshot para histórico imutável
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+  productName String  // snapshot
+  productSlug String  // snapshot
+  category    String  // snapshot
+  imageUrl    String  // snapshot — primeira imagem do produto
+
+  price    Decimal @db.Decimal(10, 2) // preço no momento da compra
+  quantity Int
+
+  @@map("order_items")
+}
+
+// ─── AVALIAÇÃO ────────────────────────────────────────────────────────────────
+
+model Review {
+  id        String  @id @default(uuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  // Autor (guest ou registrado — userId null para guest)
+  userId      String?
+  authorName  String
+  authorEmail String
+
+  rating   Int     // 1 a 5
+  text     String? @db.VarChar(250)
+  approved Boolean @default(true) // auto-aprovação definida em 14/04/2026
+
+  createdAt DateTime @default(now())
+
+  @@map("reviews")
+}
+
+// ─── CUPOM ────────────────────────────────────────────────────────────────────
+
+model Coupon {
+  id        String     @id @default(uuid())
+  code      String     @unique
+  type      CouponType
+  value     Decimal    @db.Decimal(10, 2) // % ou R$ dependendo do type
+  minOrder  Decimal?   @db.Decimal(10, 2) // pedido mínimo para aplicar
+  maxUses   Int?                           // null = ilimitado
+  usedCount Int        @default(0)
+  expiresAt DateTime?
+  active    Boolean    @default(true)
+
+  createdAt DateTime @default(now())
+
+  @@map("coupons")
+}
+
+enum CouponType {
+  PERCENTAGE // ex: 10 = 10% de desconto
+  FIXED      // ex: 20 = R$20 de desconto
 }

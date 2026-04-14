@@ -20,7 +20,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ShoppingBag, Star, Heart, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCart } from "./cart";
-import type { Product } from "@prisma/client";
+import type { Product } from "@/lib/products-db";
 import Link from "next/link";
 import { formatPrice } from "@/api/utils";
 import Image from "next/image";

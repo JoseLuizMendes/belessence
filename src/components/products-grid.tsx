@@ -16,7 +16,7 @@ import { useCart } from "@/components/cart";
 import Link from "next/link";
 import { formatPrice } from "@/api/utils";
 import Image from "next/image";
-import type { Product } from "@prisma/client";
+import type { Product } from "@/lib/products-db";
 
 interface ProductsGridProps {
   products: Product[];

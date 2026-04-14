@@ -4,11 +4,33 @@
  */
 
 import { prisma } from "@/lib/prisma";
-import type { Product } from "@prisma/client";
-
-export type { Product };
 
 // ─── TIPO SALES ──────────────────────────────────────────────────────────────
+
+type DecimalLike = number | string | { toString(): string };
+
+export interface Product {
+  id: string;
+  slug: string;
+  name: string;
+  shortDescription: string;
+  description: string;
+  price: DecimalLike;
+  originalPrice: DecimalLike | null;
+  badge: string | null;
+  badgeVariant: string | null;
+  rating: DecimalLike;
+  reviews: number;
+  images: string[];
+  features: string[];
+  collection: string;
+  category: string;
+  totalSold: number;
+  seasonalSold: number;
+  stock?: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export interface SalesProduct extends Product {
   promoTitle: string;
@@ -41,22 +63,46 @@ const PROMO_CONFIG = [
   },
 ];
 
+const PRODUCT_SELECT = {
+  id: true,
+  slug: true,
+  name: true,
+  shortDescription: true,
+  description: true,
+  price: true,
+  originalPrice: true,
+  badge: true,
+  badgeVariant: true,
+  rating: true,
+  reviews: true,
+  images: true,
+  features: true,
+  collection: true,
+  category: true,
+  totalSold: true,
+  seasonalSold: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
+
 // ─── QUERIES ─────────────────────────────────────────────────────────────────
 
 export async function getAllProducts(): Promise<Product[]> {
   return prisma.product.findMany({
+    select: PRODUCT_SELECT,
     orderBy: { createdAt: "desc" },
   });
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  return prisma.product.findUnique({ where: { slug } });
+  return prisma.product.findUnique({ where: { slug }, select: PRODUCT_SELECT });
 }
 
 export async function getProductsByCollection(
   collection: string
 ): Promise<Product[]> {
   return prisma.product.findMany({
+    select: PRODUCT_SELECT,
     where: { collection },
     orderBy: { totalSold: "desc" },
   });
@@ -64,6 +110,7 @@ export async function getProductsByCollection(
 
 export async function getFeaturedProducts(limit = 6): Promise<Product[]> {
   return prisma.product.findMany({
+    select: PRODUCT_SELECT,
     orderBy: { totalSold: "desc" },
     take: limit,
   });
@@ -72,6 +119,7 @@ export async function getFeaturedProducts(limit = 6): Promise<Product[]> {
 /** Retorna produtos com originalPrice (promoções) enriquecidos com dados de promo */
 export async function getSalesProducts(): Promise<SalesProduct[]> {
   const products = await prisma.product.findMany({
+    select: PRODUCT_SELECT,
     where: { originalPrice: { not: null } },
     orderBy: { seasonalSold: "desc" },
     take: 3,
@@ -86,6 +134,7 @@ export async function getSalesProducts(): Promise<SalesProduct[]> {
 
 export async function getBestsellers(limit = 5): Promise<Product[]> {
   return prisma.product.findMany({
+    select: PRODUCT_SELECT,
     orderBy: { totalSold: "desc" },
     take: limit,
   });

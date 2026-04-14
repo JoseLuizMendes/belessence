@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Minus, Plus, Star } from "lucide-react";
 import { formatPrice } from "@/api/utils";
 import Image from "next/image";
-import type { Product } from "@prisma/client";
+import type { Product } from "@/lib/products-db";
 
 interface ProductDetailsClientProps {
   product: Product;
@@ -86,7 +86,7 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
 
         {product.images.length > 1 && (
           <div className="grid grid-cols-4 gap-2 sm:gap-4">
-            {product.images.map((img, i) => (
+            {product.images.map((img: string, i: number) => (
               <button
                 key={i}
                 className={`aspect-square rounded-lg border-2 bg-muted/50 overflow-hidden relative ${
@@ -170,7 +170,7 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
         <div className="space-y-4 pt-8">
           <h3 className="font-playfair text-xl font-semibold">Características</h3>
           <ul className="grid grid-cols-1 gap-2">
-            {product.features.map((feature, i) => (
+            {product.features.map((feature: string, i: number) => (
               <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span className="w-2 h-2 rounded-full bg-secondary shrink-0" />
                 {feature}
