@@ -80,7 +80,7 @@ export default function BrandGallery() {
   return (
     <section
       ref={sectionRef}
-      aria-label="Galeria de campanha Belessence"
+      aria-label="Galeria de campanha Mari Beauty"
       className="bg-surface-base py-20 md:py-28"
     >
       {/* Cabeçalho editorial */}

@@ -1,21 +1,14 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
+import { Poppins } from "next/font/google";
 import { CartProvider } from "@/components/cart";
 import { Toaster } from "sonner";
 import { LenisProvider } from "@/components/providers/lenis-provider";
 import "./globals.css";
 
-// ─── FONTES APROVADAS (Preferencias Dev) ─────────────────────────────────────
+// ─── FONTES ──────────────────────────────────────────────────────────────────
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
-
-const inter = Inter({
-  variable: "--font-inter",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
@@ -25,16 +18,16 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Belessence — Fragrâncias Premium",
-    template: "%s | Belessence",
+    default: "Mari Beauty — Beauty is a Lifestyle",
+    template: "%s | Mari Beauty",
   },
   description:
-    "Fragrâncias que despertam seus sentidos. Descubra perfumes únicos selecionados para expressar sua essência mais autêntica.",
-  keywords: ["perfume", "fragrância", "luxury", "belessence", "perfumaria"],
+    "Beauty is a lifestyle. Descubra a essência da Mari Beauty — produtos selecionados para realçar sua autenticidade.",
+  keywords: ["mari beauty", "beauty", "lifestyle", "cosmética", "beleza"],
   openGraph: {
     type: "website",
     locale: "pt_BR",
-    siteName: "Belessence",
+    siteName: "Mari Beauty",
   },
 };
 
@@ -47,18 +40,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body className={`${playfair.variable} ${inter.variable} antialiased font-sans`}>
+      <body className={`${poppins.variable} antialiased font-sans`}>
         <LenisProvider>
           <CartProvider>
             {children}
           </CartProvider>
         </LenisProvider>
-        {/* Toast system — Sonner (substitui alerts nativos) */}
+        {/* Toast system — Sonner */}
         <Toaster
           position="bottom-right"
           toastOptions={{
             style: {
-              fontFamily: "var(--font-inter)",
+              fontFamily: "var(--font-poppins)",
               borderRadius: "0.75rem",
             },
           }}
