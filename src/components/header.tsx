@@ -26,7 +26,6 @@ import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { Separator } from "./ui/separator";
 import { useCart } from "./cart";
 import { CartSheet } from "./cart-sheet";
-import { MariLogo } from "./mari-logo";
 import Link from "next/link";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -61,10 +60,10 @@ export default function Header() {
       onUpdate: (self) => {
         const p = self.progress;
         gsap.set(header, {
-          backgroundColor: `rgba(255, 253, 233, ${0.94 + p * 0.05})`,
+          backgroundColor: `rgba(248, 245, 241, ${0.94 + p * 0.05})`,
           backdropFilter: `blur(${10 + p * 16}px)`,
-          borderBottomColor: `rgba(240, 229, 216, ${0.20 + p * 0.40})`,
-          boxShadow: `0 6px 24px rgba(46, 11, 18, ${0.02 + p * 0.08})`,
+          borderBottomColor: `rgba(216, 210, 203, ${0.10 + p * 0.34})`,
+          boxShadow: `0 6px 24px rgba(15, 15, 15, ${0.02 + p * 0.10})`,
         });
       },
     });
@@ -86,17 +85,13 @@ export default function Header() {
       <div className="container-belessence py-4 sm:py-5">
         <div className="flex items-center justify-between">
 
-          {/* Logo — Mari Beauty: M cursivo + wordmark Poppins */}
+          {/* Logo — Playfair italic weight-400 tracking-tight */}
           <Link
             ref={logoRef}
             href="/"
-            className="flex items-center gap-2 font-poppins font-medium tracking-[0.02em] text-ink-strong transition-opacity hover:opacity-70"
+            className="font-playfair italic font-normal tracking-[-0.01em] text-ink-strong text-xl transition-opacity hover:opacity-70 sm:text-2xl"
           >
-            <MariLogo className="h-7 w-6 sm:h-8 sm:w-7 text-brand-wine" />
-            <span className="text-lg sm:text-xl">
-              <span className="uppercase tracking-[0.18em]">Mari</span>{" "}
-              <span className="uppercase tracking-[0.18em] text-ink-soft">Beauty</span>
-            </span>
+            Belessence
           </Link>
 
           {/* Desktop Nav */}
@@ -170,13 +165,9 @@ export default function Header() {
               <SheetContent side="right" className="w-[75vw] max-w-xs border-l border-subtle bg-surface-base">
                 <div className="mt-10 flex flex-col gap-0">
                   {/* Logo mobile */}
-                  <div className="mb-8 px-4 flex items-center gap-2 text-ink-strong">
-                    <MariLogo className="h-9 w-8 text-brand-wine" />
-                    <p className="font-poppins font-medium text-lg">
-                      <span className="uppercase tracking-[0.18em]">Mari</span>{" "}
-                      <span className="uppercase tracking-[0.18em] text-ink-soft">Beauty</span>
-                    </p>
-                  </div>
+                  <p className="mb-8 px-4 font-playfair italic font-normal text-2xl text-ink-strong">
+                    Belessence
+                  </p>
 
                   {/* Search mobile */}
                   <div className="relative mb-6 px-4">
