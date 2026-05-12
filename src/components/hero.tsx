@@ -137,7 +137,7 @@ const SLIDES: Slide[] = [
   {
     src: "/assets/hero6.png",
     overlay: "overlay-hero-orange",
-    eyebrow: "Maison Belessence",
+    eyebrow: "Mari Beauty",
     eyebrowColor: "#7a2e00",
     title: "Accord Ultime",
     titleColor: "#1a0800",

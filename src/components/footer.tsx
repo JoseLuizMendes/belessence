@@ -1,6 +1,7 @@
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { Instagram, Facebook, Youtube, X } from "lucide-react";
+import { MariLogo } from "./mari-logo";
 export default function Footer() {
   return (
     <section>
@@ -9,11 +10,15 @@ export default function Footer() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10">
             <div>
-              <h3 className="text-xl font-playfair font-bold mb-4">
-                Belessence
-              </h3>
+              <div className="flex items-center gap-2 mb-4 text-brand-wine">
+                <MariLogo className="h-9 w-8" />
+                <h3 className="text-xl font-poppins font-medium">
+                  <span className="uppercase tracking-[0.18em]">Mari</span>{" "}
+                  <span className="uppercase tracking-[0.18em] text-ink-soft">Beauty</span>
+                </h3>
+              </div>
               <p className="text-muted-foreground mb-4">
-                Fragrâncias que despertam seus sentidos
+                Beauty is a lifestyle.
               </p>
               <div className="flex space-x-4">
                 <Button variant="ghost" size="icon">
@@ -90,7 +95,7 @@ export default function Footer() {
 
           <div className="text-center text-sm text-muted-foreground">
             <p>
-              &copy; {new Date().getFullYear()} Belessence. Todos os direitos
+              &copy; {new Date().getFullYear()} Mari Beauty. Todos os direitos
               reservados.
             </p>
             <p className="mt-1">

@@ -80,7 +80,7 @@ export default function CollectionsProducts() {
 
         {/* Heading */}
         <div ref={headingRef} className="mb-14 text-center md:mb-20">
-          <p className="eyebrow mb-5 text-brand-gold">Universo Belessence</p>
+          <p className="eyebrow mb-5 text-brand-gold">Universo Mari Beauty</p>
           <h2 className="display-title text-ink-strong text-[clamp(2rem,5vw,3.5rem)]">
             Coleções Exclusivas
           </h2>
