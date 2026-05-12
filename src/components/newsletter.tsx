@@ -78,7 +78,7 @@ export default function Newsletter() {
         <div ref={contentRef} className="max-w-lg mx-auto text-center">
 
           {/* Eyebrow */}
-          <p className="eyebrow mb-6 text-brand-gold">
+          <p className="eyebrow mb-6 text-brand-pink tracking-[0.12em] uppercase">
             Comunidade Exclusiva
           </p>
 
@@ -116,7 +116,7 @@ export default function Newsletter() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-token-xs border-none bg-brand-gold px-7 text-xs font-medium tracking-[0.12em] uppercase text-ink-strong transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand-gold-light"
+                className="flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-token-xs border-none bg-accent px-7 text-xs font-medium tracking-[0.12em] uppercase text-ink-strong transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand-gold-light"
               >
                 {isSubmitting ? "Enviando..." : (
                   <>
