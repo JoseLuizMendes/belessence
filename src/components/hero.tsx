@@ -260,46 +260,39 @@ export default function Hero() {
       style={{ paddingTop: headerOffset || undefined }}
     >
       {/* ══ 1. PROMO STRIP ═══════════════════════════════════════════════════ */}
-      <div className="w-full bg-[#0e0e0e] border-b border-white/[0.06] py-2.5 px-4">
-        <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-5 text-center sm:text-left">
-          <div className="flex items-center gap-2 text-[#c4a45a]">
-            <Gift className="h-3.5 w-3.5 shrink-0" />
-            <span className="text-[11px] font-medium tracking-[0.08em] text-white/80">
-              Frete grátis nas compras acima de{" "}
-              <span className="text-[#c4a45a] font-semibold">R$199</span>
+      <div className="w-full bg-brand-wine text-surface-base py-2 px-4">
+        <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-center gap-y-1 sm:gap-x-5">
+          <div className="flex items-center gap-2.5">
+            <Gift className="h-3 w-3 shrink-0 opacity-70 hidden sm:inline text-accent" />
+            <span className="text-accent text-[10px] sm:text-[11px] font-light tracking-[0.16em] uppercase whitespace-nowrap">
+              Frete grátis acima de R$199
             </span>
-          </div>
-
-          <span className="hidden sm:block w-px h-3 bg-white/15" />
-
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] text-white/55 tracking-wide">
-              Cupom de desconto:
-            </span>
+            <span className="opacity-40 text-[10px] sm:text-[11px] text-accent">·</span>
             <button
               onClick={handleCopy}
-              className="flex items-center gap-1.5 border border-dashed border-[#c4a45a]/50 rounded px-2.5 py-0.5 text-[11px] font-mono font-semibold tracking-[0.15em] text-[#c4a45a] hover:border-[#c4a45a] hover:bg-[#c4a45a]/8 transition-all duration-200 cursor-pointer"
-              aria-label="Copiar cupom BELES10"
+              className="text-accent flex items-center gap-1.5 text-[10px] sm:text-[11px] font-medium tracking-[0.22em] uppercase hover:opacity-75 transition-opacity duration-200 cursor-pointer"
+              aria-label="Copiar cupom"
             >
-              {COUPON}
+              <span>{COUPON}</span>
               {copied ? (
-                <Check className="h-3 w-3 text-emerald-400" />
+                <Check className="h-3 w-3" />
               ) : (
-                <Copy className="h-3 w-3 opacity-60" />
+                <Copy className="h-3 w-3 opacity-55" />
               )}
             </button>
-            <span className="text-[10px] text-white/35 hidden md:inline">
-              — válido até 30/04/26
-            </span>
           </div>
+          <span className="hidden sm:inline opacity-40 text-[10px] sm:text-[11px] text-accent">·</span>
+          <span className="text-accent text-[9.5px] sm:text-[10.5px] font-light tracking-[0.16em] uppercase opacity-55 whitespace-nowrap">
+            Válido até 30/04/26
+          </span>
         </div>
       </div>
 
       {/* ══ 2. SECTION CONTEXT ═══════════════════════════════════════════════ */}
       <div className="w-full bg-background">
-        <div className="max-w-[1440px] mx-auto py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="max-w-[1440px] mx-auto px-5 sm:px-8 py-5 sm:py-4 flex flex-col gap-4 sm:gap-3 sm:flex-row sm:items-center sm:justify-between">
           {/* Breadcrumb + heading */}
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1.5">
             {/* Breadcrumb */}
             <nav
               aria-label="breadcrumb"
@@ -316,38 +309,45 @@ export default function Hero() {
             </nav>
             {/* Heading */}
             <div className="flex items-baseline gap-3">
-              <h2 className="text-base font-semibold tracking-widest text-foreground">
-                Perfumaria de Luxo
+              <h2 className="text-[15px] sm:text-base font-semibold tracking-[0.18em] sm:tracking-widest uppercase text-foreground">
+                Beauty Essentials
               </h2>
               <span className="text-[11px] text-foreground/40 font-light hidden sm:inline">
-                Aromas selecionados para cada momento
+                Curadoria premium para cada ritual
               </span>
             </div>
           </div>
 
-          {/* Category pills */}
-          <div
-            role="tablist"
-            aria-label="Filtrar por categoria"
-            className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none"
-          >
-            {CATEGORIES.map((cat, i) => (
-              <Link
-                key={cat.label}
-                href={cat.href}
-                role="tab"
-                aria-selected={i === activeCategory}
-                onClick={() => setActiveCategory(i)}
-                className={[
-                  "shrink-0 px-3 py-1 rounded-full text-[11px] font-medium tracking-[0.04em] transition-all duration-200 whitespace-nowrap",
-                  i === activeCategory
-                    ? "bg-foreground text-background"
-                    : "border border-border text-foreground/60 hover:border-foreground/40 hover:text-foreground/80",
-                ].join(" ")}
-              >
-                {cat.label}
-              </Link>
-            ))}
+          {/* Category pills — wrap com fade no edge direito (mobile scroll hint) */}
+          <div className="relative -mx-5 sm:mx-0">
+            <div
+              role="tablist"
+              aria-label="Filtrar por categoria"
+              className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none px-5 sm:px-0"
+            >
+              {CATEGORIES.map((cat, i) => (
+                <Link
+                  key={cat.label}
+                  href={cat.href}
+                  role="tab"
+                  aria-selected={i === activeCategory}
+                  onClick={() => setActiveCategory(i)}
+                  className={[
+                    "shrink-0 px-3.5 py-1.5 rounded-full text-[11px] font-medium tracking-[0.04em] transition-all duration-200 whitespace-nowrap",
+                    i === activeCategory
+                      ? "bg-foreground text-background"
+                      : "border border-border text-foreground/60 hover:border-foreground/40 hover:text-foreground/80",
+                  ].join(" ")}
+                >
+                  {cat.label}
+                </Link>
+              ))}
+            </div>
+            {/* fade right — só aparece no mobile */}
+            <div
+              aria-hidden
+              className="sm:hidden pointer-events-none absolute right-0 top-0 bottom-1 w-10 bg-gradient-to-l from-background to-transparent"
+            />
           </div>
         </div>
       </div>
