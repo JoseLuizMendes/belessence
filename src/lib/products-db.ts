@@ -125,7 +125,7 @@ export async function getSalesProducts(): Promise<SalesProduct[]> {
     take: 3,
   });
 
-  return products.map((p: Product, i: number) => ({
+  return products.map((p, i) => ({
     ...p,
     priceNum: Number(p.price),
     ...PROMO_CONFIG[i % PROMO_CONFIG.length],

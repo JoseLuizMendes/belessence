@@ -3,15 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-  "dev": "next dev",
-  "build": "prisma generate && next build",
-  "start": "next start",
-  "lint": "eslint",
-  "test": "vitest",
-  "test:ui": "vitest --ui",
-  "test:e2e": "playwright test",
-  "postinstall": "prisma generate"
-},
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:e2e": "playwright test"
+  },
   "dependencies": {
     "@react-email/components": "^0.0.31",
     "@react-email/render": "^1.0.5",
