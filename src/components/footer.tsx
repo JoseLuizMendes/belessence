@@ -11,7 +11,7 @@ export default function Footer() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10">
             <div>
               <div className="flex items-center gap-2 mb-4 text-brand-wine">
-                <MariLogo className="h-9 w-8" />
+                <MariLogo className="h-7 w-[2.6rem]" />
                 <h3 className="text-xl font-poppins font-medium">
                   <span className="uppercase tracking-[0.18em]">Mari</span>{" "}
                   <span className="uppercase tracking-[0.18em] text-ink-soft">Beauty</span>

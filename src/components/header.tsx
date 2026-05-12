@@ -22,7 +22,7 @@ import {
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Menu, Search, ShoppingBag } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { Separator } from "./ui/separator";
 import { useCart } from "./cart";
 import { CartSheet } from "./cart-sheet";
@@ -92,7 +92,7 @@ export default function Header() {
             href="/"
             className="flex items-center gap-2 font-poppins font-medium tracking-[0.02em] text-ink-strong transition-opacity hover:opacity-70"
           >
-            <MariLogo className="h-7 w-6 sm:h-8 sm:w-7 text-brand-wine" />
+            <MariLogo className="h-6 w-9 sm:h-7 sm:w-[2.6rem] text-brand-wine" />
             <span className="text-lg sm:text-xl">
               <span className="uppercase tracking-[0.18em]">Mari</span>{" "}
               <span className="uppercase tracking-[0.18em] text-ink-soft">Beauty</span>
@@ -168,10 +168,11 @@ export default function Header() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[75vw] max-w-xs border-l border-subtle bg-surface-base">
+                <SheetTitle className="sr-only">Menu Mari Beauty</SheetTitle>
                 <div className="mt-10 flex flex-col gap-0">
                   {/* Logo mobile */}
                   <div className="mb-8 px-4 flex items-center gap-2 text-ink-strong">
-                    <MariLogo className="h-9 w-8 text-brand-wine" />
+                    <MariLogo className="h-7 w-[2.6rem] text-brand-wine" />
                     <p className="font-poppins font-medium text-lg">
                       <span className="uppercase tracking-[0.18em]">Mari</span>{" "}
                       <span className="uppercase tracking-[0.18em] text-ink-soft">Beauty</span>
