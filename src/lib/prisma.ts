@@ -4,10 +4,12 @@
  */
 
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
+import * as PrismaClientModule from "@prisma/client";
 import { Pool } from "pg";
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+type PrismaClientLike = any;
+
+const globalForPrisma = globalThis as unknown as { prisma?: PrismaClientLike };
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -18,7 +20,14 @@ if (!connectionString) {
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 
-export const prisma =
+const PrismaClient = (PrismaClientModule as unknown as { PrismaClient?: new (options?: unknown) => PrismaClientLike })
+  .PrismaClient;
+
+if (!PrismaClient) {
+  throw new Error("PrismaClient não disponível em @prisma/client. Execute 'prisma generate' no ambiente de build.");
+}
+
+export const prisma: PrismaClientLike =
   globalForPrisma.prisma ??
   new PrismaClient({
     adapter,
