@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -6,26 +6,34 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Brand palette inspired by Loreal source */
-  --color-brand-gold: #c4a45a;
-  --color-brand-gold-light: #d9c28a;
-  --color-brand-gold-deep: #8e7237;
+  /* Mari Beauty palette */
+  --color-brand-wine: #47131C;
+  --color-brand-wine-soft: #6B1F2C;
+  --color-brand-wine-deep: #2E0B12;
 
-  --color-ink-strong: #0f0f0f;
-  --color-ink-soft: #3f3f3f;
-  --color-ink-muted: #666666;
+  --color-brand-pink: #FFD7E7;
+  --color-brand-pink-soft: #FFE8F0;
 
-  --color-surface-base: #f8f5f1;
-  --color-surface-section: #eae6e2;
-  --color-surface-panel: #f2eeea;
-  --color-surface-contrast: #ffffff;
+  /* Compat aliases — mantém usos existentes de brand-gold apontando para wine/pink */
+  --color-brand-gold: var(--color-brand-wine);
+  --color-brand-gold-light: var(--color-brand-pink);
+  --color-brand-gold-deep: var(--color-brand-wine-deep);
 
-  --color-border-subtle: #d8d2cb;
-  --color-border-strong: #b9b0a8;
-  --color-border-brand: #c4a45a;
+  --color-ink-strong: #2E0B12;
+  --color-ink-soft: #5A2A33;
+  --color-ink-muted: #8a6770;
 
-  --color-overlay-soft: rgba(15, 15, 15, 0.08);
-  --color-overlay-strong: rgba(15, 15, 15, 0.74);
+  --color-surface-base: #FFFDE9;
+  --color-surface-section: #FFF3E8;
+  --color-surface-panel: #FFFFFF;
+  --color-surface-contrast: #FFFFFF;
+
+  --color-border-subtle: #F0E5D8;
+  --color-border-strong: #D9C9B8;
+  --color-border-brand: #47131C;
+
+  --color-overlay-soft: rgba(71, 19, 28, 0.08);
+  --color-overlay-strong: rgba(71, 19, 28, 0.74);
 
   /* Semantic compatibility with shadcn and tailwind */
   --background: var(--color-surface-base);
@@ -34,39 +42,40 @@
   --card-foreground: var(--color-ink-strong);
   --popover: var(--color-surface-contrast);
   --popover-foreground: var(--color-ink-strong);
-  --primary: var(--color-ink-strong);
-  --primary-foreground: var(--color-surface-contrast);
-  --secondary: var(--color-brand-gold);
-  --secondary-foreground: var(--color-ink-strong);
-  --accent: var(--color-surface-section);
-  --accent-foreground: var(--color-ink-strong);
-  --muted: var(--color-surface-panel);
+  --primary: var(--color-brand-wine);
+  --primary-foreground: var(--color-surface-base);
+  --secondary: var(--color-brand-pink);
+  --secondary-foreground: var(--color-brand-wine);
+  --accent: var(--color-brand-pink);
+  --accent-foreground: var(--color-brand-wine);
+  --muted: var(--color-surface-section);
   --muted-foreground: var(--color-ink-muted);
   --destructive: #b84040;
   --border: var(--color-border-subtle);
   --input: var(--color-border-strong);
-  --ring: var(--color-brand-gold);
+  --ring: var(--color-brand-wine);
 
-  --chart-1: var(--color-brand-gold);
-  --chart-2: #2f2f2f;
-  --chart-3: #b9b0a8;
-  --chart-4: #8a8a8a;
-  --chart-5: #d9d2ca;
+  --chart-1: var(--color-brand-wine);
+  --chart-2: var(--color-brand-pink);
+  --chart-3: var(--color-brand-wine-soft);
+  --chart-4: var(--color-border-strong);
+  --chart-5: var(--color-surface-section);
 
   --sidebar: var(--color-surface-panel);
   --sidebar-foreground: var(--color-ink-strong);
-  --sidebar-primary: var(--color-ink-strong);
-  --sidebar-primary-foreground: var(--color-surface-contrast);
+  --sidebar-primary: var(--color-brand-wine);
+  --sidebar-primary-foreground: var(--color-surface-base);
   --sidebar-accent: var(--color-surface-base);
-  --sidebar-accent-foreground: var(--color-ink-strong);
+  --sidebar-accent-foreground: var(--color-brand-wine);
   --sidebar-border: var(--color-border-subtle);
-  --sidebar-ring: var(--color-brand-gold);
+  --sidebar-ring: var(--color-brand-wine);
 
-  --font-inter: "Inter", system-ui, sans-serif;
-  --font-playfair: "Playfair Display", Georgia, serif;
-  --font-loreal-labor: "EssentielleWeb", "Inter", system-ui, sans-serif;
-  --font-loreal-accent: "RoyaleWeb", "Playfair Display", Georgia, serif;
-  --font-loreal-hand: "HeritageWeb", "Playfair Display", Georgia, serif;
+  --font-poppins: "Poppins", system-ui, sans-serif;
+  --font-inter: var(--font-poppins);
+  --font-playfair: var(--font-poppins);
+  --font-loreal-labor: var(--font-poppins);
+  --font-loreal-accent: var(--font-poppins);
+  --font-loreal-hand: var(--font-poppins);
 
   --radius: 0.5rem;
   --radius-xs: 2px;
@@ -81,32 +90,32 @@
   --duration-base: 0.8s;
   --duration-slow: 1.2s;
 
-  --gradient-hero-noir: linear-gradient(160deg, #0f0f0f 0%, #232323 100%);
-  --gradient-hero-gold: linear-gradient(135deg, #0f0f0f 0%, #1f1f1f 62%, rgba(142, 114, 55, 0.32) 100%);
-  --gradient-card-soft: linear-gradient(145deg, #faf7f3 0%, #efe9e2 100%);
-  --gradient-section-warm: linear-gradient(180deg, #f8f5f1 0%, #ece6df 100%);
-  --gradient-brand-silk: linear-gradient(90deg, #d9c28a 0%, #c4a45a 100%);
-  --gradient-image-overlay: linear-gradient(to top, rgba(15, 15, 15, 0.78) 0%, rgba(15, 15, 15, 0.32) 42%, rgba(15, 15, 15, 0) 66%);
+  --gradient-hero-noir: linear-gradient(160deg, #47131C 0%, #6B1F2C 100%);
+  --gradient-hero-gold: linear-gradient(135deg, #47131C 0%, #6B1F2C 62%, rgba(255, 215, 231, 0.45) 100%);
+  --gradient-card-soft: linear-gradient(145deg, #FFFDE9 0%, #FFE8F0 100%);
+  --gradient-section-warm: linear-gradient(180deg, #FFFDE9 0%, #FFE8F0 100%);
+  --gradient-brand-silk: linear-gradient(90deg, #FFD7E7 0%, #47131C 100%);
+  --gradient-image-overlay: linear-gradient(to top, rgba(71, 19, 28, 0.78) 0%, rgba(71, 19, 28, 0.32) 42%, rgba(71, 19, 28, 0) 66%);
 
   --shadow-hairline: 0 1px 0 var(--color-border-subtle);
-  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
-  --shadow-card-hover: 0 8px 28px rgba(0, 0, 0, 0.11), 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-gold: 0 4px 20px rgba(196, 164, 90, 0.24);
-  --shadow-luxury: 0 24px 64px rgba(0, 0, 0, 0.12);
+  --shadow-card: 0 2px 12px rgba(46, 11, 18, 0.06), 0 1px 4px rgba(46, 11, 18, 0.04);
+  --shadow-card-hover: 0 8px 28px rgba(46, 11, 18, 0.11), 0 2px 8px rgba(46, 11, 18, 0.06);
+  --shadow-gold: 0 4px 20px rgba(71, 19, 28, 0.24);
+  --shadow-luxury: 0 24px 64px rgba(46, 11, 18, 0.12);
 }
 
 .dark {
-  --color-ink-strong: #f4f1ec;
-  --color-ink-soft: #dfd8cf;
-  --color-ink-muted: #bfb7ae;
-  --color-surface-base: #121212;
-  --color-surface-section: #1a1a1a;
-  --color-surface-panel: #202020;
-  --color-surface-contrast: #101010;
-  --color-border-subtle: #343434;
-  --color-border-strong: #464646;
-  --color-overlay-soft: rgba(255, 255, 255, 0.06);
-  --color-overlay-strong: rgba(5, 5, 5, 0.82);
+  --color-ink-strong: #FFFDE9;
+  --color-ink-soft: #F5E5D0;
+  --color-ink-muted: #C9B3A0;
+  --color-surface-base: #2E0B12;
+  --color-surface-section: #3a1018;
+  --color-surface-panel: #47131C;
+  --color-surface-contrast: #2E0B12;
+  --color-border-subtle: #5A2A33;
+  --color-border-strong: #7A3A45;
+  --color-overlay-soft: rgba(255, 253, 233, 0.06);
+  --color-overlay-strong: rgba(20, 4, 8, 0.82);
 
   --background: var(--color-surface-base);
   --foreground: var(--color-ink-strong);
@@ -114,22 +123,22 @@
   --card-foreground: var(--color-ink-strong);
   --popover: var(--color-surface-panel);
   --popover-foreground: var(--color-ink-strong);
-  --primary: var(--color-ink-strong);
-  --primary-foreground: #111111;
-  --secondary: var(--color-brand-gold);
-  --secondary-foreground: #111111;
-  --accent: #262626;
-  --accent-foreground: var(--color-ink-strong);
-  --muted: #242424;
+  --primary: var(--color-brand-pink);
+  --primary-foreground: var(--color-brand-wine);
+  --secondary: var(--color-brand-wine);
+  --secondary-foreground: var(--color-brand-pink);
+  --accent: #5A2A33;
+  --accent-foreground: var(--color-brand-pink);
+  --muted: #3a1018;
   --muted-foreground: var(--color-ink-muted);
   --border: var(--color-border-subtle);
   --input: var(--color-border-strong);
-  --ring: var(--color-brand-gold);
+  --ring: var(--color-brand-pink);
 }
 
 @theme inline {
-  --font-sans: var(--font-inter);
-  --font-serif: var(--font-playfair);
+  --font-sans: var(--font-poppins);
+  --font-serif: var(--font-poppins);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -186,7 +195,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-inter);
+    font-family: var(--font-poppins);
     font-size: 1rem;
     line-height: 1.6;
     margin: 0;
@@ -198,17 +207,17 @@
   h4,
   h5,
   h6 {
-    font-family: var(--font-playfair);
+    font-family: var(--font-poppins);
     letter-spacing: -0.01em;
   }
 
   ::selection {
-    background: rgba(196, 164, 90, 0.34);
-    color: var(--color-ink-strong);
+    background: rgba(71, 19, 28, 0.34);
+    color: var(--color-surface-base);
   }
 
   :focus-visible {
-    outline: 1.5px solid var(--color-brand-gold);
+    outline: 1.5px solid var(--color-brand-wine);
     outline-offset: 2px;
   }
 
@@ -222,12 +231,12 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(196, 164, 90, 0.5);
+    background: rgba(71, 19, 28, 0.5);
     border-radius: 999px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(196, 164, 90, 0.75);
+    background: rgba(71, 19, 28, 0.75);
   }
 
   img,
@@ -239,16 +248,20 @@
 
 @layer utilities {
   .font-playfair {
-    font-family: var(--font-playfair);
+    font-family: var(--font-poppins);
   }
 
   .font-inter {
-    font-family: var(--font-inter);
+    font-family: var(--font-poppins);
+  }
+
+  .font-poppins {
+    font-family: var(--font-poppins);
   }
 
   .eyebrow {
     color: var(--color-ink-muted);
-    font-family: var(--font-inter);
+    font-family: var(--font-poppins);
     font-size: 0.6875rem;
     font-weight: 500;
     letter-spacing: 0.18em;
@@ -257,15 +270,15 @@
   }
 
   .display-title {
-    font-family: var(--font-playfair);
-    font-weight: 400;
+    font-family: var(--font-poppins);
+    font-weight: 500;
     letter-spacing: -0.02em;
     line-height: 1.05;
   }
 
   .section-label {
     color: var(--color-ink-muted);
-    font-family: var(--font-inter);
+    font-family: var(--font-poppins);
     font-size: 0.75rem;
     font-weight: 500;
     letter-spacing: 0.15em;
@@ -274,22 +287,30 @@
   }
 
   .price-display {
-    font-family: var(--font-inter);
+    font-family: var(--font-poppins);
     font-variant-numeric: tabular-nums;
     font-weight: 600;
     letter-spacing: -0.01em;
   }
 
   .text-brand-gold {
-    color: var(--color-brand-gold);
+    color: var(--color-brand-wine);
   }
 
   .text-brand-gold-light {
-    color: var(--color-brand-gold-light);
+    color: var(--color-brand-pink);
   }
 
   .text-brand-gold-deep {
-    color: var(--color-brand-gold-deep);
+    color: var(--color-brand-wine-deep);
+  }
+
+  .text-brand-wine {
+    color: var(--color-brand-wine);
+  }
+
+  .text-brand-pink {
+    color: var(--color-brand-pink);
   }
 
   .text-ink-strong {
@@ -325,7 +346,15 @@
   }
 
   .bg-brand-gold {
-    background-color: var(--color-brand-gold);
+    background-color: var(--color-brand-wine);
+  }
+
+  .bg-brand-wine {
+    background-color: var(--color-brand-wine);
+  }
+
+  .bg-brand-pink {
+    background-color: var(--color-brand-pink);
   }
 
   .bg-ink-overlay-soft {
@@ -385,28 +414,28 @@
   }
 
   .glass-light {
-    background: rgba(255, 255, 255, 0.86);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 253, 233, 0.86);
+    border: 1px solid rgba(255, 253, 233, 0.3);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
 
   .glass-warm {
-    background: rgba(242, 238, 234, 0.9);
-    border: 1px solid rgba(216, 210, 203, 0.45);
+    background: rgba(255, 243, 232, 0.9);
+    border: 1px solid rgba(240, 229, 216, 0.45);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
 
   .glass-dark {
-    background: rgba(15, 15, 15, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(46, 11, 18, 0.8);
+    border: 1px solid rgba(255, 215, 231, 0.1);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
 
   .glass-effect {
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 253, 233, 0.92);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
@@ -479,48 +508,37 @@
     aspect-ratio: 16 / 9;
   }
 
-  /* ── DIVIDERS DOURADOS ─────────────────────────────────────── */
-  /* Evita rgba() hardcoded nos componentes */
+  /* ── DIVIDERS (renomeados de gold → wine, mas classes mantidas) ── */
   .divider-gold {
-    background-color: rgba(196, 164, 90, 0.50);
+    background-color: rgba(71, 19, 28, 0.50);
   }
 
   .divider-gold-strong {
-    background-color: rgba(196, 164, 90, 0.60);
+    background-color: rgba(71, 19, 28, 0.60);
   }
 
   .dot-gold {
-    background-color: rgba(196, 164, 90, 0.50);
+    background-color: rgba(71, 19, 28, 0.50);
   }
 
   /* ── GRADIENTES HERO ────────────────────────────────────────── */
-  /* Fundo radial gold + noir — hero estático (sem imagem de fundo) */
   .bg-hero-radial {
     background:
-      radial-gradient(120% 90% at 50% 100%, rgba(142, 114, 55, 0.22) 0%, transparent 55%),
+      radial-gradient(120% 90% at 50% 100%, rgba(255, 215, 231, 0.28) 0%, transparent 55%),
       var(--gradient-hero-noir);
   }
 
-  /* Glow dourado no produto — Apple product glow */
   .product-glow {
     filter:
-      drop-shadow(0 0 48px rgba(196, 164, 90, 0.20))
-      drop-shadow(0 28px 48px rgba(0, 0, 0, 0.55));
+      drop-shadow(0 0 48px rgba(255, 215, 231, 0.28))
+      drop-shadow(0 28px 48px rgba(46, 11, 18, 0.55));
   }
 
-  /* ── HERO BANNER ────────────────────────────────────────────── */
-  /*
-   * Razão das artes: 1440 × 600px = 12:5
-   * 41.67vw = (600/1440) × 100vw → mantém proporção exata até vp=1440px
-   * max 600px: imagem não estica além da resolução original
-   * min 240px: legibilidade mínima em mobile estreito
-   * O container usa max-w-[1440px] mx-auto → na prática height=min(41.67vw, 600px)
-   */
   .hero-banner-height {
     height: clamp(240px, 41.67vw, 600px);
   }
 
-  /* Overlays por imagem — gradiente esquerda→transparente para legibilidade do texto */
+  /* Overlays por imagem — mantidos (artísticos por arte) */
   .overlay-hero-teal {
     background: linear-gradient(
       to right,
@@ -540,16 +558,16 @@
   .overlay-hero-gold {
     background: linear-gradient(
       to right,
-      rgba(4, 2, 0, 0.65) 0%,
-      rgba(4, 2, 0, 0.25) 42%,
+      rgba(71, 19, 28, 0.65) 0%,
+      rgba(71, 19, 28, 0.25) 42%,
       transparent 68%
     );
   }
   .overlay-hero-amber {
     background: linear-gradient(
       to right,
-      rgba(18, 6, 0, 0.68) 0%,
-      rgba(18, 6, 0, 0.32) 42%,
+      rgba(71, 19, 28, 0.68) 0%,
+      rgba(71, 19, 28, 0.32) 42%,
       transparent 68%
     );
   }
@@ -564,58 +582,54 @@
   .overlay-hero-orange {
     background: linear-gradient(
       to right,
-      rgba(255, 255, 255, 0.72) 0%,
-      rgba(255, 255, 255, 0.40) 40%,
+      rgba(255, 253, 233, 0.72) 0%,
+      rgba(255, 253, 233, 0.40) 40%,
       transparent 68%
     );
   }
 
-  /* Fade inferior sutil — melhora legibilidade no bottom do hero */
   .bg-fade-bottom-soft {
-    background: linear-gradient(to top, rgba(15, 15, 15, 0.32), transparent 42%);
+    background: linear-gradient(to top, rgba(46, 11, 18, 0.32), transparent 42%);
   }
 
   /* ── LINHAS EDITORIAIS VERTICAIS ──────────────────────────── */
   .bg-line-gold-fade-in {
-    background: linear-gradient(to bottom, transparent, rgba(196, 164, 90, 0.40));
+    background: linear-gradient(to bottom, transparent, rgba(71, 19, 28, 0.40));
   }
 
   .bg-line-gold-fade-out {
-    background: linear-gradient(to bottom, rgba(196, 164, 90, 0.40), transparent);
+    background: linear-gradient(to bottom, rgba(71, 19, 28, 0.40), transparent);
   }
 
   /* ── TEXTO SOBRE FUNDO ESCURO ───────────────────────────────── */
-  /* Cinzas quentes para fundos noir — substitui #d0c7bc / #b8aea0 hardcoded */
   .text-dark-warm {
-    color: #d0c7bc;
+    color: #FFE8F0;
   }
 
   .text-dark-soft {
-    color: #b8aea0;
+    color: #F5D5DE;
   }
 
   /* ── HEADER GLASS BASE ─────────────────────────────────────── */
-  /* Estado inicial do header antes do scroll (GSAP assume depois) */
   .header-glass-base {
-    background-color: rgba(248, 245, 241, 0.94);
+    background-color: rgba(255, 253, 233, 0.94);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border-bottom-color: rgba(216, 210, 203, 0.22);
-    box-shadow: 0 6px 24px rgba(15, 15, 15, 0.02);
+    border-bottom-color: rgba(240, 229, 216, 0.45);
+    box-shadow: 0 6px 24px rgba(46, 11, 18, 0.04);
   }
 
   /* ── ACENTOS POR COLEÇÃO ────────────────────────────────────── */
-  /* Substitui rgba() inline nos cards de coleção */
   .bg-accent-deep {
-    background-color: rgba(142, 114, 55, 0.60);   /* Essência Noturna */
+    background-color: rgba(46, 11, 18, 0.60);
   }
 
   .bg-accent-mid {
-    background-color: rgba(196, 164, 90, 0.50);   /* Elegância Diurna */
+    background-color: rgba(71, 19, 28, 0.50);
   }
 
   .bg-accent-light {
-    background-color: rgba(217, 194, 138, 0.40);  /* Edição Limitada */
+    background-color: rgba(255, 215, 231, 0.55);
   }
 
   .loreal-surface {
@@ -624,7 +638,7 @@
   }
 
   .loreal-kicker {
-    font-family: var(--font-loreal-labor);
+    font-family: var(--font-poppins);
     font-size: 0.6875rem;
     font-weight: 600;
     letter-spacing: 0.18em;
@@ -633,15 +647,16 @@
   }
 
   .loreal-title-caps {
-    font-family: var(--font-loreal-accent);
+    font-family: var(--font-poppins);
     font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 500;
     letter-spacing: 0.05em;
     line-height: 1.15;
     text-transform: uppercase;
   }
 
   .loreal-body {
-    font-family: var(--font-loreal-labor);
+    font-family: var(--font-poppins);
     font-size: 1rem;
     letter-spacing: 0.02em;
     line-height: 1.6;
@@ -649,7 +664,7 @@
 
   .loreal-panel {
     background: var(--gradient-card-soft);
-    border: 1px solid rgba(140, 140, 140, 0.3);
+    border: 1px solid rgba(240, 229, 216, 0.6);
     border-radius: 1.2rem;
   }
 
@@ -680,14 +695,14 @@
     }
   }
 
-  /* ── INPUT UNDERLINE — substitui style={} dinâmico na newsletter ────── */
+  /* ── INPUT UNDERLINE ────────────────────────────────────────── */
   .input-underline {
-    border-bottom: 1px solid rgba(216, 210, 203, 0.40);
+    border-bottom: 1px solid rgba(240, 229, 216, 0.60);
     transition: border-bottom-color var(--duration-fast) ease-out;
   }
 
   .input-underline:focus {
-    border-bottom-color: var(--color-brand-gold);
+    border-bottom-color: var(--color-brand-wine);
     outline: none;
   }
 
