@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npx next *)",
+      "Bash(ls node_modules/.bin/next 2>&1 | head -3; ls ../../../node_modules/.bin/next 2>&1 | head -3)",
+      "Bash(git restore *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(gh pr create --repo JoseLuizMendes/belessence --base master --head claude/hardcore-bohr-4eaabd --title 'Rebrand Belessence → Mari Beauty: nova paleta e tipografia' --body ' *)",
+      "Bash(gh auth *)"
+    ]
+  }
+}
