@@ -538,6 +538,12 @@
     height: clamp(240px, 41.67vw, 600px);
   }
 
+  @media (max-width: 640px) {
+    .hero-banner-height {
+      height: 420px;
+    }
+  }
+
   /* Overlays por imagem — mantidos (artísticos por arte) */
   .overlay-hero-teal {
     background: linear-gradient(
