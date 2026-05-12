@@ -28,7 +28,7 @@ export default function Features() {
           <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             <div data-animate-feature className="text-center">
               <div className="w-14 h-14 sm:w-16 sm:h-16 bg-secondary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="h-7 w-7 sm:h-8 sm:w-8 text-secondary" />
+                <Sparkles className="h-7 w-7 sm:h-8 sm:w-8 text-accent-foreground" />
               </div>
               <p className="loreal-kicker text-brand-gold mb-2">Atelier</p>
               <h3 className="text-lg sm:text-xl font-playfair font-semibold mb-2">
@@ -41,7 +41,7 @@ export default function Features() {
 
             <div data-animate-feature className="text-center">
               <div className="w-14 h-14 sm:w-16 sm:h-16 bg-secondary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Heart className="h-7 w-7 sm:h-8 sm:w-8 text-secondary" />
+                <Heart className="h-7 w-7 sm:h-8 sm:w-8 text-accent-foreground" />
               </div>
               <p className="loreal-kicker text-brand-gold mb-2">Maison</p>
               <h3 className="text-lg sm:text-xl font-playfair font-semibold mb-2">
@@ -54,7 +54,7 @@ export default function Features() {
 
             <div data-animate-feature className="text-center">
               <div className="w-14 h-14 sm:w-16 sm:h-16 bg-secondary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Truck className="h-7 w-7 sm:h-8 sm:w-8 text-secondary" />
+                <Truck className="h-7 w-7 sm:h-8 sm:w-8 text-accent-foreground" />
               </div>
               <p className="loreal-kicker text-brand-gold mb-2">Service</p>
               <h3 className="text-lg sm:text-xl font-playfair font-semibold mb-2">
