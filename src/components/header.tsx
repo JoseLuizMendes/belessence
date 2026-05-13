@@ -52,8 +52,7 @@ export default function Header() {
       gsap.from(header, { y: -100, opacity: 0, duration: 0.8, ease: "power4.out" });
     }
 
-    // Nota: rgba() dinâmico no scrub é exceção aceita — não há alternativa CSS para
-    // animar alpha de background-color de forma contínua com GSAP scrub.
+    // Scroll affordance — só blur e sombra mudam; cor do header fica fixa (bg-brand-pink).
     ScrollTrigger.create({
       start: "top top",
       end: "+=160",
@@ -61,9 +60,7 @@ export default function Header() {
       onUpdate: (self) => {
         const p = self.progress;
         gsap.set(header, {
-          backgroundColor: `rgba(255, 253, 233, ${0.94 + p * 0.05})`,
           backdropFilter: `blur(${10 + p * 16}px)`,
-          borderBottomColor: `rgba(240, 229, 216, ${0.20 + p * 0.40})`,
           boxShadow: `0 6px 24px rgba(46, 11, 18, ${0.02 + p * 0.08})`,
         });
       },
@@ -81,7 +78,7 @@ export default function Header() {
   return (
     <header
       ref={headerRef}
-      className="fixed left-0 right-0 top-0 z-50 border-b header-glass-base"
+      className="fixed left-0 right-0 top-0 z-50 border-b bg-brand-pink"
     >
       <div className="container-belessence py-4 sm:py-5">
         <div className="flex items-center justify-between">

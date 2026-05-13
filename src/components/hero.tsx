@@ -289,7 +289,7 @@ export default function Hero() {
       </div>
 
       {/* ══ 2. SECTION CONTEXT ═══════════════════════════════════════════════ */}
-      <div className="w-full bg-background">
+      <div className="w-full bg-brand-pink">
         <div className="max-w-[1440px] mx-auto px-5 sm:px-8 py-5 sm:py-4 flex flex-col gap-4 sm:gap-3 sm:flex-row sm:items-center sm:justify-between">
           {/* Breadcrumb + heading */}
           <div className="flex flex-col gap-1.5">
@@ -343,17 +343,12 @@ export default function Hero() {
                 </Link>
               ))}
             </div>
-            {/* fade right — só aparece no mobile */}
-            <div
-              aria-hidden
-              className="sm:hidden pointer-events-none absolute right-0 top-0 bottom-1 w-10 bg-gradient-to-l from-background to-transparent"
-            />
           </div>
         </div>
       </div>
 
       {/* ══ 3. CAROUSEL ══════════════════════════════════════════════════════ */}
-      <div className="w-full bg-background">
+      <div className="w-full bg-brand-pink">
         <div
           ref={carouselRef}
           className="relative max-w-[1440px] mx-auto hero-banner-height overflow-hidden"
@@ -494,8 +489,6 @@ export default function Hero() {
             ))}
           </div>
 
-          {/* Fade-bottom → transição suave com a próxima seção */}
-          <div className="absolute inset-x-0 bottom-0 h-12 z-10 pointer-events-none bg-linear-to-t from-background/50 to-transparent" />
         </div>
       </div>
     </div>

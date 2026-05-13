@@ -75,7 +75,7 @@ export default function CollectionsProducts() {
   }, { scope: sectionRef });
 
   return (
-    <section ref={sectionRef} className="bg-surface-base py-20 md:py-28 lg:py-36">
+    <section ref={sectionRef} className="py-20 md:py-28 lg:py-36">
       <div className="container-belessence">
 
         {/* Heading */}

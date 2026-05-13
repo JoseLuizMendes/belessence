@@ -46,7 +46,7 @@
   --primary-foreground: var(--color-surface-base);
   --secondary: var(--color-brand-pink);
   --secondary-foreground: var(--color-brand-wine);
-  --accent: var(--color-brand-pink);
+  --accent: var(--color-surface-base);
   --accent-foreground: var(--color-brand-wine);
   --muted: var(--color-surface-section);
   --muted-foreground: var(--color-ink-muted);
