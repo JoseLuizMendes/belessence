@@ -13,6 +13,7 @@ import { useCart } from "./cart";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { formatPrice } from "@/api/utils";
 import Image from "next/image";
+import Link from "next/link";
 
 export function CartSheet({ children }: { children: React.ReactNode }) {
   const { items, removeFromCart, updateQuantity, cartTotal, isCartOpen, setIsCartOpen } = useCart();
@@ -98,8 +99,10 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
                 <span>Total</span>
                 <span className="text-primary font-bold">{formatPrice(cartTotal)}</span>
             </div>
-            <Button className="w-full" size="lg" disabled={items.length === 0}>
-                Finalizar Compra
+            <Button asChild className="w-full bg-brand-wine text-brand-pink hover:bg-brand-wine/90 loreal-btn-pill h-12 text-[12px] font-medium tracking-[0.18em] uppercase" size="lg" disabled={items.length === 0}>
+                <Link href="/checkout" onClick={() => setIsCartOpen(false)}>
+                  Finalizar Compra
+                </Link>
             </Button>
         </div>
       </SheetContent>

@@ -1,6 +1,6 @@
 /**
- * CollectionPage — Server Component
- * Busca produtos da coleção via Prisma e renderiza via ProductsGrid (client).
+ * CollectionPage — Server Component (estilo Stitch / PLP)
+ * Mesmo layout da /allProducts mas focado em uma coleção específica.
  */
 
 import Header from "@/components/header";
@@ -12,7 +12,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
-// Mapeamento slug → collection (deve refletir o schema.prisma)
 const COLLECTION_MAP: Record<string, { type: string; name: string; description: string }> = {
   "essencia-noturna": {
     type: "night",
@@ -55,31 +54,40 @@ export default async function CollectionPage({
   const products = await getProductsByCollection(collection.type);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-brand-pink flex flex-col">
       <Header />
-      <main className="flex-1 pt-20 sm:pt-24 pb-10 sm:pb-12">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-playfair font-bold mb-3 sm:mb-4">
+
+      <main className="flex-1 pt-24 sm:pt-28 pb-16 sm:pb-24">
+        <div className="container-belessence">
+          {/* Hero da coleção */}
+          <div className="text-center mb-12 sm:mb-16">
+            <p className="text-[11px] font-medium tracking-[0.32em] uppercase text-brand-wine mb-4">
+              Coleção exclusiva
+            </p>
+            <h1 className="font-playfair italic text-[clamp(2.4rem,6vw,4.4rem)] leading-[1.04] tracking-[-0.02em] text-ink-strong mb-5">
               {collection.name}
             </h1>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="max-w-2xl mx-auto text-sm sm:text-base text-ink-soft leading-relaxed font-light">
               {collection.description}
             </p>
+            <div className="mx-auto mt-6 h-px w-12 bg-brand-wine/60" />
           </div>
 
           {products.length > 0 ? (
             <ProductsGrid products={products} />
           ) : (
             <div className="text-center py-20">
-              <p className="text-muted-foreground mb-6">Nenhuma fragrância disponível nesta coleção ainda.</p>
-              <Button asChild variant="outline">
+              <p className="text-ink-soft mb-6">
+                Nenhuma fragrância disponível nesta coleção ainda.
+              </p>
+              <Button asChild variant="outline" className="border-brand-wine text-brand-wine hover:bg-brand-wine hover:text-brand-pink">
                 <Link href="/allProducts">Ver todas as fragrâncias</Link>
               </Button>
             </div>
           )}
         </div>
       </main>
+
       <Footer />
     </div>
   );

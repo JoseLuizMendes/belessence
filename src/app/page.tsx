@@ -21,21 +21,19 @@ export default async function Home() {
   ]);
 
   return (
-    <div className="min-h-screen bg-brand-pink loreal-surface">
+    <div className="min-h-screen bg-brand-pink">
       <Header />
 
-      <main>
+      <main className="bg-brand-pink">
         <div id="inicio">
           <Hero />
         </div>
 
-        {/* Gradient progressivo do fim do Hero até o início de Destaques
-            (cobre Sales + Features + Coleções) — pink segura no topo,
-            cream chega só lá em baixo */}
-        <div className="bg-gradient-to-b from-brand-pink from-0% via-brand-pink via-25% to-accent to-100%">
+        {/* Bloco contínuo bg-brand-pink — sem vão bege entre seções */}
+        <div className="bg-brand-pink">
           <Sales products={salesProducts} />
 
-          <div id="destaques" className="relative z-10 pt-16 sm:pt-24">
+          <div id="ritual" className="relative z-10">
             <Features />
           </div>
 
@@ -44,7 +42,7 @@ export default async function Home() {
           </div>
         </div>
 
-        <div id="destaques-produtos">
+        <div id="destaques">
           <FeatureProducts products={featuredProducts} />
         </div>
 

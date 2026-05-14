@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * Newsletter — Belessence
- * Visual: seção noir editorial, input minimalista, CTA dourado — referência MFK/Byredo
- * Lógica: React Hook Form + Zod + Sonner (mantido da versão anterior)
- * Regra: zero style={} hardcoded — todas as cores e gradientes via classes CSS
+ * Newsletter — Belessence (estilo Stitch / "Beauty is a Lifestyle")
+ * ─────────────────────────────────────────────────────────────────────
+ * Layout split: imagem editorial à esquerda + CTA + form newsletter à direita
+ * Tipografia: serif italic display, copy minimalista
  */
 
 import { useRef } from "react";
@@ -16,6 +16,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -69,77 +70,86 @@ export default function Newsletter() {
   return (
     <section
       ref={sectionRef}
-      className="gradient-hero-noir relative py-24 md:py-32 overflow-hidden"
+      className="relative py-16 sm:py-24 md:py-32 bg-surface-section overflow-hidden"
     >
-      {/* Glow dourado — MFK */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] rounded-full blur-[100px] opacity-[0.07] pointer-events-none bg-brand-gold" />
+      <div className="container-belessence">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 lg:gap-20 items-center">
 
-      <div className="container-belessence relative z-10">
-        <div ref={contentRef} className="max-w-lg mx-auto text-center">
+          {/* Imagem editorial à esquerda — Stitch Lifestyle (tamanho reduzido) */}
+          <div className="relative w-full max-w-xs sm:max-w-sm mx-auto md:mx-0 aspect-square overflow-hidden rounded-token-sm">
+            <Image
+              src="/assets/stitch/lifestyle.jpg"
+              alt="Beauty is a Lifestyle"
+              width={400}
+              height={400}
+              quality={90}
+              className="w-full h-full object-cover"
+              sizes="(max-width: 768px) 80vw, 400px"
+            />
+            <div className="absolute inset-0 bg-gradient-to-tr from-brand-wine/15 to-transparent pointer-events-none" />
+          </div>
 
-          {/* Eyebrow */}
-          <p className="eyebrow mb-6 text-brand-pink tracking-[0.12em] uppercase">
-            Comunidade Exclusiva
-          </p>
+          {/* Conteúdo à direita */}
+          <div ref={contentRef} className="max-w-lg">
 
-          {/* Divider */}
-          <div className="mx-auto mb-8 h-px w-10 divider-gold" />
+            {/* Eyebrow */}
+            <p className="text-[11px] font-medium tracking-[0.32em] uppercase text-brand-wine mb-5">
+              Mari Beauty
+            </p>
 
-          {/* Título */}
-          <h2 className="display-title mb-5 text-surface-contrast text-[clamp(2rem,5vw,3rem)]">
-            Desperte Seus Sentidos
-          </h2>
+            {/* Título italic display */}
+            <h2 className="font-playfair italic text-[clamp(2.4rem,6vw,4rem)] leading-[1.04] tracking-[-0.02em] text-ink-strong mb-6">
+              Beauty is a <br className="hidden sm:block" /> lifestyle.
+            </h2>
 
-          {/* Corpo */}
-          <p className="mb-10 text-base font-light leading-relaxed text-dark-soft">
-            Receba lançamentos exclusivos, dicas de fragrâncias e
-            ofertas especiais — diretamente no seu e-mail.
-          </p>
+            {/* Divider */}
+            <div className="h-px w-12 bg-brand-wine/60 mb-6" />
 
-          {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-3">
-            <div className="flex flex-col sm:flex-row gap-3">
+            {/* Corpo */}
+            <p className="mb-8 text-base leading-relaxed text-ink-soft font-light max-w-md">
+              Receba lançamentos exclusivos, rituais e curadorias diretamente
+              no seu e-mail. Faça parte da nossa comunidade de beleza autêntica.
+            </p>
 
-              {/* Input — Byredo: minimal, underline only */}
-              <div className="flex-1 relative">
-                <input
-                  type="email"
-                  placeholder="Seu melhor e-mail"
-                  aria-label="E-mail para newsletter"
-                  aria-describedby={errors.email ? "email-error" : undefined}
-                  {...register("email")}
-                  className={`input-underline h-12 w-full bg-transparent px-0 text-sm text-surface-contrast placeholder:text-sm placeholder:text-dark-soft outline-none${errors.email ? " input-underline-error" : ""}`}
-                />
+            {/* Form */}
+            <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1 relative">
+                  <input
+                    type="email"
+                    placeholder="Seu melhor e-mail"
+                    aria-label="E-mail para newsletter"
+                    aria-describedby={errors.email ? "email-error" : undefined}
+                    {...register("email")}
+                    className={`h-12 w-full bg-surface-base px-4 text-sm text-ink-strong placeholder:text-ink-muted border border-border-subtle rounded-token-sm outline-none focus:border-brand-wine transition-colors${errors.email ? " border-destructive" : ""}`}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="loreal-btn-pill flex h-12 items-center justify-center gap-2 whitespace-nowrap border-none bg-brand-wine px-7 text-xs font-medium tracking-[0.18em] uppercase text-surface-base transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand-wine/90"
+                >
+                  {isSubmitting ? "Enviando..." : (
+                    <>
+                      Inscrever
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </>
+                  )}
+                </button>
               </div>
 
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-token-xs border-none bg-accent px-7 text-xs font-medium tracking-[0.12em] uppercase text-ink-strong transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand-gold-light"
-              >
-                {isSubmitting ? "Enviando..." : (
-                  <>
-                    Inscrever
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </>
-                )}
-              </button>
-            </div>
+              {errors.email && (
+                <p id="email-error" role="alert" className="text-left text-xs text-destructive">
+                  {errors.email.message}
+                </p>
+              )}
+            </form>
 
-            {/* Erro */}
-            {errors.email && (
-              <p id="email-error" role="alert" className="text-left text-xs text-red-400">
-                {errors.email.message}
-              </p>
-            )}
-          </form>
-
-          {/* Política */}
-          <p className="mt-6 text-xs leading-relaxed text-ink-muted">
-            Ao se inscrever, você concorda com nossa política de privacidade.
-            Cancele a qualquer momento.
-          </p>
+            <p className="mt-5 text-xs leading-relaxed text-ink-muted">
+              Ao se inscrever, você concorda com nossa política de privacidade.
+            </p>
+          </div>
         </div>
       </div>
     </section>

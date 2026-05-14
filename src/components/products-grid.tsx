@@ -1,17 +1,19 @@
 "use client";
 
 /**
- * ProductsGrid — Grid interativo de produtos com GSAP + cart
- * Componente Client usado nas páginas /allProducts e /collections/[slug]
+ * ProductsGrid — Belessence (estilo Stitch / Coleção PLP)
+ * ─────────────────────────────────────────────────────────────────────
+ * Grid limpo 3 colunas com cards brancos minimalistas.
+ * - Imagem aspect 3/4 com bg cream
+ * - Nome em serif italic
+ * - Preço em bordô destacado
+ * - Add to bag flutuante no hover
  */
 
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
-import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { staggerIn, cardHoverIn, cardHoverOut } from "@/lib/gsap-utils";
-import { Star } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
+import { staggerIn } from "@/lib/gsap-utils";
 import { useCart } from "@/components/cart";
 import Link from "next/link";
 import { formatPrice } from "@/api/utils";
@@ -22,6 +24,15 @@ interface ProductsGridProps {
   products: Product[];
 }
 
+type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
+
+function toBadgeVariant(value: string | null): BadgeVariant | undefined {
+  if (value === "default" || value === "secondary" || value === "destructive" || value === "outline") {
+    return value;
+  }
+  return undefined;
+}
+
 export default function ProductsGrid({ products }: ProductsGridProps) {
   const { addToCart } = useCart();
   const gridRef = useRef<HTMLDivElement>(null);
@@ -30,99 +41,98 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
     if (!gridRef.current) return;
     const cards = gridRef.current.querySelectorAll("[data-animate-card]");
     if (cards.length > 0) {
-      staggerIn(cards, { y: 24, duration: 0.5, stagger: 0.07, delay: 0.1 });
+      staggerIn(cards, { y: 24, duration: 0.55, stagger: 0.08, delay: 0.1 });
     }
   }, { scope: gridRef });
 
   return (
     <div
       ref={gridRef}
-      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8"
+      className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"
     >
-      {products.map((product) => (
-        <div
-          key={product.id}
-          data-animate-card
-          className="h-full"
-          onMouseEnter={(e) => cardHoverIn(e.currentTarget)}
-          onMouseLeave={(e) => cardHoverOut(e.currentTarget)}
-        >
-          <Card className="overflow-hidden h-full flex flex-col cursor-pointer shadow-sm transition-shadow duration-300 hover:shadow-xl">
-            <div className="relative h-52 sm:h-64 gradient-card shrink-0 overflow-hidden">
+      {products.map((product) => {
+        const price = Number(product.price);
+        const originalPrice = product.originalPrice ? Number(product.originalPrice) : null;
+
+        return (
+          <article
+            key={product.id}
+            data-animate-card
+            className="group flex flex-col bg-surface-panel rounded-token-sm overflow-hidden transition-all duration-500 hover:shadow-card-hover"
+          >
+            {/* Imagem */}
+            <Link
+              href={`/product/${product.slug}`}
+              className="relative block overflow-hidden aspect-[3/4] bg-surface-section"
+            >
               <Image
                 src={product.images[0]}
                 alt={product.name}
                 fill
-                className="object-cover"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                sizes="(max-width: 768px) 50vw, 33vw"
               />
-              {product.badge && (
-                <Badge
-                  className="absolute top-4 left-4 z-10"
-                  variant={(product.badgeVariant as "default" | "secondary" | "destructive" | "outline") ?? "default"}
-                >
-                  {product.badge}
-                </Badge>
-              )}
-              <div className="absolute inset-0 bg-black/20 hover:bg-black/10 transition-colors" />
-              <div className="absolute inset-0 flex items-center justify-center opacity-100 md:opacity-0 md:hover:opacity-100 transition-opacity">
-                <div className="flex gap-2">
-                  <Link href={`/product/${product.slug}`}>
-                    <Button size="sm" className="bg-white/90 text-primary hover:bg-white">
-                      Ver Detalhes
-                    </Button>
-                  </Link>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="bg-white/90 text-primary border-primary hover:bg-primary hover:text-white"
-                    onClick={() =>
-                      addToCart({
-                        id: product.id,
-                        slug: product.slug,
-                        name: product.name,
-                        shortDescription: product.shortDescription,
-                        price: Number(product.price),
-                        originalPrice: product.originalPrice ? Number(product.originalPrice) : undefined,
-                        badge: product.badge ?? undefined,
-                        badgeVariant: (product.badgeVariant as "default" | "secondary" | "destructive" | "outline") ?? undefined,
-                        image: product.images[0],
-                      })
-                    }
-                  >
-                    Adicionar
-                  </Button>
-                </div>
-              </div>
-            </div>
 
-            <CardHeader className="flex-1 flex flex-col">
-              <CardTitle className="font-playfair">{product.name}</CardTitle>
-              <CardDescription className="text-sm line-clamp-2">
-                {product.shortDescription}
-              </CardDescription>
-              <div className="flex items-center gap-2 mt-auto pt-4">
-                <span className="text-xl font-bold text-primary">
-                  {formatPrice(Number(product.price))}
+              {/* Badge top-left */}
+              {product.badge && (
+                <span className="absolute top-3 left-3 inline-flex items-center rounded-full bg-brand-wine px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-brand-pink">
+                  {product.badge}
                 </span>
-                {product.originalPrice && (
-                  <span className="text-sm text-muted-foreground line-through">
-                    {formatPrice(Number(product.originalPrice))}
+              )}
+
+              {/* Add to bag — flutuante no hover */}
+              <button
+                aria-label={`Adicionar ${product.name} ao carrinho`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  addToCart({
+                    id: product.id,
+                    slug: product.slug,
+                    name: product.name,
+                    shortDescription: product.shortDescription,
+                    price,
+                    originalPrice: originalPrice ?? undefined,
+                    badge: product.badge ?? undefined,
+                    badgeVariant: toBadgeVariant(product.badgeVariant),
+                    image: product.images[0],
+                  });
+                }}
+                className="absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-full bg-brand-wine text-brand-pink shadow-card opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 hover:bg-ink-strong"
+              >
+                <ShoppingBag className="h-4 w-4" strokeWidth={1.5} />
+              </button>
+            </Link>
+
+            {/* Info */}
+            <div className="p-4 sm:p-5 text-center">
+              <Link href={`/product/${product.slug}`}>
+                <h3 className="font-playfair italic text-base sm:text-lg leading-snug text-ink-strong transition-opacity hover:opacity-70 line-clamp-2 mb-2">
+                  {product.name}
+                </h3>
+              </Link>
+
+              <div className="flex items-center justify-center gap-2 mb-3">
+                {originalPrice && (
+                  <span className="text-xs text-ink-muted line-through">
+                    {formatPrice(originalPrice)}
                   </span>
                 )}
+                <span className="price-display text-base sm:text-lg font-semibold text-brand-wine">
+                  {formatPrice(price)}
+                </span>
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                <div className="flex">
-                  {[...Array(Math.floor(Number(product.rating)))].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-secondary text-secondary" />
-                  ))}
-                </div>
-                <span className="text-sm text-muted-foreground">({product.reviews})</span>
-              </div>
-            </CardHeader>
-          </Card>
-        </div>
-      ))}
+
+              <Link
+                href={`/product/${product.slug}`}
+                className="inline-flex items-center gap-1.5 text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft transition-colors hover:text-brand-wine"
+              >
+                Ver detalhes
+              </Link>
+            </div>
+          </article>
+        );
+      })}
     </div>
   );
 }

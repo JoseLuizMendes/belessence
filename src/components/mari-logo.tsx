@@ -6,7 +6,7 @@ type MariLogoProps = {
 export function MariLogo({ className, title = "Mari Beauty" }: MariLogoProps) {
   return (
     <svg
-      viewBox="26 7 149 102"
+      viewBox="0 0 200 110"
       role="img"
       aria-label={title}
       className={className}
