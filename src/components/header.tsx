@@ -7,7 +7,9 @@
  * Regra: zero style={} com valores hardcoded — apenas classes CSS
  */
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { useHasMounted } from "@/lib/hooks/use-has-mounted";
+import { useRouter } from "next/navigation";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -21,13 +23,14 @@ import {
 } from "./ui/navigation-menu";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Menu, Search, ShoppingBag } from "lucide-react";
+import { Heart, Menu, Search, ShoppingBag } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { Separator } from "./ui/separator";
 import { useCart } from "./cart";
 import { CartSheet } from "./cart-sheet";
 import { MariLogo } from "./mari-logo";
 import Link from "next/link";
+import { useWishlistStore } from "@/lib/wishlist-store";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -40,7 +43,19 @@ const NAV_LINKS = [
 export default function Header() {
   const headerRef = useRef<HTMLElement>(null);
   const logoRef   = useRef<HTMLAnchorElement>(null);
+  const router    = useRouter();
   const { cartCount } = useCart();
+  const wishlistCount = useWishlistStore((s) => s.count);
+  const [searchTerm, setSearchTerm] = useState("");
+  const mounted = useHasMounted();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const term = searchTerm.trim();
+    if (!term) return;
+    router.push(`/allProducts?q=${encodeURIComponent(term)}`);
+    setSearchTerm("");
+  };
 
   useGSAP(() => {
     const header = headerRef.current;
@@ -136,14 +151,29 @@ export default function Header() {
           <div className="flex items-center gap-2 sm:gap-3">
 
             {/* Busca — desktop */}
-            <div className="relative hidden md:block">
-              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-muted" />
+            <form onSubmit={handleSearch} className="relative hidden md:block">
+              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-muted pointer-events-none" />
               <Input
                 type="search"
-                placeholder="buscar"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="buscar fragrâncias"
+                aria-label="Buscar produtos"
                 className="h-9 w-72 rounded-none border-0 bg-transparent pl-9 text-xs text-ink-strong placeholder:text-ink-muted placeholder:tracking-[0.02em] focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
               />
-            </div>
+            </form>
+
+            {/* Wishlist */}
+            <Link href="/favoritos" aria-label="Meus favoritos">
+              <Button variant="ghost" size="icon" className="relative h-9 w-9 text-ink-strong hover:bg-transparent">
+                <Heart className="h-4.5 w-4.5" strokeWidth={1.5} />
+                {mounted && wishlistCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-wine text-[10px] font-semibold text-brand-pink">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
 
             {/* Cart */}
             <CartSheet>
@@ -177,14 +207,17 @@ export default function Header() {
                   </div>
 
                   {/* Search mobile */}
-                  <div className="relative mb-6 px-4">
-                    <Search className="absolute left-7 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-muted" />
+                  <form onSubmit={handleSearch} className="relative mb-6 px-4">
+                    <Search className="absolute left-7 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-muted pointer-events-none" />
                     <Input
                       type="search"
-                      placeholder="buscar"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="buscar fragrâncias"
+                      aria-label="Buscar produtos"
                       className="h-9 w-full rounded-none border-0 bg-transparent pl-9 text-xs text-ink-strong placeholder:text-ink-muted placeholder:tracking-[0.02em] focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
                     />
-                  </div>
+                  </form>
 
                   <Separator className="bg-border-subtle" />
 

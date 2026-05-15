@@ -13,6 +13,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ShoppingBag, ArrowRight } from "lucide-react";
 import { useCart } from "./cart";
+import { WishlistButton } from "./wishlist-button";
 import type { Product } from "@/lib/products-db";
 import Link from "next/link";
 import { formatPrice } from "@/api/utils";
@@ -115,6 +116,14 @@ export default function FeatureProducts({ products }: FeatureProductsProps) {
                     className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                     sizes="(max-width: 768px) 50vw, 280px"
                   />
+
+                  {/* Wishlist top-right */}
+                  <div className="absolute top-3 right-3">
+                    <WishlistButton
+                      productId={product.id}
+                      productName={product.name}
+                    />
+                  </div>
 
                   {/* Add to cart — flutuante no hover */}
                   <button

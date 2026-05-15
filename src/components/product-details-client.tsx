@@ -13,6 +13,8 @@
 import { useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { useCart } from "@/components/cart";
+import { WishlistButton } from "@/components/wishlist-button";
+import { ProductReviews } from "@/components/product-reviews";
 import { fadeInUp } from "@/lib/gsap-utils";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, ShoppingBag } from "lucide-react";
@@ -24,12 +26,13 @@ interface ProductDetailsClientProps {
   product: Product;
 }
 
-type TabKey = "descricao" | "ritual" | "ingredientes";
+type TabKey = "descricao" | "ritual" | "ingredientes" | "avaliacoes";
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: "descricao", label: "Descrição" },
   { key: "ritual", label: "Ritual de Uso" },
   { key: "ingredientes", label: "Ingredientes" },
+  { key: "avaliacoes", label: "Avaliações" },
 ];
 
 export default function ProductDetailsClient({ product }: ProductDetailsClientProps) {
@@ -94,6 +97,7 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
         ))}
       </ul>
     ),
+    avaliacoes: <ProductReviews productId={product.id} />,
   };
 
   return (
@@ -224,6 +228,13 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
               <ShoppingBag className="mr-2 h-4 w-4" strokeWidth={1.5} />
               Adicionar à Bag
             </Button>
+
+            {/* Wishlist */}
+            <WishlistButton
+              productId={product.id}
+              productName={product.name}
+              variant="pdp"
+            />
           </div>
         </div>
       </div>

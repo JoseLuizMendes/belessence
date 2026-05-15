@@ -169,3 +169,28 @@ enum CouponType {
   PERCENTAGE // ex: 10 = 10% de desconto
   FIXED      // ex: 20 = R$20 de desconto
 }
+
+// ─── NEWSLETTER ───────────────────────────────────────────────────────────────
+
+model NewsletterSubscriber {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@map("newsletter_subscribers")
+}
+
+// ─── CONTATO ──────────────────────────────────────────────────────────────────
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  subject   String
+  message   String   @db.Text
+  replied   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("contact_messages")
+}

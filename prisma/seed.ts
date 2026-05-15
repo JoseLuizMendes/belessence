@@ -1,7 +1,17 @@
 // prisma/seed.ts
+import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@prisma/client'
+import { Pool } from 'pg'
+import 'dotenv/config'
 
-const prisma = new PrismaClient()
+const connectionString = process.env.DATABASE_URL
+if (!connectionString) {
+  throw new Error('DATABASE_URL não definido no .env')
+}
+
+const pool = new Pool({ connectionString })
+const adapter = new PrismaPg(pool)
+const prisma = new PrismaClient({ adapter })
 
 // Copiamos os dados do seu products.ts para cá
 const PRODUCTS = [
@@ -178,6 +188,35 @@ const PRODUCTS = [
   },
 ]
 
+// ─── CUPONS ───────────────────────────────────────────────────────────────────
+
+const COUPONS = [
+  {
+    code: 'BELES10',
+    type: 'PERCENTAGE' as const,
+    value: 10,
+    minOrder: null,
+    maxUses: null,
+    active: true,
+  },
+  {
+    code: 'FRETE15',
+    type: 'FIXED' as const,
+    value: 15,
+    minOrder: 100,
+    maxUses: null,
+    active: true,
+  },
+  {
+    code: 'PRIMEIRA20',
+    type: 'PERCENTAGE' as const,
+    value: 20,
+    minOrder: 250,
+    maxUses: 100,
+    active: true,
+  },
+]
+
 async function main() {
   console.log('🌱 Iniciando o seed...')
 
@@ -230,7 +269,25 @@ async function main() {
     })
     console.log(`Created/Updated product: ${result.name}`)
   }
-  console.log('✅ Seed finalizado com sucesso!')
+
+  // ─── Seed dos Cupons ────────────────────────────────────────────────────────
+  console.log('\n🎟️  Seedando cupons...')
+  for (const coupon of COUPONS) {
+    const result = await prisma.coupon.upsert({
+      where: { code: coupon.code },
+      update: {
+        type: coupon.type,
+        value: coupon.value,
+        minOrder: coupon.minOrder,
+        maxUses: coupon.maxUses,
+        active: coupon.active,
+      },
+      create: coupon,
+    })
+    console.log(`Created/Updated coupon: ${result.code} (${result.type} ${result.value}${result.type === 'PERCENTAGE' ? '%' : ''})`)
+  }
+
+  console.log('\n✅ Seed finalizado com sucesso!')
 }
 
 main()

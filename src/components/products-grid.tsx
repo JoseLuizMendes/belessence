@@ -15,6 +15,7 @@ import { useGSAP } from "@gsap/react";
 import { ShoppingBag } from "lucide-react";
 import { staggerIn } from "@/lib/gsap-utils";
 import { useCart } from "@/components/cart";
+import { WishlistButton } from "@/components/wishlist-button";
 import Link from "next/link";
 import { formatPrice } from "@/api/utils";
 import Image from "next/image";
@@ -79,6 +80,14 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                   {product.badge}
                 </span>
               )}
+
+              {/* Wishlist top-right */}
+              <div className="absolute top-3 right-3">
+                <WishlistButton
+                  productId={product.id}
+                  productName={product.name}
+                />
+              </div>
 
               {/* Add to bag — flutuante no hover */}
               <button
