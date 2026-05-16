@@ -7,11 +7,9 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import ProductDetailsClient from "@/components/product-details-client";
 import { getProductBySlug, getFeaturedProducts } from "@/lib/products-db";
+import { ProductCard } from "@/components/product-card";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Link from "next/link";
-import Image from "next/image";
-import { formatPrice } from "@/api/utils";
 import type { Product } from "@/lib/products-db";
 
 export async function generateMetadata({
@@ -73,56 +71,20 @@ export default async function ProductPage({
   );
 }
 
-// Grid simples para "Você Também Vai Amar"
+// Grid "Você Também Vai Amar" — reusa <ProductCard> compartilhado.
 function FeatureProductsInline({ products }: { products: Product[] }) {
   const displayProducts = products.slice(0, 4);
   if (displayProducts.length === 0) return null;
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-      {displayProducts.map((product) => {
-        const price = Number(product.price);
-        const originalPrice = product.originalPrice ? Number(product.originalPrice) : null;
-
-        return (
-          <article
-            key={product.id}
-            className="group flex flex-col bg-surface-panel rounded-token-sm overflow-hidden transition-all duration-500 hover:shadow-card-hover"
-          >
-            <Link
-              href={`/product/${product.slug}`}
-              className="relative block overflow-hidden aspect-[3/4] bg-surface-section"
-            >
-              <Image
-                src={product.images[0]}
-                alt={product.name}
-                fill
-                className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                sizes="(max-width: 768px) 50vw, 280px"
-              />
-            </Link>
-
-            <div className="p-4 sm:p-5 text-center">
-              <Link href={`/product/${product.slug}`}>
-                <h3 className="font-playfair italic text-base sm:text-lg leading-snug text-ink-strong transition-opacity hover:opacity-70 line-clamp-2 mb-2">
-                  {product.name}
-                </h3>
-              </Link>
-
-              <div className="flex items-center justify-center gap-2">
-                {originalPrice && (
-                  <span className="text-xs text-ink-muted line-through">
-                    {formatPrice(originalPrice)}
-                  </span>
-                )}
-                <span className="price-display text-base sm:text-lg font-semibold text-brand-wine">
-                  {formatPrice(price)}
-                </span>
-              </div>
-            </div>
-          </article>
-        );
-      })}
+      {displayProducts.map((product) => (
+        <ProductCard
+          key={product.id}
+          product={product}
+          sizes="(max-width: 768px) 50vw, 280px"
+        />
+      ))}
     </div>
   );
 }

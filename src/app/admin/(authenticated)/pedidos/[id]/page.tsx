@@ -9,6 +9,7 @@ import { formatPrice } from "@/api/utils";
 import { ArrowLeft } from "lucide-react";
 import { OrderStatusForm } from "@/components/admin/order-status-form";
 import { updateOrderStatus } from "../actions";
+import { productImageSrc } from "@/lib/product-image";
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   PENDING: { label: "Aguardando", color: "bg-yellow-100 text-yellow-800" },
@@ -148,7 +149,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                   <div className="w-14 h-14 rounded-token-sm overflow-hidden bg-surface-base flex-shrink-0">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={item.imageUrl}
+                      src={productImageSrc(item.imageUrl)}
                       alt={item.productName}
                       className="w-full h-full object-cover"
                     />

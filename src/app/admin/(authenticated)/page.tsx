@@ -15,6 +15,8 @@ import {
   AlertTriangle,
   ArrowRight,
 } from "lucide-react";
+import { AnimatedNumber } from "@/components/ui/animated-number";
+import { AnimatedPrice } from "@/components/ui/animated-price";
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   PENDING: { label: "Aguardando", color: "bg-yellow-100 text-yellow-800" },
@@ -109,9 +111,11 @@ export default async function AdminDashboard() {
         <p className="text-[10px] font-medium tracking-[0.32em] uppercase text-brand-pink/70 mb-2">
           Receita total confirmada
         </p>
-        <p className="font-playfair italic text-4xl sm:text-5xl">
-          {formatPrice(revenue)}
-        </p>
+        <AnimatedPrice
+          value={revenue}
+          immediate
+          className="font-playfair italic text-4xl sm:text-5xl block"
+        />
         <p className="text-xs text-brand-pink/60 mt-2">
           Considera pedidos com status confirmado, em preparação, enviados ou entregues
         </p>
@@ -241,9 +245,11 @@ function Card({ icon: Icon, label, value, accent }: CardProps) {
       <p className="text-[10px] font-medium tracking-[0.24em] uppercase text-ink-muted mb-1">
         {label}
       </p>
-      <p className="font-playfair italic text-3xl text-ink-strong tabular-nums">
-        {value}
-      </p>
+      <AnimatedNumber
+        value={value}
+        immediate
+        className="font-playfair italic text-3xl text-ink-strong tabular-nums block"
+      />
     </div>
   );
 }

@@ -8,6 +8,7 @@
  */
 
 import { prisma } from "@/lib/prisma";
+import type { ProductStatus } from "@prisma/client";
 
 // ─── TIPOS ───────────────────────────────────────────────────────────────────
 
@@ -29,7 +30,14 @@ export interface Product {
   category: string;
   totalSold: number;
   seasonalSold: number;
-  stock?: number;
+  /** Quantidade em estoque. 0 → esgotado. */
+  stock: number;
+  /** Estado do ciclo de vida (NORMAL/PROMOTION/COMING_SOON/DISCONTINUED). */
+  status: ProductStatus;
+  isLimitedEdition: boolean;
+  markedAsNewUntil: Date | null;
+  promotionStartsAt: Date | null;
+  promotionEndsAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -55,6 +63,12 @@ type RawProduct = {
   category: string;
   totalSold: number;
   seasonalSold: number;
+  stock: number;
+  status: ProductStatus;
+  isLimitedEdition: boolean;
+  markedAsNewUntil: Date | null;
+  promotionStartsAt: Date | null;
+  promotionEndsAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -66,6 +80,20 @@ function serializeProduct(p: RawProduct): Product {
     originalPrice: p.originalPrice != null ? Number(p.originalPrice) : null,
     rating: Number(p.rating),
   };
+}
+
+/**
+ * Reordena uma lista preservando ordem original interna,
+ * mas movendo produtos com `stock === 0` para o final.
+ */
+export function sortInStockFirst<T extends { stock: number }>(rows: T[]): T[] {
+  const inStock: T[] = [];
+  const outOfStock: T[] = [];
+  for (const r of rows) {
+    if (r.stock > 0) inStock.push(r);
+    else outOfStock.push(r);
+  }
+  return [...inStock, ...outOfStock];
 }
 
 export interface SalesProduct extends Product {
@@ -117,21 +145,35 @@ const PRODUCT_SELECT = {
   category: true,
   totalSold: true,
   seasonalSold: true,
+  stock: true,
+  status: true,
+  isLimitedEdition: true,
+  markedAsNewUntil: true,
+  promotionStartsAt: true,
+  promotionEndsAt: true,
   createdAt: true,
   updatedAt: true,
 } as const;
 
 // ─── QUERIES ─────────────────────────────────────────────────────────────────
 
+/** Cláusula WHERE base para o catálogo público: esconde DISCONTINUED. */
+const PUBLIC_VISIBLE_WHERE = {
+  status: { not: "DISCONTINUED" as ProductStatus },
+};
+
 export async function getAllProducts(): Promise<Product[]> {
   const rows = await prisma.product.findMany({
     select: PRODUCT_SELECT,
+    where: PUBLIC_VISIBLE_WHERE,
     orderBy: { createdAt: "desc" },
   });
-  return rows.map(serializeProduct);
+  return sortInStockFirst(rows.map(serializeProduct));
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
+  // Slug direto é permitido mesmo para DISCONTINUED (link já compartilhado).
+  // A página de detalhe decide se mostra badge "Fora de linha".
   const row = await prisma.product.findUnique({
     where: { slug },
     select: PRODUCT_SELECT,
@@ -144,47 +186,71 @@ export async function getProductsByCollection(
 ): Promise<Product[]> {
   const rows = await prisma.product.findMany({
     select: PRODUCT_SELECT,
-    where: { collection },
+    where: { collection, ...PUBLIC_VISIBLE_WHERE },
     orderBy: { totalSold: "desc" },
   });
-  return rows.map(serializeProduct);
+  return sortInStockFirst(rows.map(serializeProduct));
 }
 
 export async function getFeaturedProducts(limit = 6): Promise<Product[]> {
+  // Busca mais que `limit` para depois reordenar e ainda ter `limit` itens
+  // mesmo se alguns esgotaram. Trade-off: leve overfetch para garantir UX.
   const rows = await prisma.product.findMany({
     select: PRODUCT_SELECT,
+    where: PUBLIC_VISIBLE_WHERE,
     orderBy: { totalSold: "desc" },
-    take: limit,
+    take: limit * 2,
   });
-  return rows.map(serializeProduct);
+  return sortInStockFirst(rows.map(serializeProduct)).slice(0, limit);
 }
 
-/** Retorna produtos com originalPrice (promoções) enriquecidos com dados de promo */
+/**
+ * Retorna produtos em PROMOTION ativa (status=PROMOTION + originalPrice presente).
+ * Filtragem fina de janela startsAt/endsAt fica para o consumidor via getEffectivePromotion.
+ */
 export async function getSalesProducts(): Promise<SalesProduct[]> {
+  const now = new Date();
   const rows = await prisma.product.findMany({
     select: PRODUCT_SELECT,
-    where: { originalPrice: { not: null } },
+    where: {
+      status: "PROMOTION",
+      originalPrice: { not: null },
+      // Janela ativa: startsAt nulo ou ≤ now; endsAt nulo ou ≥ now.
+      AND: [
+        {
+          OR: [
+            { promotionStartsAt: null },
+            { promotionStartsAt: { lte: now } },
+          ],
+        },
+        {
+          OR: [
+            { promotionEndsAt: null },
+            { promotionEndsAt: { gte: now } },
+          ],
+        },
+      ],
+    },
     orderBy: { seasonalSold: "desc" },
     take: 3,
   });
 
-  return rows.map((p, i) => {
-    const serialized = serializeProduct(p);
-    return {
-      ...serialized,
-      priceNum: serialized.price,
-      ...PROMO_CONFIG[i % PROMO_CONFIG.length],
-    };
-  });
+  const serializedAll = rows.map((p) => serializeProduct(p));
+  return sortInStockFirst(serializedAll).map((serialized, i) => ({
+    ...serialized,
+    priceNum: serialized.price,
+    ...PROMO_CONFIG[i % PROMO_CONFIG.length],
+  }));
 }
 
 export async function getBestsellers(limit = 5): Promise<Product[]> {
   const rows = await prisma.product.findMany({
     select: PRODUCT_SELECT,
+    where: PUBLIC_VISIBLE_WHERE,
     orderBy: { totalSold: "desc" },
-    take: limit,
+    take: limit * 2,
   });
-  return rows.map(serializeProduct);
+  return sortInStockFirst(rows.map(serializeProduct)).slice(0, limit);
 }
 
 // ─── FILTROS ─────────────────────────────────────────────────────────────────
@@ -223,32 +289,18 @@ const SORT_MAP: Record<ProductSort, { field: string; dir: "asc" | "desc" }> = {
   "name-asc": { field: "name", dir: "asc" },
 };
 
-/**
- * Busca produtos com filtros e ordenação flexíveis.
- * Usado pela PLP (`/allProducts`) e busca do header.
- */
-export async function getFilteredProducts(
-  filters: ProductFilters = {},
-): Promise<Product[]> {
-  const {
-    collection,
-    category,
-    genero,
-    search,
-    minPrice,
-    maxPrice,
-    sort = "best-seller",
-    limit,
-  } = filters;
+/** Constrói o cláusula WHERE compartilhada por getFilteredProducts/countFilteredProducts */
+function buildProductWhere(
+  filters: ProductFilters,
+): Record<string, unknown> {
+  const { collection, category, genero, search, minPrice, maxPrice } = filters;
+  const whereConditions: Array<Record<string, unknown>> = [
+    // Catálogo público nunca mostra DISCONTINUED.
+    { status: { not: "DISCONTINUED" as ProductStatus } },
+  ];
 
-  // Constrói o WHERE dinamicamente
-  const whereConditions: Array<Record<string, unknown>> = [];
+  if (collection) whereConditions.push({ collection });
 
-  if (collection) {
-    whereConditions.push({ collection });
-  }
-
-  // genero é tratado como sinônimo de category (aceita ambos)
   const effectiveCategory = category ?? genero;
   if (effectiveCategory) {
     whereConditions.push({ category: { equals: effectiveCategory, mode: "insensitive" } });
@@ -274,8 +326,20 @@ export async function getFilteredProducts(
     whereConditions.push({ price: { lte: maxPrice } });
   }
 
-  const where = whereConditions.length ? { AND: whereConditions } : {};
+  return { AND: whereConditions };
+}
 
+/**
+ * Busca produtos com filtros e ordenação flexíveis.
+ * Usado pela PLP (`/allProducts`) e busca do header.
+ *
+ * Esgotados são empurrados para o final independente do `sort` escolhido.
+ */
+export async function getFilteredProducts(
+  filters: ProductFilters = {},
+): Promise<Product[]> {
+  const { sort = "best-seller", limit } = filters;
+  const where = buildProductWhere(filters);
   const sortConfig = SORT_MAP[sort] ?? SORT_MAP["best-seller"];
 
   const rows = await prisma.product.findMany({
@@ -284,5 +348,13 @@ export async function getFilteredProducts(
     orderBy: { [sortConfig.field]: sortConfig.dir },
     ...(limit ? { take: limit } : {}),
   });
-  return rows.map(serializeProduct);
+  return sortInStockFirst(rows.map(serializeProduct));
+}
+
+/** Total de produtos que casam com os filtros, sem paginação. */
+export async function countFilteredProducts(
+  filters: ProductFilters = {},
+): Promise<number> {
+  const where = buildProductWhere(filters);
+  return prisma.product.count({ where });
 }

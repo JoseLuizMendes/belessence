@@ -41,6 +41,16 @@ model Product {
   // Estoque — dado baixa no webhook de pagamento confirmado
   stock            Int      @default(0)
 
+  // Ciclo de vida (estado do produto)
+  status              ProductStatus @default(NORMAL)
+  isLimitedEdition    Boolean       @default(false)
+  /// Override manual do badge "Novo". Se nulo, deriva de createdAt < 30d.
+  markedAsNewUntil    DateTime?
+  /// Janela da promoção. Preenchidos quando status=PROMOTION; também usados
+  /// pelo cron de limpeza/auto-revert.
+  promotionStartsAt   DateTime?
+  promotionEndsAt     DateTime?
+
   // Relações
   productReviews   Review[]
   orderItems       OrderItem[]
@@ -49,6 +59,13 @@ model Product {
   updatedAt        DateTime @updatedAt
 
   @@map("products")
+}
+
+enum ProductStatus {
+  NORMAL        // À venda pelo preço cheio
+  PROMOTION     // Em promoção (validar janela startsAt/endsAt)
+  COMING_SOON   // Visível mas não comprável
+  DISCONTINUED  // Fora de linha (esconder do catálogo público)
 }
 
 // ─── PEDIDO ───────────────────────────────────────────────────────────────────

@@ -143,7 +143,7 @@ export default function Newsletter() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="loreal-btn-pill flex h-12 items-center justify-center gap-2 whitespace-nowrap border-none bg-brand-wine px-7 text-xs font-medium tracking-[0.18em] uppercase text-surface-base transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand-wine/90"
+                  className="loreal-btn-pill flex h-12 items-center justify-center gap-2 whitespace-nowrap border-none bg-brand-wine px-7 text-xs font-medium tracking-[0.18em] uppercase text-brand-pink transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand-wine/90"
                 >
                   {isSubmitting ? "Enviando..." : (
                     <>

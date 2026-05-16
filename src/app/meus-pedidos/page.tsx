@@ -19,6 +19,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Package, Search, ShoppingBag } from "lucide-react";
+import { productImageSrc } from "@/lib/product-image";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -153,7 +154,7 @@ export default async function MeusPedidosPage({ searchParams }: PageProps) {
                             >
                               {item.imageUrl && (
                                 <Image
-                                  src={item.imageUrl}
+                                  src={productImageSrc(item.imageUrl)}
                                   alt={item.productName}
                                   fill
                                   className="object-cover"

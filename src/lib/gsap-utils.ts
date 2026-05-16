@@ -83,7 +83,13 @@ export function fadeIn(
 
 // ─── STAGGER IN ───────────────────────────────────────────────────────────────
 
-/** Stagger de entrada para listas de cards/itens */
+/**
+ * Stagger de entrada para listas de cards/itens.
+ *
+ * Usa `fromTo` (não `from`) + `immediateRender:false` para garantir que o
+ * estado final seja sempre visível — mesmo que a animação não dispare por
+ * algum motivo (hot-reload, hidratação fora de ordem, etc.).
+ */
 export function staggerIn(
   targets: gsap.TweenTarget,
   options: {
@@ -94,14 +100,114 @@ export function staggerIn(
     ease?: string;
   } = {}
 ): gsap.core.Tween {
-  return gsap.from(targets, {
-    opacity: 0,
-    y: options.y ?? 30,
-    duration: safeDuration(options.duration ?? motion.duration.normal),
-    stagger: safeStagger(options.stagger ?? motion.stagger.normal),
-    delay: options.delay ?? 0,
-    ease: options.ease ?? motion.ease.out,
-    clearProps: 'opacity,transform',
+  return gsap.fromTo(
+    targets,
+    { opacity: 0, y: options.y ?? 30 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: safeDuration(options.duration ?? motion.duration.normal),
+      stagger: safeStagger(options.stagger ?? motion.stagger.normal),
+      delay: options.delay ?? 0,
+      ease: options.ease ?? motion.ease.out,
+      immediateRender: false,
+      clearProps: 'opacity,transform',
+    }
+  );
+}
+
+// ─── REVEAL ON SCROLL ─────────────────────────────────────────────────────────
+
+/**
+ * Reveal idempotente disparado por ScrollTrigger.
+ * - `once:true` → animação roda uma única vez
+ * - `immediateRender:false` → não força opacity:0 antes do trigger
+ * - Fallback reduced-motion: aplica estado final imediatamente
+ */
+export function revealOnScroll(
+  targets: gsap.TweenTarget,
+  options: {
+    trigger?: Element | null;
+    y?: number;
+    duration?: number;
+    stagger?: number;
+    start?: string;
+    ease?: string;
+  } = {}
+): gsap.core.Tween | null {
+  if (prefersReducedMotion()) {
+    gsap.set(targets, { opacity: 1, y: 0, clearProps: 'transform' });
+    return null;
+  }
+
+  const tween = gsap.fromTo(
+    targets,
+    { opacity: 0, y: options.y ?? 30 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: options.duration ?? motion.duration.slow,
+      stagger: options.stagger ?? 0,
+      ease: options.ease ?? motion.ease.luxury,
+      immediateRender: false,
+      clearProps: 'opacity,transform',
+      scrollTrigger: {
+        trigger: options.trigger ?? undefined,
+        start: options.start ?? 'top 90%',
+        once: true,
+        toggleActions: 'play none none none',
+      },
+    }
+  );
+
+  return tween;
+}
+
+// ─── REVEAL SECTION (data-reveal variants) ────────────────────────────────────
+
+/**
+ * Reveal automático em todos os filhos com `[data-reveal]` dentro de um container.
+ * Lê a variante via atributo: `data-reveal="fade-up" | "fade-in" | "scale-in"`.
+ */
+export function revealSection(container: Element): void {
+  if (prefersReducedMotion()) {
+    const all = container.querySelectorAll('[data-reveal]');
+    all.forEach((el) => gsap.set(el, { opacity: 1, y: 0, scale: 1, clearProps: 'transform' }));
+    return;
+  }
+
+  const variants = ['fade-up', 'fade-in', 'scale-in'] as const;
+  variants.forEach((variant) => {
+    const els = container.querySelectorAll(`[data-reveal="${variant}"]`);
+    if (els.length === 0) return;
+
+    const from =
+      variant === 'fade-up'
+        ? { opacity: 0, y: 30 }
+        : variant === 'fade-in'
+          ? { opacity: 0 }
+          : { opacity: 0, scale: 0.95 };
+
+    gsap.fromTo(
+      els,
+      from,
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: motion.duration.slow,
+        ease: motion.ease.luxury,
+        stagger: 0.08,
+        immediateRender: false,
+        clearProps: 'opacity,transform',
+        scrollTrigger: {
+          trigger: container,
+          start: 'top 85%',
+          once: true,
+          toggleActions: 'play none none none',
+        },
+      }
+    );
   });
 }
 

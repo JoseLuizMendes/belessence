@@ -730,3 +730,101 @@
   from { width: 0%; }
   to   { width: 100%; }
 }
+
+/* ── PAGE TRANSITIONS ─────────────────────────────────────────────
+ * Aplicada em src/app/template.tsx — re-monta a cada navegação.
+ * Mantida sutil (300ms) para não atrapalhar a percepção de velocidade.
+ * Respeita prefers-reduced-motion.
+ */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-transition {
+  animation: page-enter 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── PULSE LENTO (badges Novo/Promoção) ──────────────────────────── */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.65; }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 2.4s ease-in-out infinite;
+}
+
+/* ── BOTÕES PADRÕES DE CONTRASTE ──────────────────────────────────
+ *
+ * Regras de contraste (mínimo 4.5:1 para texto):
+ *  • .btn-wine        → bg wine + text pink            (sobre claros)
+ *  • .btn-ghost-wine  → transparente + borda + text wine (sobre cream/pink)
+ *  • .btn-pink-on-wine→ bg pink + text wine            (sobre wine)
+ *
+ * NÃO use text-brand-wine sobre bg-brand-wine (tom-sobre-tom).
+ */
+.btn-wine {
+  background-color: var(--color-brand-wine);
+  color: var(--color-brand-pink);
+  transition: background-color var(--duration-fast) ease-out, transform var(--duration-fast) ease-out;
+}
+.btn-wine:hover {
+  background-color: var(--color-brand-wine-deep);
+}
+.btn-wine:active {
+  transform: scale(0.97);
+}
+
+.btn-ghost-wine {
+  background-color: transparent;
+  border: 1px solid rgba(71, 19, 28, 0.40);
+  color: var(--color-brand-wine);
+  transition: border-color var(--duration-fast) ease-out, background-color var(--duration-fast) ease-out;
+}
+.btn-ghost-wine:hover {
+  border-color: var(--color-brand-wine);
+  background-color: rgba(71, 19, 28, 0.06);
+}
+
+.btn-pink-on-wine {
+  background-color: var(--color-brand-pink);
+  color: var(--color-brand-wine);
+  transition: background-color var(--duration-fast) ease-out, transform var(--duration-fast) ease-out;
+}
+.btn-pink-on-wine:hover {
+  background-color: var(--color-brand-pink-soft);
+}
+
+/* ── MICRO-INTERAÇÕES ──────────────────────────────────────────── */
+
+/* Focus rings padronizados em interativos (apenas com :focus-visible) */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-brand-wine);
+  outline-offset: 2px;
+}
+
+/* Pill activatable que reage ao toque/click */
+.pill-press {
+  transition: transform var(--duration-fast) ease-out, background-color var(--duration-fast) ease-out;
+}
+.pill-press:active {
+  transform: scale(0.95);
+}
+
+/* ── REDUCED-MOTION OVERRIDES ──────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .page-transition,
+  .animate-pulse-slow {
+    animation: none !important;
+  }
+}

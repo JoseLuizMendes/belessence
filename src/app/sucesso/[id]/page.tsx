@@ -31,6 +31,9 @@ import {
   Truck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Typewriter } from "@/components/ui/typewriter";
+import { AnimatedPrice } from "@/components/ui/animated-price";
+import { productImageSrc } from "@/lib/product-image";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -92,9 +95,13 @@ export default async function SucessoPage({ params }: PageProps) {
               Mari Beauty
             </p>
 
-            <h1 className="font-playfair italic text-[clamp(2.4rem,5vw,3.8rem)] leading-[1.04] tracking-[-0.02em] text-ink-strong mb-4">
-              Pedido confirmado
-            </h1>
+            <Typewriter
+              as="h1"
+              text="Pedido confirmado"
+              speed={55}
+              immediate
+              className="font-playfair italic text-[clamp(2.4rem,5vw,3.8rem)] leading-[1.04] tracking-[-0.02em] text-ink-strong mb-4 block"
+            />
 
             <p className="text-sm sm:text-base text-ink-soft font-light max-w-md mx-auto mb-6">
               Recebemos seu pedido com sucesso. Em breve enviaremos as
@@ -136,7 +143,7 @@ export default async function SucessoPage({ params }: PageProps) {
                       <div className="relative w-20 h-20 flex-shrink-0 rounded-token-sm overflow-hidden bg-surface-section">
                         {item.imageUrl && (
                           <Image
-                            src={item.imageUrl}
+                            src={productImageSrc(item.imageUrl)}
                             alt={item.productName}
                             fill
                             className="object-cover"
@@ -255,9 +262,11 @@ export default async function SucessoPage({ params }: PageProps) {
                     <span className="text-[10px] font-medium tracking-[0.24em] uppercase text-brand-pink/80">
                       Total
                     </span>
-                    <span className="font-playfair italic text-2xl">
-                      {formatPrice(Number(order.total))}
-                    </span>
+                    <AnimatedPrice
+                      value={Number(order.total)}
+                      immediate
+                      className="font-playfair italic text-2xl"
+                    />
                   </div>
 
                   <div className="flex justify-between pt-3 border-t border-brand-pink/15">

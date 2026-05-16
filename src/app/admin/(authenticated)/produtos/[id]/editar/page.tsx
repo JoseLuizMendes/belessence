@@ -55,6 +55,11 @@ export default async function EditarProdutoPage({ params }: PageProps) {
           stock: product.stock,
           images: product.images,
           features: product.features,
+          status: product.status,
+          isLimitedEdition: product.isLimitedEdition,
+          markedAsNewUntil: product.markedAsNewUntil,
+          promotionStartsAt: product.promotionStartsAt,
+          promotionEndsAt: product.promotionEndsAt,
         }}
       />
     </div>

@@ -34,6 +34,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Button } from "./ui/button";
+import { Typewriter } from "./ui/typewriter";
 import {
   ChevronLeft,
   ChevronRight,
@@ -397,13 +398,18 @@ export default function Hero() {
                 {slide.eyebrow}
               </p>
 
-              {/* Título */}
-              <h1
-                className="text-[clamp(1.7rem,4.4vw,3.5rem)] leading-[1.06] tracking-[-0.025em] font-bold"
+              {/* Título — re-monta a cada troca de slide (key={active}) */}
+              <Typewriter
+                key={`hero-title-${active}`}
+                as="h1"
+                text={slide.title}
+                speed={45}
+                delay={150}
+                immediate
+                className="text-[clamp(1.7rem,4.4vw,3.5rem)] leading-[1.06] tracking-[-0.025em] font-bold block"
                 style={{ color: slide.titleColor }}
-              >
-                {slide.title}
-              </h1>
+                ariaLabel={slide.title}
+              />
 
               {/* Divisor */}
               <div

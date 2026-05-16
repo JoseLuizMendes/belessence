@@ -64,7 +64,11 @@ export default function Header() {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (!reduced) {
-      gsap.from(header, { y: -100, opacity: 0, duration: 0.8, ease: "power4.out" });
+      gsap.fromTo(
+        header,
+        { y: -100, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, ease: "power4.out", immediateRender: false, clearProps: "opacity,transform" },
+      );
     }
 
     // Scroll affordance — só blur e sombra mudam; cor do header fica fixa (bg-brand-pink).
@@ -180,7 +184,7 @@ export default function Header() {
               <Button variant="ghost" size="icon" className="relative h-9 w-9 text-ink-strong hover:bg-transparent">
                 <ShoppingBag className="h-4.5 w-4.5" strokeWidth={1.5} />
                 {cartCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-gold text-[10px] font-semibold text-ink-strong">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-wine text-[10px] font-semibold text-brand-pink">
                     {cartCount}
                   </span>
                 )}

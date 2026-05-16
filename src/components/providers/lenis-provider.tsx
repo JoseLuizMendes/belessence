@@ -34,20 +34,21 @@ export function LenisProvider({ children }: LenisProviderProps) {
       touchMultiplier: 2,
     });
 
-    // Integrar Lenis ao GSAP ticker (padrão oficial)
-    lenis.on("scroll", ScrollTrigger.update);
+    // Integrar Lenis ao GSAP ticker (padrão oficial).
+    // Mantemos referência ao callback para poder remover no cleanup.
+    const onScroll = () => ScrollTrigger.update();
+    lenis.on("scroll", onScroll);
 
-    gsap.ticker.add((time) => {
+    const tickerCallback = (time: number) => {
       lenis.raf(time * 1000);
-    });
-
+    };
+    gsap.ticker.add(tickerCallback);
     gsap.ticker.lagSmoothing(0);
 
     return () => {
+      lenis.off("scroll", onScroll);
+      gsap.ticker.remove(tickerCallback);
       lenis.destroy();
-      gsap.ticker.remove((time) => {
-        lenis.raf(time * 1000);
-      });
     };
   }, []);
 
