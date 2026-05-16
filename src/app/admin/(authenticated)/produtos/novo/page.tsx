@@ -3,6 +3,11 @@ import { createProduct } from "../actions";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
+// O <CloudinaryUpload> usa env vars NEXT_PUBLIC_* que podem não estar
+// presentes em build time (ex.: deploy sem secrets configurados ainda).
+// Força render dinâmico — admin nunca precisa ser estático mesmo.
+export const dynamic = "force-dynamic";
+
 export default function NovoProdutoPage() {
   return (
     <div>
