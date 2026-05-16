@@ -1,7 +1,22 @@
 // prisma/seed.ts
+import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@prisma/client'
+import { Pool } from 'pg'
+import 'dotenv/config'
 
-const prisma = new PrismaClient()
+const connectionString = process.env.DATABASE_URL
+if (!connectionString) {
+  throw new Error('DATABASE_URL não definido no .env')
+}
+
+const pool = new Pool({ connectionString })
+const adapter = new PrismaPg(pool)
+const prisma = new PrismaClient({ adapter })
+
+// Datas auxiliares para as promoções demonstrativas
+const NOW = new Date()
+const SEVEN_DAYS_FROM_NOW = new Date(NOW.getTime() + 7 * 24 * 60 * 60 * 1000)
+const THIRTY_DAYS_FROM_NOW = new Date(NOW.getTime() + 30 * 24 * 60 * 60 * 1000)
 
 // Copiamos os dados do seu products.ts para cá
 const PRODUCTS = [
@@ -11,8 +26,8 @@ const PRODUCTS = [
     name: "Midnight Velvet",
     shortDescription: "Uma experiência olfativa envolvente com notas de baunilha e sândalo",
     description: "Midnight Velvet é uma fragrância misteriosa e sofisticada, perfeita para a noite. Com notas de topo de bergamota e pimenta rosa, evoluindo para um coração de jasmim e baunilha, e finalizando com uma base rica de sândalo e patchouli. Uma verdadeira joia da perfumaria.",
-    price: 189.9,
-    originalPrice: 229.9,
+    price: 229.9,
+    originalPrice: null,
     badge: "Novo",
     badgeVariant: "default",
     rating: 5,
@@ -24,6 +39,11 @@ const PRODUCTS = [
     totalSold: 120,
     seasonalSold: 45,
     stock: 48,
+    status: "NORMAL" as const,
+    isLimitedEdition: false,
+    markedAsNewUntil: THIRTY_DAYS_FROM_NOW,
+    promotionStartsAt: null,
+    promotionEndsAt: null,
   },
   {
     id: "2",
@@ -43,6 +63,11 @@ const PRODUCTS = [
     totalSold: 450,
     seasonalSold: 120,
     stock: 85,
+    status: "NORMAL" as const,
+    isLimitedEdition: false,
+    markedAsNewUntil: null,
+    promotionStartsAt: null,
+    promotionEndsAt: null,
   },
   {
     id: "3",
@@ -62,6 +87,11 @@ const PRODUCTS = [
     totalSold: 50,
     seasonalSold: 15,
     stock: 12,
+    status: "NORMAL" as const,
+    isLimitedEdition: true,
+    markedAsNewUntil: null,
+    promotionStartsAt: null,
+    promotionEndsAt: null,
   },
   {
     id: "4",
@@ -79,6 +109,11 @@ const PRODUCTS = [
     totalSold: 80,
     seasonalSold: 60,
     stock: 34,
+    status: "NORMAL" as const,
+    isLimitedEdition: false,
+    markedAsNewUntil: null,
+    promotionStartsAt: null,
+    promotionEndsAt: null,
   },
   {
     id: "5",
@@ -96,6 +131,11 @@ const PRODUCTS = [
     totalSold: 210,
     seasonalSold: 75,
     stock: 60,
+    status: "NORMAL" as const,
+    isLimitedEdition: false,
+    markedAsNewUntil: null,
+    promotionStartsAt: null,
+    promotionEndsAt: null,
   },
   {
     id: "6",
@@ -115,6 +155,11 @@ const PRODUCTS = [
     totalSold: 30,
     seasonalSold: 10,
     stock: 8,
+    status: "NORMAL" as const,
+    isLimitedEdition: true,
+    markedAsNewUntil: null,
+    promotionStartsAt: null,
+    promotionEndsAt: null,
   },
   {
     id: "7",
@@ -135,6 +180,11 @@ const PRODUCTS = [
     totalSold: 500,
     seasonalSold: 150,
     stock: 95,
+    status: "PROMOTION" as const,
+    isLimitedEdition: false,
+    markedAsNewUntil: null,
+    promotionStartsAt: NOW,
+    promotionEndsAt: SEVEN_DAYS_FROM_NOW,
   },
   {
     id: "8",
@@ -155,6 +205,11 @@ const PRODUCTS = [
     totalSold: 320,
     seasonalSold: 90,
     stock: 72,
+    status: "PROMOTION" as const,
+    isLimitedEdition: false,
+    markedAsNewUntil: null,
+    promotionStartsAt: NOW,
+    promotionEndsAt: SEVEN_DAYS_FROM_NOW,
   },
   {
     id: "9",
@@ -175,6 +230,40 @@ const PRODUCTS = [
     totalSold: 280,
     seasonalSold: 110,
     stock: 55,
+    status: "PROMOTION" as const,
+    isLimitedEdition: false,
+    markedAsNewUntil: null,
+    promotionStartsAt: NOW,
+    promotionEndsAt: SEVEN_DAYS_FROM_NOW,
+  },
+]
+
+// ─── CUPONS ───────────────────────────────────────────────────────────────────
+
+const COUPONS = [
+  {
+    code: 'BELES10',
+    type: 'PERCENTAGE' as const,
+    value: 10,
+    minOrder: null,
+    maxUses: null,
+    active: true,
+  },
+  {
+    code: 'FRETE15',
+    type: 'FIXED' as const,
+    value: 15,
+    minOrder: 100,
+    maxUses: null,
+    active: true,
+  },
+  {
+    code: 'PRIMEIRA20',
+    type: 'PERCENTAGE' as const,
+    value: 20,
+    minOrder: 250,
+    maxUses: 100,
+    active: true,
   },
 ]
 
@@ -206,6 +295,11 @@ async function main() {
         totalSold: product.totalSold,
         seasonalSold: product.seasonalSold,
         stock: product.stock,
+        status: product.status,
+        isLimitedEdition: product.isLimitedEdition,
+        markedAsNewUntil: product.markedAsNewUntil,
+        promotionStartsAt: product.promotionStartsAt,
+        promotionEndsAt: product.promotionEndsAt,
       },
       create: {
         id: product.id, // Forçando o ID para manter compatibilidade com sua api.ts
@@ -226,11 +320,34 @@ async function main() {
         totalSold: product.totalSold,
         seasonalSold: product.seasonalSold,
         stock: product.stock,
+        status: product.status,
+        isLimitedEdition: product.isLimitedEdition,
+        markedAsNewUntil: product.markedAsNewUntil,
+        promotionStartsAt: product.promotionStartsAt,
+        promotionEndsAt: product.promotionEndsAt,
       },
     })
     console.log(`Created/Updated product: ${result.name}`)
   }
-  console.log('✅ Seed finalizado com sucesso!')
+
+  // ─── Seed dos Cupons ────────────────────────────────────────────────────────
+  console.log('\n🎟️  Seedando cupons...')
+  for (const coupon of COUPONS) {
+    const result = await prisma.coupon.upsert({
+      where: { code: coupon.code },
+      update: {
+        type: coupon.type,
+        value: coupon.value,
+        minOrder: coupon.minOrder,
+        maxUses: coupon.maxUses,
+        active: coupon.active,
+      },
+      create: coupon,
+    })
+    console.log(`Created/Updated coupon: ${result.code} (${result.type} ${result.value}${result.type === 'PERCENTAGE' ? '%' : ''})`)
+  }
+
+  console.log('\n✅ Seed finalizado com sucesso!')
 }
 
 main()

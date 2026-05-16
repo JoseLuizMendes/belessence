@@ -23,19 +23,19 @@ const NAV_COLUMNS = [
   {
     title: "Atendimento",
     links: [
-      { label: "Central de Ajuda", href: "#" },
-      { label: "Trocas e Devoluções", href: "#" },
-      { label: "Entrega", href: "#" },
-      { label: "Contato", href: "#" },
+      { label: "Central de Ajuda", href: "/ajuda" },
+      { label: "Trocas e Devoluções", href: "/ajuda" },
+      { label: "Meus Pedidos", href: "/meus-pedidos" },
+      { label: "Contato", href: "/contato" },
     ],
   },
   {
     title: "Empresa",
     links: [
-      { label: "Sobre Nós", href: "#" },
-      { label: "Política de Privacidade", href: "#" },
-      { label: "Termos de Uso", href: "#" },
-      { label: "Trabalhe Conosco", href: "#" },
+      { label: "Sobre Nós", href: "/sobre" },
+      { label: "Favoritos", href: "/favoritos" },
+      { label: "Newsletter", href: "/#newsletter" },
+      { label: "Instagram", href: "https://instagram.com" },
     ],
   },
 ];

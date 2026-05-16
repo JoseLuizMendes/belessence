@@ -57,10 +57,25 @@ export default function Newsletter() {
 
   const onSubmit = async (data: NewsletterForm) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      toast.success("Inscrição confirmada!", {
-        description: `${data.email} receberá nossas novidades em breve.`,
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: data.email }),
       });
+      const result = await res.json();
+
+      if (!res.ok) {
+        toast.error(result.error ?? "Erro ao inscrever");
+        return;
+      }
+
+      if (result.alreadySubscribed) {
+        toast.info(result.message ?? "Você já está inscrita!");
+      } else {
+        toast.success("Inscrição confirmada!", {
+          description: result.message ?? `${data.email} receberá nossas novidades em breve.`,
+        });
+      }
       reset();
     } catch {
       toast.error("Erro ao inscrever", { description: "Tente novamente em instantes." });
@@ -128,7 +143,7 @@ export default function Newsletter() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="loreal-btn-pill flex h-12 items-center justify-center gap-2 whitespace-nowrap border-none bg-brand-wine px-7 text-xs font-medium tracking-[0.18em] uppercase text-surface-base transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand-wine/90"
+                  className="loreal-btn-pill flex h-12 items-center justify-center gap-2 whitespace-nowrap border-none bg-brand-wine px-7 text-xs font-medium tracking-[0.18em] uppercase text-brand-pink transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand-wine/90"
                 >
                   {isSubmitting ? "Enviando..." : (
                     <>

@@ -13,23 +13,28 @@
 import { useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { useCart } from "@/components/cart";
+import { WishlistButton } from "@/components/wishlist-button";
+import { ProductReviews } from "@/components/product-reviews";
 import { fadeInUp } from "@/lib/gsap-utils";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, ShoppingBag } from "lucide-react";
 import { formatPrice } from "@/api/utils";
 import Image from "next/image";
 import type { Product } from "@/lib/products-db";
+import { productImageSrc } from "@/lib/product-image";
+import { getEffectivePromotion, isEffectivelyNew } from "@/lib/product-status";
 
 interface ProductDetailsClientProps {
   product: Product;
 }
 
-type TabKey = "descricao" | "ritual" | "ingredientes";
+type TabKey = "descricao" | "ritual" | "ingredientes" | "avaliacoes";
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: "descricao", label: "Descrição" },
   { key: "ritual", label: "Ritual de Uso" },
   { key: "ingredientes", label: "Ingredientes" },
+  { key: "avaliacoes", label: "Avaliações" },
 ];
 
 export default function ProductDetailsClient({ product }: ProductDetailsClientProps) {
@@ -94,6 +99,7 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
         ))}
       </ul>
     ),
+    avaliacoes: <ProductReviews productId={product.id} />,
   };
 
   return (
@@ -107,18 +113,49 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
             className="relative aspect-square overflow-hidden rounded-token-sm bg-surface-section"
           >
             <Image
-              src={product.images[selectedImage] ?? product.images[0]}
+              src={productImageSrc(product.images[selectedImage] ?? product.images[0])}
               alt={product.name}
               fill
               priority
-              className="object-cover"
+              className={[
+                "object-cover",
+                product.stock === 0 ? "opacity-70 grayscale-[0.15]" : "",
+              ].join(" ")}
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
-            {product.badge && (
-              <span className="absolute top-4 left-4 inline-flex items-center rounded-full bg-brand-wine px-3 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-brand-pink">
-                {product.badge}
-              </span>
-            )}
+            {/* Badges PDP — esgotado tem prioridade, demais combinam */}
+            <div className="absolute top-4 left-4 flex flex-col gap-1.5 items-start">
+              {product.stock === 0 && (
+                <span className="inline-flex items-center rounded-full bg-ink-strong px-3 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-brand-pink shadow-card">
+                  Esgotado
+                </span>
+              )}
+              {product.status === "DISCONTINUED" && (
+                <span className="inline-flex items-center rounded-full bg-ink-muted px-3 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-surface-base">
+                  Fora de linha
+                </span>
+              )}
+              {product.status === "COMING_SOON" && (
+                <span className="inline-flex items-center rounded-full bg-blue-700 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-white">
+                  Em breve
+                </span>
+              )}
+              {getEffectivePromotion(product) && (
+                <span className="inline-flex items-center rounded-full bg-brand-wine px-3 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-brand-pink animate-pulse-slow">
+                  Promoção
+                </span>
+              )}
+              {product.isLimitedEdition && (
+                <span className="inline-flex items-center rounded-full bg-amber-600 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-white">
+                  Edição limitada
+                </span>
+              )}
+              {isEffectivelyNew(product) && product.status !== "PROMOTION" && (
+                <span className="inline-flex items-center rounded-full bg-emerald-600 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-white">
+                  Lançamento
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Thumbnails */}
@@ -136,7 +173,7 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
                       : "opacity-70 hover:opacity-100",
                   ].join(" ")}
                 >
-                  <Image src={img} alt={`${product.name} ${i + 1}`} fill className="object-cover" />
+                  <Image src={productImageSrc(img)} alt={`${product.name} ${i + 1}`} fill className="object-cover" />
                 </button>
               ))}
             </div>
@@ -224,6 +261,13 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
               <ShoppingBag className="mr-2 h-4 w-4" strokeWidth={1.5} />
               Adicionar à Bag
             </Button>
+
+            {/* Wishlist */}
+            <WishlistButton
+              productId={product.id}
+              productName={product.name}
+              variant="pdp"
+            />
           </div>
         </div>
       </div>

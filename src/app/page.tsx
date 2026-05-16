@@ -6,19 +6,15 @@
 
 import Header from "@/components/header";
 import Hero from "@/components/hero";
-import Sales from "@/components/sales";
 import Features from "@/components/features";
 import CollectionsProducts from "@/components/collections-products";
 import FeatureProducts from "@/components/feature-products";
 import Newsletter from "@/components/newsletter";
 import Footer from "@/components/footer";
-import { getSalesProducts, getFeaturedProducts } from "@/lib/products-db";
+import { getFeaturedProducts } from "@/lib/products-db";
 
 export default async function Home() {
-  const [salesProducts, featuredProducts] = await Promise.all([
-    getSalesProducts(),
-    getFeaturedProducts(6),
-  ]);
+  const featuredProducts = await getFeaturedProducts(6);
 
   return (
     <div className="min-h-screen bg-brand-pink">
@@ -31,8 +27,6 @@ export default async function Home() {
 
         {/* Bloco contínuo bg-brand-pink — sem vão bege entre seções */}
         <div className="bg-brand-pink">
-          <Sales products={salesProducts} />
-
           <div id="ritual" className="relative z-10">
             <Features />
           </div>

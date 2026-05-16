@@ -14,6 +14,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronDown, Sparkles, Timer, Tag } from "lucide-react";
 import type { SalesProduct } from "@/lib/products-db";
+import { productImageSrc } from "@/lib/product-image";
 
 // Helper component to render icon by name
 const IconRenderer = ({ name, className }: { name?: string; className?: string }) => {
@@ -113,7 +114,7 @@ export default function Sales({ products }: SalesProps) {
                     <div className="flex-1 w-full max-w-md md:max-w-xl lg:max-w-2xl relative aspect-4/3 sm:aspect-square md:aspect-4/3 flex items-center justify-center">
                       <div className="relative w-full h-full max-h-56 sm:max-h-72 md:max-h-[420px] lg:max-h-[520px]">
                         <Image
-                          src={sale.images[0]}
+                          src={productImageSrc(sale.images[0])}
                           alt={sale.name}
                           fill
                           priority

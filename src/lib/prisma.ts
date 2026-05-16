@@ -22,7 +22,9 @@ export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
     adapter,
-    log: ["query"],
+    // Apenas erros — sem `query` (evita poluir console e expor SQL).
+    // Em dev, o Next.js encaminha logs do servidor para o browser console.
+    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });
 
 if (process.env.NODE_ENV !== "production") {
