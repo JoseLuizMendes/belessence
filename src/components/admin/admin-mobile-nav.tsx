@@ -40,7 +40,7 @@ export function AdminMobileNav({ children }: AdminMobileNavProps) {
       </SheetTrigger>
       <SheetContent
         side="left"
-        className="w-72 bg-brand-wine text-brand-pink border-r border-brand-pink/10 p-0"
+        className="w-[85vw] max-w-xs sm:w-72 sm:max-w-none bg-brand-wine text-brand-pink border-r border-brand-pink/10 p-0"
       >
         <SheetTitle className="sr-only">Menu admin</SheetTitle>
         {/* Captura cliques em <Link> para fechar o drawer automaticamente */}

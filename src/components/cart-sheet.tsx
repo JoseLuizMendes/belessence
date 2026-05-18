@@ -23,65 +23,66 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
       <SheetTrigger asChild>
         {children}
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-md flex flex-col">
-        <SheetHeader>
-          <SheetTitle className="font-playfair text-2xl">Seu Carrinho</SheetTitle>
-          <SheetDescription>
-            {items.length === 0 ? "Seu carrinho está vazio" : `${items.length} itens selecionados`}
+      <SheetContent className="w-full sm:max-w-md flex flex-col p-0 gap-0">
+        <SheetHeader className="px-5 sm:px-6 pt-6 pb-4 border-b border-border-subtle">
+          <SheetTitle className="font-playfair text-2xl text-ink-strong">Seu Carrinho</SheetTitle>
+          <SheetDescription className="text-ink-soft">
+            {items.length === 0 ? "Seu carrinho está vazio" : `${items.length} ${items.length === 1 ? "item selecionado" : "itens selecionados"}`}
           </SheetDescription>
         </SheetHeader>
-        
-        <div className="flex-1 overflow-y-auto py-6">
+
+        <div className="flex-1 overflow-y-auto px-5 sm:px-6 py-5">
             {items.length === 0 && (
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground space-y-4">
+                <div className="flex flex-col items-center justify-center h-full text-ink-muted space-y-4">
                     <ShoppingBag className="h-16 w-16 opacity-20" />
-                    <p>Nenhum produto selecionado</p>
+                    <p className="text-sm">Nenhum produto selecionado</p>
                 </div>
             )}
-            <div className="space-y-6">
+            <div className="space-y-5">
                 {items.map((item) => (
-                    <div key={item.id} className="flex gap-4">
-                        <div className="h-20 w-20 bg-muted rounded-md flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                    <div key={item.id} className="flex gap-3 sm:gap-4">
+                        <div className="h-20 w-20 bg-surface-section rounded-token-sm flex items-center justify-center flex-shrink-0 relative overflow-hidden">
                              {item.image ? (
-                                <Image 
-                                    src={item.image} 
-                                    alt={item.name} 
-                                    fill 
-                                    className="object-cover" 
+                                <Image
+                                    src={item.image}
+                                    alt={item.name}
+                                    fill
+                                    className="object-cover"
+                                    sizes="80px"
                                 />
                              ) : (
                                 <ShoppingBag className="h-8 w-8 opacity-20" />
                              )}
                         </div>
-                        <div className="flex-1 flex flex-col justify-between">
-                            <div>
-                                <h3 className="font-medium leading-none">{item.name}</h3>
-                                <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{item.shortDescription}</p>
+                        <div className="flex-1 min-w-0 flex flex-col justify-between gap-2">
+                            <div className="min-w-0">
+                                <h3 className="font-medium text-sm leading-snug text-ink-strong line-clamp-1">{item.name}</h3>
+                                <p className="text-xs text-ink-soft mt-1 line-clamp-1">{item.shortDescription}</p>
                             </div>
-                            <div className="flex items-center justify-between mt-2">
-                                <div className="font-semibold text-primary">{formatPrice(item.price)}</div>
-                                <div className="flex items-center gap-2">
-                                    <Button 
-                                        variant="outline" 
-                                        size="icon" 
-                                        className="h-7 w-7"
+                            <div className="flex items-center justify-between gap-2">
+                                <div className="font-semibold text-sm text-brand-wine tabular-nums">{formatPrice(item.price)}</div>
+                                <div className="flex items-center gap-1">
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="h-7 w-7 rounded-full"
                                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
                                     >
                                         <Minus className="h-3 w-3" />
                                     </Button>
-                                    <span className="w-6 text-center text-sm font-medium">{item.quantity}</span>
-                                    <Button 
-                                        variant="outline" 
-                                        size="icon" 
-                                        className="h-7 w-7"
+                                    <span className="w-6 text-center text-sm font-medium tabular-nums">{item.quantity}</span>
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="h-7 w-7 rounded-full"
                                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                     >
                                         <Plus className="h-3 w-3" />
                                     </Button>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="icon" 
-                                        className="h-7 w-7 text-destructive hover:text-destructive/90 ml-2"
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-7 w-7 text-destructive hover:text-destructive/90 ml-1"
                                         onClick={() => removeFromCart(item.id)}
                                     >
                                         <Trash2 className="h-4 w-4" />
@@ -94,10 +95,10 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
             </div>
         </div>
 
-        <div className="space-y-4 pt-6 border-t bg-background">
-            <div className="flex items-center justify-between font-medium text-lg">
-                <span>Total</span>
-                <span className="text-primary font-bold">{formatPrice(cartTotal)}</span>
+        <div className="space-y-4 px-5 sm:px-6 py-5 border-t border-border-subtle bg-background">
+            <div className="flex items-center justify-between font-medium text-base">
+                <span className="text-ink-strong">Total</span>
+                <span className="text-brand-wine font-bold tabular-nums">{formatPrice(cartTotal)}</span>
             </div>
             <Button asChild className="w-full bg-brand-wine text-brand-pink hover:bg-brand-wine/90 loreal-btn-pill h-12 text-[12px] font-medium tracking-[0.18em] uppercase" size="lg" disabled={items.length === 0}>
                 <Link href="/checkout" onClick={() => setIsCartOpen(false)}>

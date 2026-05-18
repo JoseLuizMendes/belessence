@@ -83,7 +83,7 @@ export function CloudinaryUpload({
 
       {/* Grid de previews */}
       {value.length > 0 && (
-        <ul className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+        <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {value.map((url, idx) => (
             <li
               key={`${url}-${idx}`}

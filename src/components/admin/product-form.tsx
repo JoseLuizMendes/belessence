@@ -176,7 +176,7 @@ export function ProductForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-3xl">
       {/* INFORMAÇÕES BÁSICAS */}
-      <section className="bg-surface-panel rounded-token-md p-6 sm:p-8">
+      <section className="bg-surface-panel rounded-token-md p-4 sm:p-6 md:p-8">
         <h2 className="font-playfair italic text-xl text-ink-strong mb-2">
           Informações básicas
         </h2>
@@ -228,7 +228,7 @@ export function ProductForm({
       </section>
 
       {/* PREÇOS & ESTOQUE */}
-      <section className="bg-surface-panel rounded-token-md p-6 sm:p-8">
+      <section className="bg-surface-panel rounded-token-md p-4 sm:p-6 md:p-8">
         <h2 className="font-playfair italic text-xl text-ink-strong mb-2">
           Preço e estoque
         </h2>
@@ -274,7 +274,7 @@ export function ProductForm({
       </section>
 
       {/* ESTADO DO PRODUTO */}
-      <section className="bg-surface-panel rounded-token-md p-6 sm:p-8">
+      <section className="bg-surface-panel rounded-token-md p-4 sm:p-6 md:p-8">
         <h2 className="font-playfair italic text-xl text-ink-strong mb-2">
           Estado do produto
         </h2>
@@ -409,7 +409,7 @@ export function ProductForm({
       </section>
 
       {/* CATEGORIZAÇÃO */}
-      <section className="bg-surface-panel rounded-token-md p-6 sm:p-8">
+      <section className="bg-surface-panel rounded-token-md p-4 sm:p-6 md:p-8">
         <h2 className="font-playfair italic text-xl text-ink-strong mb-2">
           Categorização
         </h2>
@@ -476,7 +476,7 @@ export function ProductForm({
       </section>
 
       {/* MÍDIA */}
-      <section className="bg-surface-panel rounded-token-md p-6 sm:p-8">
+      <section className="bg-surface-panel rounded-token-md p-4 sm:p-6 md:p-8">
         <h2 className="font-playfair italic text-xl text-ink-strong mb-2">
           Imagens
         </h2>
@@ -491,7 +491,7 @@ export function ProductForm({
       </section>
 
       {/* CARACTERÍSTICAS */}
-      <section className="bg-surface-panel rounded-token-md p-6 sm:p-8">
+      <section className="bg-surface-panel rounded-token-md p-4 sm:p-6 md:p-8">
         <h2 className="font-playfair italic text-xl text-ink-strong mb-2">
           Características
         </h2>

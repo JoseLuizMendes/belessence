@@ -232,41 +232,54 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
             </div>
           )}
 
-          {/* Quantidade + CTA */}
-          <div className="flex flex-col sm:flex-row items-stretch gap-3 pt-4">
-            <div className="flex items-center border border-border-subtle rounded-full bg-surface-panel">
-              <button
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                disabled={quantity <= 1}
-                aria-label="Diminuir quantidade"
-                className="flex h-12 w-12 items-center justify-center rounded-l-full text-ink-soft hover:text-brand-wine disabled:opacity-30 transition-colors"
-              >
-                <Minus className="h-4 w-4" />
-              </button>
-              <span className="w-12 text-center text-sm font-medium text-ink-strong">{quantity}</span>
-              <button
-                onClick={() => setQuantity(quantity + 1)}
-                aria-label="Aumentar quantidade"
-                className="flex h-12 w-12 items-center justify-center rounded-r-full text-ink-soft hover:text-brand-wine transition-colors"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
+          {/* Quantidade + CTA + Wishlist */}
+          <div className="pt-4 flex flex-col sm:flex-row sm:items-stretch gap-3">
+            {/* Linha 1 em mobile: quantity + wishlist (lado a lado) */}
+            <div className="flex items-stretch gap-3">
+              <div className="flex items-center border border-border-subtle rounded-full bg-surface-panel shrink-0">
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  disabled={quantity <= 1}
+                  aria-label="Diminuir quantidade"
+                  className="flex h-12 w-11 items-center justify-center rounded-l-full text-ink-soft hover:text-brand-wine disabled:opacity-30 transition-colors"
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+                <span className="w-10 text-center text-sm font-medium text-ink-strong tabular-nums">{quantity}</span>
+                <button
+                  onClick={() => setQuantity(quantity + 1)}
+                  aria-label="Aumentar quantidade"
+                  className="flex h-12 w-11 items-center justify-center rounded-r-full text-ink-soft hover:text-brand-wine transition-colors"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Wishlist em mobile fica aqui (à direita do quantity) */}
+              <WishlistButton
+                productId={product.id}
+                productName={product.name}
+                variant="pdp"
+                className="sm:hidden ml-auto"
+              />
             </div>
 
+            {/* Botão Adicionar — full width mobile, flex-1 desktop */}
             <Button
               size="lg"
               onClick={handleAddToCart}
-              className="loreal-btn-pill flex-1 h-12 bg-brand-wine text-brand-pink text-[12px] font-medium tracking-[0.18em] uppercase hover:bg-brand-wine/90 group"
+              className="loreal-btn-pill w-full sm:flex-1 h-12 bg-brand-wine text-brand-pink text-[12px] font-medium tracking-[0.18em] uppercase hover:bg-brand-wine/90 group"
             >
               <ShoppingBag className="mr-2 h-4 w-4" strokeWidth={1.5} />
               Adicionar à Bag
             </Button>
 
-            {/* Wishlist */}
+            {/* Wishlist desktop — fica no fim da linha */}
             <WishlistButton
               productId={product.id}
               productName={product.name}
               variant="pdp"
+              className="hidden sm:flex"
             />
           </div>
         </div>

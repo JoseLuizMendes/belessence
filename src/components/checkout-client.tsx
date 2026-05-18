@@ -296,12 +296,12 @@ export default function CheckoutClient() {
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-8 lg:gap-12"
+        className="grid grid-cols-1 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_440px] gap-8 lg:gap-10 xl:gap-12"
       >
         {/* ESQUERDA — Identificação + Entrega + Cupom */}
         <div className="space-y-10">
           {/* IDENTIFICAÇÃO */}
-          <section className="bg-surface-panel rounded-token-md p-6 sm:p-8">
+          <section className="bg-surface-panel rounded-token-md p-4 sm:p-6 md:p-8">
             <h2 className="font-playfair italic text-xl sm:text-2xl text-ink-strong mb-2">
               Identificação
             </h2>
@@ -351,7 +351,7 @@ export default function CheckoutClient() {
           </section>
 
           {/* ENTREGA */}
-          <section className="bg-surface-panel rounded-token-md p-6 sm:p-8">
+          <section className="bg-surface-panel rounded-token-md p-4 sm:p-6 md:p-8">
             <h2 className="font-playfair italic text-xl sm:text-2xl text-ink-strong mb-2">
               Entrega
             </h2>
@@ -434,7 +434,7 @@ export default function CheckoutClient() {
           </section>
 
           {/* CUPOM */}
-          <section className="bg-surface-panel rounded-token-md p-6 sm:p-8">
+          <section className="bg-surface-panel rounded-token-md p-4 sm:p-6 md:p-8">
             <h2 className="font-playfair italic text-xl sm:text-2xl text-ink-strong mb-2">
               Cupom de desconto
             </h2>
@@ -493,7 +493,7 @@ export default function CheckoutClient() {
 
         {/* DIREITA — Sua Bolsa */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <div className="bg-brand-wine text-brand-pink rounded-token-md p-6 sm:p-8">
+          <div className="bg-brand-wine text-brand-pink rounded-token-md p-4 sm:p-6 md:p-8">
             <h2 className="font-playfair italic text-xl sm:text-2xl mb-2">
               Sua Bolsa
             </h2>

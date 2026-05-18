@@ -47,6 +47,7 @@ export default function Header() {
   const { cartCount } = useCart();
   const wishlistCount = useWishlistStore((s) => s.count);
   const [searchTerm, setSearchTerm] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mounted = useHasMounted();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -55,6 +56,7 @@ export default function Header() {
     if (!term) return;
     router.push(`/allProducts?q=${encodeURIComponent(term)}`);
     setSearchTerm("");
+    setMobileMenuOpen(false);
   };
 
   useGSAP(() => {
@@ -87,6 +89,7 @@ export default function Header() {
   }, { scope: headerRef });
 
   const scrollTo = (id: string) => {
+    setMobileMenuOpen(false);
     if (window.location.pathname !== "/") {
       window.location.assign(`/#${id}`);
       return;
@@ -163,7 +166,7 @@ export default function Header() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="buscar fragrâncias"
                 aria-label="Buscar produtos"
-                className="h-9 w-72 rounded-none border-0 bg-transparent pl-9 text-xs text-ink-strong placeholder:text-ink-muted placeholder:tracking-[0.02em] focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
+                className="h-9 w-40 lg:w-56 xl:w-72 rounded-none border-0 bg-transparent pl-9 text-xs text-ink-strong placeholder:text-ink-muted placeholder:tracking-[0.02em] focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
               />
             </form>
 
@@ -192,7 +195,7 @@ export default function Header() {
             </CartSheet>
 
             {/* Mobile menu */}
-            <Sheet>
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-9 w-9 text-ink-strong hover:bg-transparent md:hidden">
                   <Menu className="h-4.5 w-4.5" strokeWidth={1.5} />
