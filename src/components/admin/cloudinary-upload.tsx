@@ -44,11 +44,12 @@ export function CloudinaryUpload({
   const id = useId();
   const [error, setError] = useState<string | null>(null);
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const apiKey = process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
   const folder =
     process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_FOLDER ?? "belessence/products";
 
   const canAddMore = value.length < max;
-  const missingConfig = !cloudName;
+  const missingConfig = !cloudName || !apiKey;
 
   const remove = (idx: number) => {
     onChange(value.filter((_, i) => i !== idx));
@@ -73,7 +74,8 @@ export function CloudinaryUpload({
           <AlertCircle className="h-4 w-4 flex-shrink-0" />
           <span>
             Cloudinary não configurado. Adicione{" "}
-            <code className="font-mono">NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME</code> em{" "}
+            <code className="font-mono">NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME</code> e{" "}
+            <code className="font-mono">NEXT_PUBLIC_CLOUDINARY_API_KEY</code> em{" "}
             <code className="font-mono">.env.local</code> e reinicie o dev server.
           </span>
         </div>
