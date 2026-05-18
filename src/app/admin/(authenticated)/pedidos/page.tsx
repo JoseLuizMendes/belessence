@@ -105,75 +105,136 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
           </p>
         </div>
       ) : (
-        <div className="bg-surface-panel rounded-token-md overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-surface-section">
-                <tr>
-                  <th className="text-left py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                    Pedido
-                  </th>
-                  <th className="text-left py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                    Cliente
-                  </th>
-                  <th className="text-left py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                    Data
-                  </th>
-                  <th className="text-left py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                    Status
-                  </th>
-                  <th className="text-right py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                    Itens
-                  </th>
-                  <th className="text-right py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                    Total
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((o) => {
-                  const status = STATUS_LABELS[o.status] ?? STATUS_LABELS.PENDING;
-                  const totalItems = o.items.reduce(
-                    (acc, i) => acc + i.quantity,
-                    0,
-                  );
-                  return (
-                    <tr key={o.id} className="border-t border-border-subtle">
-                      <td className="py-4 px-5">
-                        <Link
-                          href={`/admin/pedidos/${o.id}`}
-                          className="text-xs font-medium tracking-[0.18em] uppercase text-brand-wine hover:underline"
-                        >
-                          #{o.id.slice(0, 8).toUpperCase()}
-                        </Link>
-                      </td>
-                      <td className="py-4 px-5">
-                        <p className="text-sm text-ink-strong">{o.customerName}</p>
-                        <p className="text-xs text-ink-muted">{o.customerEmail}</p>
-                      </td>
-                      <td className="py-4 px-5 text-xs text-ink-soft">
+        <>
+          {/* Mobile: cards (< md) */}
+          <ul className="md:hidden flex flex-col gap-3">
+            {orders.map((o) => {
+              const status = STATUS_LABELS[o.status] ?? STATUS_LABELS.PENDING;
+              const totalItems = o.items.reduce(
+                (acc, i) => acc + i.quantity,
+                0,
+              );
+              return (
+                <li key={o.id} className="bg-surface-panel rounded-token-md p-4">
+                  <Link
+                    href={`/admin/pedidos/${o.id}`}
+                    className="flex flex-col gap-2"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="text-xs font-medium tracking-[0.18em] uppercase text-brand-wine">
+                        #{o.id.slice(0, 8).toUpperCase()}
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-[0.14em] ${status.color}`}
+                      >
+                        {status.label}
+                      </span>
+                    </div>
+
+                    <div className="min-w-0">
+                      <p className="text-sm text-ink-strong truncate">
+                        {o.customerName}
+                      </p>
+                      <p className="text-xs text-ink-muted truncate">
+                        {o.customerEmail}
+                      </p>
+                    </div>
+
+                    <div className="flex items-end justify-between gap-2 pt-1 border-t border-border-subtle/60 mt-1">
+                      <span className="text-[11px] text-ink-soft">
                         {formatDate(o.createdAt)}
-                      </td>
-                      <td className="py-4 px-5">
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-[0.14em] ${status.color}`}
-                        >
-                          {status.label}
+                      </span>
+                      <div className="text-right">
+                        <span className="text-[11px] text-ink-soft tabular-nums mr-2">
+                          {totalItems} {totalItems === 1 ? "item" : "itens"}
                         </span>
-                      </td>
-                      <td className="py-4 px-5 text-right text-sm text-ink-soft tabular-nums">
-                        {totalItems}
-                      </td>
-                      <td className="py-4 px-5 text-right text-sm font-medium text-brand-wine">
-                        {formatPrice(Number(o.total))}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        <span className="text-sm font-medium text-brand-wine tabular-nums">
+                          {formatPrice(Number(o.total))}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+
+          {/* Desktop/tablet: tabela (md+) */}
+          <div className="hidden md:block bg-surface-panel rounded-token-md overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-surface-section">
+                  <tr>
+                    <th className="text-left py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
+                      Pedido
+                    </th>
+                    <th className="text-left py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
+                      Cliente
+                    </th>
+                    <th className="text-left py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
+                      Data
+                    </th>
+                    <th className="text-left py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
+                      Status
+                    </th>
+                    <th className="text-right py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
+                      Itens
+                    </th>
+                    <th className="text-right py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
+                      Total
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders.map((o) => {
+                    const status =
+                      STATUS_LABELS[o.status] ?? STATUS_LABELS.PENDING;
+                    const totalItems = o.items.reduce(
+                      (acc, i) => acc + i.quantity,
+                      0,
+                    );
+                    return (
+                      <tr key={o.id} className="border-t border-border-subtle">
+                        <td className="py-4 px-5">
+                          <Link
+                            href={`/admin/pedidos/${o.id}`}
+                            className="text-xs font-medium tracking-[0.18em] uppercase text-brand-wine hover:underline"
+                          >
+                            #{o.id.slice(0, 8).toUpperCase()}
+                          </Link>
+                        </td>
+                        <td className="py-4 px-5">
+                          <p className="text-sm text-ink-strong">
+                            {o.customerName}
+                          </p>
+                          <p className="text-xs text-ink-muted">
+                            {o.customerEmail}
+                          </p>
+                        </td>
+                        <td className="py-4 px-5 text-xs text-ink-soft">
+                          {formatDate(o.createdAt)}
+                        </td>
+                        <td className="py-4 px-5">
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-[0.14em] ${status.color}`}
+                          >
+                            {status.label}
+                          </span>
+                        </td>
+                        <td className="py-4 px-5 text-right text-sm text-ink-soft tabular-nums">
+                          {totalItems}
+                        </td>
+                        <td className="py-4 px-5 text-right text-sm font-medium text-brand-wine">
+                          {formatPrice(Number(o.total))}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
