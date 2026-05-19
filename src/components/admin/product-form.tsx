@@ -15,8 +15,39 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { Loader2, Trash2 } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { CalendarIcon, Loader2, Trash2, X } from "lucide-react";
+import { cn } from "@/api/utils";
 import { CloudinaryUpload } from "./cloudinary-upload";
 import type { ProductStatus } from "@prisma/client";
 
@@ -98,6 +129,34 @@ export function ProductForm({
   const [originalPriceField, setOriginalPriceField] = useState<string>(
     defaultValues?.originalPrice != null ? String(defaultValues.originalPrice) : "",
   );
+  const [markedAsNewUntil, setMarkedAsNewUntil] = useState<Date | undefined>(
+    defaultValues?.markedAsNewUntil
+      ? new Date(defaultValues.markedAsNewUntil)
+      : undefined,
+  );
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [promotionStartsAt, setPromotionStartsAt] = useState<Date | undefined>(
+    defaultValues?.promotionStartsAt
+      ? new Date(defaultValues.promotionStartsAt)
+      : undefined,
+  );
+  const [promotionEndsAt, setPromotionEndsAt] = useState<Date | undefined>(
+    defaultValues?.promotionEndsAt
+      ? new Date(defaultValues.promotionEndsAt)
+      : undefined,
+  );
+  const [collection, setCollection] = useState<string>(
+    defaultValues?.collection ?? "day",
+  );
+  const [category, setCategory] = useState<string>(
+    defaultValues?.category ?? "perfume",
+  );
+  const [badgeVariant, setBadgeVariant] = useState<string>(
+    defaultValues?.badgeVariant ?? "default",
+  );
+  const [isLimitedEdition, setIsLimitedEdition] = useState<boolean>(
+    defaultValues?.isLimitedEdition ?? false,
+  );
 
   // Quando o admin entra em PROMOTION pela primeira vez, o "preço cheio" exibido
   // no campo Preço continua valendo como originalPrice, e ele digita o promo
@@ -155,12 +214,6 @@ export function ProductForm({
 
   const handleDelete = () => {
     if (!deleteAction) return;
-    if (
-      !confirm(
-        "Tem certeza que deseja deletar este produto? Esta ação não pode ser desfeita.",
-      )
-    )
-      return;
     setIsDeleting(true);
     startTransition(async () => {
       try {
@@ -212,16 +265,20 @@ export function ProductForm({
           />
 
           <div className="sm:col-span-2">
-            <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
+            <Label
+              htmlFor="description"
+              className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2"
+            >
               Descrição completa
-            </label>
-            <textarea
+            </Label>
+            <Textarea
+              id="description"
               name="description"
               rows={5}
               defaultValue={defaultValues?.description}
               placeholder="História do produto, notas olfativas, ocasiões de uso..."
               required
-              className="w-full px-4 py-3 text-sm bg-surface-base border border-border-subtle rounded-token-sm outline-none focus:border-brand-wine resize-none"
+              className="bg-surface-base border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0 resize-none"
             />
           </div>
         </div>
@@ -236,10 +293,14 @@ export function ProductForm({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
+            <Label
+              htmlFor="price"
+              className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2"
+            >
               Preço cheio (R$)
-            </label>
-            <input
+            </Label>
+            <Input
+              id="price"
               type="number"
               name="price"
               step="0.01"
@@ -247,7 +308,7 @@ export function ProductForm({
               required
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              className="h-11 w-full px-4 text-sm bg-surface-base border border-border-subtle rounded-token-sm outline-none focus:border-brand-wine"
+              className="h-11 bg-surface-base border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0"
             />
             <p className="mt-1 text-xs text-ink-muted">
               Preço base sem desconto. Em PROMOTION, é usado como
@@ -285,34 +346,46 @@ export function ProductForm({
             <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
               Estado
             </label>
-            <select
-              name="status"
+            <input type="hidden" name="status" value={status} />
+            <Select
               value={status}
-              onChange={(e) => setStatus(e.target.value as ProductStatus)}
-              className="h-11 w-full px-4 text-sm bg-surface-base border border-border-subtle rounded-token-sm outline-none focus:border-brand-wine"
+              onValueChange={(v) => setStatus(v as ProductStatus)}
             >
-              <option value="NORMAL">Normal (à venda)</option>
-              <option value="PROMOTION">Em promoção</option>
-              <option value="COMING_SOON">Em breve (não vende)</option>
-              <option value="DISCONTINUED">Descontinuado (oculto)</option>
-            </select>
+              <SelectTrigger className="h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="NORMAL">Normal (à venda)</SelectItem>
+                <SelectItem value="PROMOTION">Em promoção</SelectItem>
+                <SelectItem value="COMING_SOON">Em breve (não vende)</SelectItem>
+                <SelectItem value="DISCONTINUED">Descontinuado (oculto)</SelectItem>
+              </SelectContent>
+            </Select>
             <p className="mt-1 text-xs text-ink-muted">
               Estoque=0 mostra &quot;Esgotado&quot; independente do estado.
             </p>
           </div>
 
-          <div>
-            <label className="flex items-center gap-3 text-sm text-ink-strong mt-7">
-              <input
-                type="checkbox"
-                name="isLimitedEdition"
-                value="true"
-                defaultChecked={defaultValues?.isLimitedEdition ?? false}
-                className="h-4 w-4 accent-brand-wine"
+          <div className="flex flex-col justify-center sm:mt-7">
+            {/* Switch envia "on"/sem-presença no FormData; usamos hidden pra controlar */}
+            {isLimitedEdition && (
+              <input type="hidden" name="isLimitedEdition" value="true" />
+            )}
+            <div className="flex items-center gap-3">
+              <Switch
+                id="isLimitedEdition"
+                checked={isLimitedEdition}
+                onCheckedChange={setIsLimitedEdition}
+                className="data-[state=checked]:bg-brand-wine"
               />
-              Edição limitada
-            </label>
-            <p className="mt-1 text-xs text-ink-muted">
+              <Label
+                htmlFor="isLimitedEdition"
+                className="text-sm text-ink-strong cursor-pointer"
+              >
+                Edição limitada
+              </Label>
+            </div>
+            <p className="mt-1.5 text-xs text-ink-muted">
               Combina com qualquer estado. Mostra badge âmbar.
             </p>
           </div>
@@ -321,12 +394,66 @@ export function ProductForm({
             <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
               Marcar como &quot;Lançamento&quot; até (opcional)
             </label>
+
+            {/* Input hidden — carrega o valor pro form action */}
             <input
-              type="date"
+              type="hidden"
               name="markedAsNewUntil"
-              defaultValue={toDayInputValue(defaultValues?.markedAsNewUntil)}
-              className="h-11 px-4 text-sm bg-surface-base border border-border-subtle rounded-token-sm outline-none focus:border-brand-wine"
+              value={
+                markedAsNewUntil
+                  ? toDayInputValue(markedAsNewUntil)
+                  : ""
+              }
             />
+
+            <div className="flex items-stretch gap-2">
+              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className={cn(
+                      "h-11 w-full sm:w-auto sm:min-w-[260px] justify-start text-left font-normal text-sm rounded-token-sm border-border-subtle bg-surface-base hover:bg-surface-section",
+                      !markedAsNewUntil && "text-ink-muted",
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4 text-ink-soft" />
+                    {markedAsNewUntil
+                      ? format(markedAsNewUntil, "dd 'de' MMMM 'de' yyyy", {
+                          locale: ptBR,
+                        })
+                      : "Selecionar data"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={markedAsNewUntil}
+                    onSelect={(date) => {
+                      setMarkedAsNewUntil(date);
+                      if (date) setCalendarOpen(false);
+                    }}
+                    locale={ptBR}
+                    autoFocus
+                    captionLayout="dropdown"
+                  />
+                </PopoverContent>
+              </Popover>
+
+              {markedAsNewUntil && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setMarkedAsNewUntil(undefined)}
+                  aria-label="Limpar data"
+                  className="h-11 w-11 shrink-0 text-ink-soft hover:text-destructive"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+
             <p className="mt-1 text-xs text-ink-muted">
               Se vazio, &quot;Lançamento&quot; é automático nos primeiros 30
               dias após criar.
@@ -343,10 +470,14 @@ export function ProductForm({
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
+                <Label
+                  htmlFor="promoPrice"
+                  className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2"
+                >
                   Preço promocional (R$)
-                </label>
-                <input
+                </Label>
+                <Input
+                  id="promoPrice"
                   type="number"
                   name="promoPrice"
                   step="0.01"
@@ -358,7 +489,7 @@ export function ProductForm({
                     setOriginalPriceField(price);
                   }}
                   required={showPromoFields}
-                  className="h-11 w-full px-4 text-sm bg-surface-base border border-border-subtle rounded-token-sm outline-none focus:border-brand-wine"
+                  className="h-11 bg-surface-base border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0"
                 />
                 {discountPct != null && (
                   <p className="mt-1 text-xs text-emerald-700 font-medium">
@@ -368,16 +499,19 @@ export function ProductForm({
               </div>
 
               <div>
-                <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
+                <Label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
                   Início (opcional)
-                </label>
+                </Label>
                 <input
-                  type="datetime-local"
+                  type="hidden"
                   name="promotionStartsAt"
-                  defaultValue={toDateInputValue(
-                    defaultValues?.promotionStartsAt ?? null,
-                  )}
-                  className="h-11 w-full px-4 text-sm bg-surface-base border border-border-subtle rounded-token-sm outline-none focus:border-brand-wine"
+                  value={promotionStartsAt ? toDateInputValue(promotionStartsAt) : ""}
+                />
+                <DateTimePicker
+                  value={promotionStartsAt}
+                  onChange={setPromotionStartsAt}
+                  placeholder="Começa agora"
+                  clearable
                 />
                 <p className="mt-1 text-xs text-ink-muted">
                   Vazio = começa agora.
@@ -385,17 +519,19 @@ export function ProductForm({
               </div>
 
               <div>
-                <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
+                <Label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
                   Término <span className="text-destructive">*</span>
-                </label>
+                </Label>
                 <input
-                  type="datetime-local"
+                  type="hidden"
                   name="promotionEndsAt"
-                  defaultValue={toDateInputValue(
-                    defaultValues?.promotionEndsAt ?? null,
-                  )}
+                  value={promotionEndsAt ? toDateInputValue(promotionEndsAt) : ""}
                   required={showPromoFields}
-                  className="h-11 w-full px-4 text-sm bg-surface-base border border-border-subtle rounded-token-sm outline-none focus:border-brand-wine"
+                />
+                <DateTimePicker
+                  value={promotionEndsAt}
+                  onChange={setPromotionEndsAt}
+                  placeholder="Selecionar data/hora"
                 />
               </div>
             </div>
@@ -420,33 +556,35 @@ export function ProductForm({
             <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
               Coleção
             </label>
-            <select
-              name="collection"
-              defaultValue={defaultValues?.collection ?? "day"}
-              required
-              className="h-11 w-full px-4 text-sm bg-surface-base border border-border-subtle rounded-token-sm outline-none focus:border-brand-wine"
-            >
-              <option value="day">Day (Elegância Diurna)</option>
-              <option value="night">Night (Essência Noturna)</option>
-              <option value="limited">Limited (Edição Limitada)</option>
-            </select>
+            <input type="hidden" name="collection" value={collection} />
+            <Select value={collection} onValueChange={setCollection}>
+              <SelectTrigger className="h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="day">Day (Elegância Diurna)</SelectItem>
+                <SelectItem value="night">Night (Essência Noturna)</SelectItem>
+                <SelectItem value="limited">Limited (Edição Limitada)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
             <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
               Categoria
             </label>
-            <select
-              name="category"
-              defaultValue={defaultValues?.category ?? "perfume"}
-              required
-              className="h-11 w-full px-4 text-sm bg-surface-base border border-border-subtle rounded-token-sm outline-none focus:border-brand-wine"
-            >
-              <option value="perfume">Perfume</option>
-              <option value="cologne">Colônia</option>
-              <option value="body-care">Cuidados Corporais</option>
-              <option value="gift-set">Kit</option>
-            </select>
+            <input type="hidden" name="category" value={category} />
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger className="h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="perfume">Perfume</SelectItem>
+                <SelectItem value="cologne">Colônia</SelectItem>
+                <SelectItem value="body-care">Cuidados Corporais</SelectItem>
+                <SelectItem value="gift-set">Kit</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <FormField
@@ -461,16 +599,18 @@ export function ProductForm({
             <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
               Estilo do badge customizado
             </label>
-            <select
-              name="badgeVariant"
-              defaultValue={defaultValues?.badgeVariant ?? "default"}
-              className="h-11 w-full px-4 text-sm bg-surface-base border border-border-subtle rounded-token-sm outline-none focus:border-brand-wine"
-            >
-              <option value="default">Padrão (bordô)</option>
-              <option value="secondary">Secundário (rosa)</option>
-              <option value="destructive">Destaque (vermelho)</option>
-              <option value="outline">Outline</option>
-            </select>
+            <input type="hidden" name="badgeVariant" value={badgeVariant} />
+            <Select value={badgeVariant} onValueChange={setBadgeVariant}>
+              <SelectTrigger className="h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">Padrão (bordô)</SelectItem>
+                <SelectItem value="secondary">Secundário (rosa)</SelectItem>
+                <SelectItem value="destructive">Destaque (vermelho)</SelectItem>
+                <SelectItem value="outline">Outline</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </section>
@@ -497,31 +637,59 @@ export function ProductForm({
         </h2>
         <div className="h-px w-12 bg-brand-wine/60 mb-6" />
 
-        <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
+        <Label
+          htmlFor="features"
+          className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2"
+        >
           Uma característica por linha
-        </label>
-        <textarea
+        </Label>
+        <Textarea
+          id="features"
           name="features"
           rows={4}
           defaultValue={defaultValues?.features.join("\n") ?? ""}
           placeholder="Longa duração (8h)&#10;Família olfativa: Oriental&#10;Notas: bergamota, jasmim, baunilha"
-          className="w-full px-4 py-3 text-sm bg-surface-base border border-border-subtle rounded-token-sm outline-none focus:border-brand-wine resize-none"
+          className="bg-surface-base border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0 resize-none"
         />
       </section>
 
       {/* AÇÕES */}
       <div className="flex items-center justify-between gap-4">
         {deleteAction && (
-          <Button
-            type="button"
-            onClick={handleDelete}
-            disabled={isPending || isDeleting}
-            variant="outline"
-            className="text-destructive border-destructive/30 hover:bg-destructive hover:text-white"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Deletar produto
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                type="button"
+                disabled={isPending || isDeleting}
+                variant="outline"
+                className="text-destructive border-destructive/30 hover:bg-destructive hover:text-white"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Deletar produto
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="font-playfair italic text-2xl text-ink-strong">
+                  Deletar produto?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta ação não pode ser desfeita. O produto será removido
+                  permanentemente do catálogo, junto com suas imagens e
+                  histórico associado.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  className="bg-destructive text-white hover:bg-destructive/90"
+                >
+                  Sim, deletar
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         )}
 
         <Button
@@ -545,6 +713,109 @@ export function ProductForm({
   );
 }
 
+// ─── DateTimePicker — Popover + Calendar + input de hora ────────────────────
+
+interface DateTimePickerProps {
+  value: Date | undefined;
+  onChange: (date: Date | undefined) => void;
+  placeholder?: string;
+  clearable?: boolean;
+}
+
+function DateTimePicker({
+  value,
+  onChange,
+  placeholder = "Selecionar data e hora",
+  clearable = false,
+}: DateTimePickerProps) {
+  const [open, setOpen] = useState(false);
+  const timeValue = value
+    ? `${String(value.getHours()).padStart(2, "0")}:${String(
+        value.getMinutes(),
+      ).padStart(2, "0")}`
+    : "00:00";
+
+  const handleDateSelect = (date: Date | undefined) => {
+    if (!date) {
+      onChange(undefined);
+      return;
+    }
+    // Preserva a hora atual ao trocar a data.
+    const next = new Date(date);
+    if (value) {
+      next.setHours(value.getHours(), value.getMinutes(), 0, 0);
+    } else {
+      // Default sensato: meio-dia, evita timezone roundtrip
+      next.setHours(12, 0, 0, 0);
+    }
+    onChange(next);
+  };
+
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const [h, m] = e.target.value.split(":").map(Number);
+    if (!Number.isFinite(h) || !Number.isFinite(m)) return;
+    const next = value ? new Date(value) : new Date();
+    next.setHours(h, m, 0, 0);
+    onChange(next);
+  };
+
+  return (
+    <div className="flex items-stretch gap-2">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            className={cn(
+              "h-11 flex-1 justify-start text-left font-normal text-sm rounded-token-sm border-border-subtle bg-surface-base hover:bg-surface-section",
+              !value && "text-ink-muted",
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4 text-ink-soft" />
+            {value
+              ? format(value, "dd/MM/yyyy", { locale: ptBR })
+              : placeholder}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={value}
+            onSelect={handleDateSelect}
+            locale={ptBR}
+            autoFocus
+            captionLayout="dropdown"
+          />
+          <div className="border-t border-border-subtle p-3">
+            <Label className="text-[10px] tracking-[0.18em] uppercase text-ink-soft mb-1.5 block">
+              Hora
+            </Label>
+            <Input
+              type="time"
+              value={timeValue}
+              onChange={handleTimeChange}
+              className="h-9 bg-surface-base border-border-subtle"
+            />
+          </div>
+        </PopoverContent>
+      </Popover>
+
+      {clearable && value && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => onChange(undefined)}
+          aria-label="Limpar"
+          className="h-11 w-11 shrink-0 text-ink-soft hover:text-destructive"
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      )}
+    </div>
+  );
+}
+
 interface FormFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   hint?: string;
@@ -560,16 +831,16 @@ function FormField({
 }: FormFieldProps) {
   return (
     <div className={fullWidth ? "sm:col-span-2" : className}>
-      <label
+      <Label
         htmlFor={props.name}
         className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2"
       >
         {label}
-      </label>
-      <input
+      </Label>
+      <Input
         id={props.name}
         {...props}
-        className="h-11 w-full px-4 text-sm bg-surface-base border border-border-subtle rounded-token-sm outline-none focus:border-brand-wine"
+        className="h-11 bg-surface-base border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0"
       />
       {hint && <p className="mt-1 text-xs text-ink-muted">{hint}</p>}
     </div>
