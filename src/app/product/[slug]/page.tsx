@@ -8,6 +8,15 @@ import Footer from "@/components/footer";
 import ProductDetailsClient from "@/components/product-details-client";
 import { getProductBySlug, getFeaturedProducts } from "@/lib/products-db";
 import { ProductCard } from "@/components/product-card";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { Product } from "@/lib/products-db";
@@ -45,6 +54,29 @@ export default async function ProductPage({
 
       <main className="flex-1 pt-24 sm:pt-28 pb-16 sm:pb-24">
         <div className="container-belessence">
+          {/* Breadcrumb */}
+          <Breadcrumb className="mb-6 sm:mb-8">
+            <BreadcrumbList className="text-[10px] tracking-[0.18em] uppercase">
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild className="text-ink-soft hover:text-brand-wine">
+                  <Link href="/">Início</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild className="text-ink-soft hover:text-brand-wine">
+                  <Link href="/allProducts">Coleção</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage className="text-ink-strong normal-case tracking-normal text-xs">
+                  {product.name}
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+
           <ProductDetailsClient product={product} />
         </div>
       </main>
