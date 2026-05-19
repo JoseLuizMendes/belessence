@@ -89,12 +89,24 @@ export default function Header() {
   }, { scope: headerRef });
 
   const scrollTo = (id: string) => {
-    setMobileMenuOpen(false);
+    // Cross-page: deixa o browser scrollar pela hash
     if (window.location.pathname !== "/") {
+      setMobileMenuOpen(false);
       window.location.assign(`/#${id}`);
       return;
     }
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+
+    // Same-page: fecha o menu E scrolla. Esperamos 1 frame pra garantir que
+    // o Sheet começou a desmontar antes de chamar scrollIntoView — assim
+    // o foco-restore do Radix (bloqueado via onCloseAutoFocus) não compete
+    // com o nosso scroll.
+    setMobileMenuOpen(false);
+    requestAnimationFrame(() => {
+      document.getElementById(id)?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
   };
 
   return (
@@ -201,7 +213,11 @@ export default function Header() {
                   <Menu className="h-4.5 w-4.5" strokeWidth={1.5} />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[75vw] max-w-xs border-l border-subtle bg-surface-base">
+              <SheetContent
+                side="right"
+                className="w-[75vw] max-w-xs border-l border-subtle bg-surface-base"
+                onCloseAutoFocus={(e) => e.preventDefault()}
+              >
                 <SheetTitle className="sr-only">Menu Mari Beauty</SheetTitle>
                 <div className="mt-10 flex flex-col gap-0">
                   {/* Logo mobile */}

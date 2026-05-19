@@ -17,6 +17,15 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -30,12 +39,11 @@ export default function Newsletter() {
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<NewsletterForm>({ resolver: zodResolver(newsletterSchema) });
+  const form = useForm<NewsletterForm>({
+    resolver: zodResolver(newsletterSchema),
+    defaultValues: { email: "" },
+  });
+  const { handleSubmit, reset, formState: { isSubmitting } } = form;
 
   useGSAP(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -127,39 +135,43 @@ export default function Newsletter() {
             </p>
 
             {/* Form */}
-            <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-3">
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="flex-1 relative">
-                  <input
-                    type="email"
-                    placeholder="Seu melhor e-mail"
-                    aria-label="E-mail para newsletter"
-                    aria-describedby={errors.email ? "email-error" : undefined}
-                    {...register("email")}
-                    className={`h-12 w-full bg-surface-base px-4 text-sm text-ink-strong placeholder:text-ink-muted border border-border-subtle rounded-token-sm outline-none focus:border-brand-wine transition-colors${errors.email ? " border-destructive" : ""}`}
+            <Form {...form}>
+              <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field, fieldState }) => (
+                      <FormItem className="flex-1 gap-1">
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="Seu melhor e-mail"
+                            aria-label="E-mail para newsletter"
+                            {...field}
+                            className={`h-12 bg-surface-base text-sm text-ink-strong placeholder:text-ink-muted border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0 transition-colors${fieldState.error ? " border-destructive" : ""}`}
+                          />
+                        </FormControl>
+                        <FormMessage className="text-left text-xs" />
+                      </FormItem>
+                    )}
                   />
+
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="loreal-btn-pill flex h-12 items-center justify-center gap-2 whitespace-nowrap border-none bg-brand-wine px-7 text-xs font-medium tracking-[0.18em] uppercase text-brand-pink transition-all hover:bg-brand-wine/90"
+                  >
+                    {isSubmitting ? "Enviando..." : (
+                      <>
+                        Inscrever
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </>
+                    )}
+                  </Button>
                 </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="loreal-btn-pill flex h-12 items-center justify-center gap-2 whitespace-nowrap border-none bg-brand-wine px-7 text-xs font-medium tracking-[0.18em] uppercase text-brand-pink transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand-wine/90"
-                >
-                  {isSubmitting ? "Enviando..." : (
-                    <>
-                      Inscrever
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {errors.email && (
-                <p id="email-error" role="alert" className="text-left text-xs text-destructive">
-                  {errors.email.message}
-                </p>
-              )}
-            </form>
+              </form>
+            </Form>
 
             <p className="mt-5 text-xs leading-relaxed text-ink-muted">
               Ao se inscrever, você concorda com nossa política de privacidade.

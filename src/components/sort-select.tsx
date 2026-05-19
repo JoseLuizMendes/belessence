@@ -3,11 +3,19 @@
 /**
  * SortSelect — Belessence
  * ─────────────────────────────────────────────────────────────────────
- * Dropdown de ordenação client-side que atualiza searchParam `sort`
- * sem usar form submit (mantém os outros params intactos).
+ * Dropdown de ordenação client-side com shadcn Select que atualiza
+ * o searchParam `sort` (mantém os outros params intactos).
  */
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export interface SortOption {
   label: string;
@@ -37,24 +45,27 @@ export function SortSelect({ options, defaultValue }: SortSelectProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <label
+      <Label
         htmlFor="sort"
         className="text-[10px] font-medium tracking-[0.18em] uppercase text-ink-soft whitespace-nowrap"
       >
         Ordenar por
-      </label>
-      <select
-        id="sort"
-        defaultValue={defaultValue}
-        onChange={(e) => handleChange(e.target.value)}
-        className="h-9 px-3 pr-8 text-xs bg-surface-panel border border-border-subtle rounded-full text-ink-strong outline-none focus:border-brand-wine transition-colors cursor-pointer appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%2210%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23999%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>')] bg-no-repeat bg-[right_10px_center]"
-      >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+      </Label>
+      <Select defaultValue={defaultValue} onValueChange={handleChange}>
+        <SelectTrigger
+          id="sort"
+          className="h-9 w-[180px] text-xs bg-surface-panel border-border-subtle rounded-full text-ink-strong focus-visible:border-brand-wine focus:ring-0"
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((opt) => (
+            <SelectItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }

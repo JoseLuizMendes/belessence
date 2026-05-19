@@ -19,7 +19,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, type Control, type FieldPath } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useCart } from "./cart";
@@ -38,6 +38,15 @@ import { formatPrice } from "@/api/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { checkoutSchema, type CheckoutInput } from "@/lib/validations";
+import { Input } from "./ui/input";
+import {
+  Form,
+  FormControl,
+  FormField as ShadcnFormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "./ui/form";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -105,13 +114,7 @@ export default function CheckoutClient() {
   const [submitting, setSubmitting] = useState(false);
 
   // Form
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<CheckoutInput>({
+  const form = useForm<CheckoutInput>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
       customer: { name: "", email: "", phone: "", cpf: "" },
@@ -127,6 +130,7 @@ export default function CheckoutClient() {
       couponCode: "",
     },
   });
+  const { handleSubmit, setValue, watch } = form;
 
   const cep = watch("address.cep");
 
@@ -294,6 +298,7 @@ export default function CheckoutClient() {
         <div className="mx-auto mt-5 h-px w-12 bg-brand-wine/60" />
       </div>
 
+      <Form {...form}>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="grid grid-cols-1 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_440px] gap-8 lg:gap-10 xl:gap-12"
@@ -308,44 +313,34 @@ export default function CheckoutClient() {
             <div className="h-px w-12 bg-brand-wine/60 mb-6" />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field
-                id="name"
+              <CheckoutField
+                control={form.control}
+                name="customer.name"
                 label="Nome completo"
                 placeholder="Maria da Silva"
-                {...register("customer.name")}
-                error={errors.customer?.name?.message}
-                fullWidth
+                wrapperClassName="sm:col-span-2"
               />
-              <Field
-                id="email"
+              <CheckoutField
+                control={form.control}
+                name="customer.email"
                 type="email"
                 label="E-mail"
                 placeholder="voce@email.com"
-                {...register("customer.email")}
-                error={errors.customer?.email?.message}
               />
-              <Field
-                id="phone"
+              <CheckoutField
+                control={form.control}
+                name="customer.phone"
                 label="Telefone"
                 placeholder="(11) 99999-9999"
-                {...register("customer.phone", {
-                  onChange: (e) => {
-                    e.target.value = maskPhone(e.target.value);
-                  },
-                })}
-                error={errors.customer?.phone?.message}
+                mask={maskPhone}
               />
-              <Field
-                id="cpf"
+              <CheckoutField
+                control={form.control}
+                name="customer.cpf"
                 label="CPF"
                 placeholder="000.000.000-00"
-                {...register("customer.cpf", {
-                  onChange: (e) => {
-                    e.target.value = maskCpf(e.target.value);
-                  },
-                })}
-                error={errors.customer?.cpf?.message}
-                fullWidth
+                mask={maskCpf}
+                wrapperClassName="sm:col-span-2"
               />
             </div>
           </section>
@@ -358,77 +353,64 @@ export default function CheckoutClient() {
             <div className="h-px w-12 bg-brand-wine/60 mb-6" />
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="relative sm:col-span-1">
-                <Field
-                  id="cep"
+              <div className="relative">
+                <CheckoutField
+                  control={form.control}
+                  name="address.cep"
                   label="CEP"
                   placeholder="00000-000"
-                  {...register("address.cep", {
-                    onChange: (e) => {
-                      e.target.value = maskCep(e.target.value);
-                    },
-                  })}
-                  error={errors.address?.cep?.message}
+                  mask={maskCep}
                 />
                 {cepLoading && (
                   <Loader2 className="absolute right-3 top-9 h-4 w-4 animate-spin text-brand-wine" />
                 )}
               </div>
 
-              <Field
-                id="street"
+              <CheckoutField
+                control={form.control}
+                name="address.street"
                 label="Logradouro"
                 placeholder="Rua, Avenida..."
-                className="sm:col-span-2"
-                {...register("address.street")}
-                error={errors.address?.street?.message}
+                wrapperClassName="sm:col-span-2"
               />
 
-              <Field
-                id="number"
+              <CheckoutField
+                control={form.control}
+                name="address.number"
                 label="Número"
                 placeholder="123"
-                {...register("address.number")}
-                error={errors.address?.number?.message}
               />
 
-              <Field
-                id="complement"
+              <CheckoutField
+                control={form.control}
+                name="address.complement"
                 label="Complemento"
                 placeholder="Apto, bloco..."
-                className="sm:col-span-2"
-                {...register("address.complement")}
-                error={errors.address?.complement?.message}
                 optional
+                wrapperClassName="sm:col-span-2"
               />
 
-              <Field
-                id="neighborhood"
+              <CheckoutField
+                control={form.control}
+                name="address.neighborhood"
                 label="Bairro"
                 placeholder="Bairro"
-                {...register("address.neighborhood")}
-                error={errors.address?.neighborhood?.message}
               />
 
-              <Field
-                id="city"
+              <CheckoutField
+                control={form.control}
+                name="address.city"
                 label="Cidade"
                 placeholder="Cidade"
-                {...register("address.city")}
-                error={errors.address?.city?.message}
               />
 
-              <Field
-                id="state"
+              <CheckoutField
+                control={form.control}
+                name="address.state"
                 label="UF"
                 placeholder="SP"
                 maxLength={2}
-                {...register("address.state", {
-                  onChange: (e) => {
-                    e.target.value = e.target.value.toUpperCase().slice(0, 2);
-                  },
-                })}
-                error={errors.address?.state?.message}
+                mask={(v) => v.toUpperCase().slice(0, 2)}
               />
             </div>
           </section>
@@ -465,13 +447,13 @@ export default function CheckoutClient() {
             ) : (
               <div className="flex gap-3">
                 <div className="relative flex-1">
-                  <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-muted" />
-                  <input
+                  <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-muted z-10" />
+                  <Input
                     type="text"
                     value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
                     placeholder="Ex: BELES10"
-                    className="h-12 w-full pl-10 pr-4 text-sm bg-surface-base border border-border-subtle rounded-token-sm outline-none focus:border-brand-wine transition-colors uppercase tracking-wider"
+                    className="h-12 pl-10 bg-surface-base text-sm border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0 uppercase tracking-wider"
                   />
                 </div>
                 <Button
@@ -628,54 +610,72 @@ export default function CheckoutClient() {
           </div>
         </aside>
       </form>
+      </Form>
     </div>
   );
 }
 
-// ─── Field Component ───────────────────────────────────────────────────────────
+// ─── CheckoutField — wrapper de shadcn FormField + Input ───────────────────────
 
-interface FieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  id: string;
+interface CheckoutFieldProps {
+  control: Control<CheckoutInput>;
+  name: FieldPath<CheckoutInput>;
   label: string;
-  error?: string;
+  placeholder?: string;
+  type?: React.HTMLInputTypeAttribute;
+  maxLength?: number;
   optional?: boolean;
-  fullWidth?: boolean;
+  wrapperClassName?: string;
+  /** Função que transforma o valor digitado antes de gravar (máscara). */
+  mask?: (value: string) => string;
 }
 
-const Field = ({
-  id,
+function CheckoutField({
+  control,
+  name,
   label,
-  error,
+  placeholder,
+  type,
+  maxLength,
   optional,
-  fullWidth,
-  className,
-  ...props
-}: FieldProps) => (
-  <div
-    className={[
-      fullWidth ? "sm:col-span-2" : "",
-      className ?? "",
-    ].join(" ")}
-  >
-    <label
-      htmlFor={id}
-      className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2"
-    >
-      {label}
-      {optional && (
-        <span className="text-ink-muted normal-case tracking-normal ml-1">
-          (opcional)
-        </span>
+  wrapperClassName,
+  mask,
+}: CheckoutFieldProps) {
+  return (
+    <ShadcnFormField
+      control={control}
+      name={name}
+      render={({ field, fieldState }) => (
+        <FormItem className={wrapperClassName}>
+          <FormLabel className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft">
+            {label}
+            {optional && (
+              <span className="text-ink-muted normal-case tracking-normal ml-1">
+                (opcional)
+              </span>
+            )}
+          </FormLabel>
+          <FormControl>
+            <Input
+              type={type}
+              placeholder={placeholder}
+              maxLength={maxLength}
+              {...field}
+              value={typeof field.value === "string" ? field.value : ""}
+              onChange={(e) => {
+                const v = mask ? mask(e.target.value) : e.target.value;
+                field.onChange(v);
+              }}
+              className={`h-12 bg-surface-base text-sm rounded-token-sm focus-visible:ring-0 focus-visible:border-brand-wine ${
+                fieldState.error
+                  ? "border-destructive"
+                  : "border-border-subtle"
+              }`}
+            />
+          </FormControl>
+          <FormMessage className="text-xs" />
+        </FormItem>
       )}
-    </label>
-    <input
-      id={id}
-      {...props}
-      className={`h-12 w-full px-4 text-sm bg-surface-base border rounded-token-sm outline-none transition-colors focus:border-brand-wine ${
-        error ? "border-destructive" : "border-border-subtle"
-      }`}
     />
-    {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
-  </div>
-);
-Field.displayName = "Field";
+  );
+}
