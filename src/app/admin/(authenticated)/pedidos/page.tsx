@@ -5,6 +5,16 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { formatPrice } from "@/api/utils";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { OrderStatusFilter } from "@/components/admin/order-status-filter";
 import type { OrderStatus } from "@prisma/client";
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
@@ -68,35 +78,13 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
       </header>
 
       {/* Filtros */}
-      <div className="flex flex-wrap items-center gap-2 mb-8">
-        <Link
-          href="/admin/pedidos"
-          className={`px-4 py-2 rounded-full text-[10px] font-medium tracking-[0.18em] uppercase transition-all ${
-            !statusFilter
-              ? "bg-brand-wine text-brand-pink"
-              : "bg-surface-panel text-ink-soft border border-border-subtle hover:border-brand-wine"
-          }`}
-        >
-          Todos
-        </Link>
-        {VALID_STATUSES.map((status) => {
-          const info = STATUS_LABELS[status];
-          const isActive = statusFilter === status;
-          return (
-            <Link
-              key={status}
-              href={`/admin/pedidos?status=${status}`}
-              className={`px-4 py-2 rounded-full text-[10px] font-medium tracking-[0.18em] uppercase transition-all ${
-                isActive
-                  ? "bg-brand-wine text-brand-pink"
-                  : "bg-surface-panel text-ink-soft border border-border-subtle hover:border-brand-wine"
-              }`}
-            >
-              {info.label}
-            </Link>
-          );
-        })}
-      </div>
+      <OrderStatusFilter
+        activeStatus={statusFilter}
+        statuses={VALID_STATUSES.map((value) => ({
+          value,
+          label: STATUS_LABELS[value]?.label ?? value,
+        }))}
+      />
 
       {orders.length === 0 ? (
         <div className="bg-surface-panel rounded-token-md p-12 text-center">
@@ -124,11 +112,11 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
                       <span className="text-xs font-medium tracking-[0.18em] uppercase text-brand-wine">
                         #{o.id.slice(0, 8).toUpperCase()}
                       </span>
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-[0.14em] ${status.color}`}
+                      <Badge
+                        className={`text-[10px] uppercase tracking-[0.14em] ${status.color}`}
                       >
                         {status.label}
-                      </span>
+                      </Badge>
                     </div>
 
                     <div className="min-w-0">
@@ -161,78 +149,79 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
 
           {/* Desktop/tablet: tabela (md+) */}
           <div className="hidden md:block bg-surface-panel rounded-token-md overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-surface-section">
-                  <tr>
-                    <th className="text-left py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                      Pedido
-                    </th>
-                    <th className="text-left py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                      Cliente
-                    </th>
-                    <th className="text-left py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                      Data
-                    </th>
-                    <th className="text-left py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                      Status
-                    </th>
-                    <th className="text-right py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                      Itens
-                    </th>
-                    <th className="text-right py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                      Total
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map((o) => {
-                    const status =
-                      STATUS_LABELS[o.status] ?? STATUS_LABELS.PENDING;
-                    const totalItems = o.items.reduce(
-                      (acc, i) => acc + i.quantity,
-                      0,
-                    );
-                    return (
-                      <tr key={o.id} className="border-t border-border-subtle">
-                        <td className="py-4 px-5">
-                          <Link
-                            href={`/admin/pedidos/${o.id}`}
-                            className="text-xs font-medium tracking-[0.18em] uppercase text-brand-wine hover:underline"
-                          >
-                            #{o.id.slice(0, 8).toUpperCase()}
-                          </Link>
-                        </td>
-                        <td className="py-4 px-5">
-                          <p className="text-sm text-ink-strong">
-                            {o.customerName}
-                          </p>
-                          <p className="text-xs text-ink-muted">
-                            {o.customerEmail}
-                          </p>
-                        </td>
-                        <td className="py-4 px-5 text-xs text-ink-soft">
-                          {formatDate(o.createdAt)}
-                        </td>
-                        <td className="py-4 px-5">
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-[0.14em] ${status.color}`}
-                          >
-                            {status.label}
-                          </span>
-                        </td>
-                        <td className="py-4 px-5 text-right text-sm text-ink-soft tabular-nums">
-                          {totalItems}
-                        </td>
-                        <td className="py-4 px-5 text-right text-sm font-medium text-brand-wine">
-                          {formatPrice(Number(o.total))}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <Table>
+              <TableHeader className="bg-surface-section">
+                <TableRow className="hover:bg-transparent border-b border-border-subtle">
+                  <TableHead className="py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
+                    Pedido
+                  </TableHead>
+                  <TableHead className="py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
+                    Cliente
+                  </TableHead>
+                  <TableHead className="py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
+                    Data
+                  </TableHead>
+                  <TableHead className="py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
+                    Status
+                  </TableHead>
+                  <TableHead className="py-3 px-5 text-right text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
+                    Itens
+                  </TableHead>
+                  <TableHead className="py-3 px-5 text-right text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
+                    Total
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {orders.map((o) => {
+                  const status =
+                    STATUS_LABELS[o.status] ?? STATUS_LABELS.PENDING;
+                  const totalItems = o.items.reduce(
+                    (acc, i) => acc + i.quantity,
+                    0,
+                  );
+                  return (
+                    <TableRow
+                      key={o.id}
+                      className="border-b border-border-subtle hover:bg-surface-section/50"
+                    >
+                      <TableCell className="py-4 px-5">
+                        <Link
+                          href={`/admin/pedidos/${o.id}`}
+                          className="text-xs font-medium tracking-[0.18em] uppercase text-brand-wine hover:underline"
+                        >
+                          #{o.id.slice(0, 8).toUpperCase()}
+                        </Link>
+                      </TableCell>
+                      <TableCell className="py-4 px-5">
+                        <p className="text-sm text-ink-strong">
+                          {o.customerName}
+                        </p>
+                        <p className="text-xs text-ink-muted">
+                          {o.customerEmail}
+                        </p>
+                      </TableCell>
+                      <TableCell className="py-4 px-5 text-xs text-ink-soft">
+                        {formatDate(o.createdAt)}
+                      </TableCell>
+                      <TableCell className="py-4 px-5">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-[0.14em] ${status.color}`}
+                        >
+                          {status.label}
+                        </span>
+                      </TableCell>
+                      <TableCell className="py-4 px-5 text-right text-sm text-ink-soft tabular-nums">
+                        {totalItems}
+                      </TableCell>
+                      <TableCell className="py-4 px-5 text-right text-sm font-medium text-brand-wine">
+                        {formatPrice(Number(o.total))}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
           </div>
         </>
       )}
