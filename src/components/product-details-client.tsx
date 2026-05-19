@@ -15,6 +15,12 @@ import { useGSAP } from "@gsap/react";
 import { useCart } from "@/components/cart";
 import { WishlistButton } from "@/components/wishlist-button";
 import { ProductReviews } from "@/components/product-reviews";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { fadeInUp } from "@/lib/gsap-utils";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, ShoppingBag } from "lucide-react";
@@ -285,31 +291,35 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
         </div>
       </div>
 
-      {/* Tabs: Descrição / Ritual / Ingredientes */}
+      {/* Tabs: Descrição / Ritual / Ingredientes / Avaliações */}
       <div className="border-t border-border-subtle pt-12">
-        {/* Tab triggers */}
-        <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-12 mb-10">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={[
-                "relative pb-2 text-[11px] font-medium tracking-[0.24em] uppercase transition-colors",
-                activeTab === tab.key
-                  ? "text-brand-wine"
-                  : "text-ink-muted hover:text-ink-soft",
-              ].join(" ")}
-            >
-              {tab.label}
-              {activeTab === tab.key && (
-                <span className="absolute -bottom-px left-0 right-0 h-px bg-brand-wine" />
-              )}
-            </button>
-          ))}
-        </div>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as TabKey)}
+          className="w-full"
+        >
+          <TabsList className="mx-auto mb-10 flex h-auto flex-wrap items-center justify-center gap-6 sm:gap-12 bg-transparent p-0">
+            {TABS.map((tab) => (
+              <TabsTrigger
+                key={tab.key}
+                value={tab.key}
+                className="relative h-auto px-0 pb-2 text-[11px] font-medium tracking-[0.24em] uppercase text-ink-muted shadow-none rounded-none bg-transparent transition-colors hover:text-ink-soft data-[state=active]:text-brand-wine data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:after:absolute data-[state=active]:after:-bottom-px data-[state=active]:after:left-0 data-[state=active]:after:right-0 data-[state=active]:after:h-px data-[state=active]:after:bg-brand-wine"
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-        {/* Tab content */}
-        <div className="max-w-2xl mx-auto text-center">{tabContent[activeTab]}</div>
+          {TABS.map((tab) => (
+            <TabsContent
+              key={tab.key}
+              value={tab.key}
+              className="max-w-2xl mx-auto text-center"
+            >
+              {tabContent[tab.key]}
+            </TabsContent>
+          ))}
+        </Tabs>
       </div>
     </div>
   );
