@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { CartProvider } from "@/components/cart";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { LenisProvider } from "@/components/providers/lenis-provider";
 import "./globals.css";
 
@@ -46,13 +46,12 @@ export default function RootLayout({
             {children}
           </CartProvider>
         </LenisProvider>
-        {/* Toast system — Sonner */}
+        {/* Toast system — Sonner shadcn (puxa --popover / --border do theme) */}
         <Toaster
           position="bottom-right"
           toastOptions={{
             style: {
               fontFamily: "var(--font-poppins)",
-              borderRadius: "0.75rem",
             },
           }}
         />
