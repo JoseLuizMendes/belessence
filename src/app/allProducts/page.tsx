@@ -17,6 +17,14 @@ import {
   type ProductSort,
 } from "@/lib/products-db";
 import { SortSelect } from "@/components/sort-select";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Search, X } from "lucide-react";
@@ -110,6 +118,23 @@ export default async function AllProductsPage({ searchParams }: PageProps) {
 
       <main className="flex-1 pt-24 sm:pt-28 pb-16 sm:pb-24">
         <div className="container-belessence">
+          {/* Breadcrumb */}
+          <Breadcrumb className="mb-6 sm:mb-8">
+            <BreadcrumbList className="text-[10px] tracking-[0.18em] uppercase">
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild className="text-ink-soft hover:text-brand-wine">
+                  <Link href="/">Início</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage className="text-ink-strong">
+                  {searchQuery ? `Busca: ${searchQuery}` : "Coleção"}
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+
           {/* Hero da PLP */}
           <div className="text-center mb-10 sm:mb-14">
             <p className="text-[11px] font-medium tracking-[0.32em] uppercase text-brand-wine mb-4">
