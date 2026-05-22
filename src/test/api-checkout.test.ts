@@ -90,7 +90,9 @@ function happyPaymentMock() {
 function happyOrderTxMock(orderId = "ord-1") {
   // $transaction recebe um callback(tx). Mockamos tx.* para registrar e retornar
   // um Order válido.
-  vi.mocked(prisma.$transaction).mockImplementationOnce(async (cb: never) => {
+  vi.mocked(prisma.$transaction).mockImplementationOnce((async (
+    cb: (tx: unknown) => unknown,
+  ) => {
     const tx = {
       order: {
         create: vi.fn().mockResolvedValue({ id: orderId, items: [] }),
@@ -102,9 +104,8 @@ function happyOrderTxMock(orderId = "ord-1") {
         update: vi.fn().mockResolvedValue({}),
       },
     };
-    // @ts-expect-error — tipagem do mock simplificada
-    return (cb as (tx: typeof tx) => unknown)(tx);
-  });
+    return cb(tx);
+  }) as never);
 }
 
 // ─── Suites ──────────────────────────────────────────────────────────────────
@@ -343,5 +344,22 @@ describe("POST /api/checkout", () => {
     expect(res.status).toBe(500);
     const json = await res.json();
     expect(json.error).toBe("connection refused");
+  });
+
+  it("erro não-Error cai na mensagem genérica (500)", async () => {
+    // Rejeita com algo que NÃO é instanceof Error → ramo de fallback.
+    vi.mocked(prisma.product.findMany).mockRejectedValueOnce(
+      "falha crua" as never,
+    );
+    const res = await POST(
+      makeReq({
+        customer,
+        address,
+        items: [{ productId: "prod-a", quantity: 1 }],
+      }),
+    );
+    expect(res.status).toBe(500);
+    const json = await res.json();
+    expect(json.error).toBe("Erro interno ao processar pedido");
   });
 });

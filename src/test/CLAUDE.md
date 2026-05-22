@@ -15,33 +15,51 @@
 
 1. **Vitest** é o runner. Comandos:
    - `pnpm test` — watch
+   - `pnpm test:run` — single run (CI)
+   - `pnpm test:coverage` — single run + gate de cobertura
    - `pnpm test:ui` — UI mode
-   - `pnpm test -- --run` — single run (CI)
-2. **Localização dos testes**:
-   - Unit puro (sem React): aqui (`src/test/*.test.ts`).
-   - Component tests: ao lado do componente (`product-card.test.tsx`) ou
-     aqui, mantendo consistência. **Escolher um padrão por feature**.
+2. **Localização dos testes**: **central em `src/test/`** (padrão único do
+   projeto). Unit, integração e componente vivem todos aqui como
+   `<arquivo>.test.ts(x)`. E2E fica em `e2e/` (fora de `src/`).
 3. **Naming**: `<arquivo-em-teste>.test.ts(x)`.
 4. **AAA**: Arrange → Act → Assert. Separar com linha em branco.
 
-## 3. Mocks
+## 3. Setup global (`setup.ts`)
 
-- **GSAP/Lenis** já são mockados globalmente (ver `setup.ts`). Não
-  re-mockar nos testes.
-- **Prisma**: **não mockar** em testes que verificam regra de negócio
-  crítica (checkout, cupom, estoque). Usar banco de teste real (Postgres
-  local ou `pg-mem`). Em testes de UI puros, mockar a função do
-  `*-db.ts` é ok.
-- **fetch**: usar `vi.fn()` ou MSW se ficar complexo.
+Polyfills jsdom (necessários por componentes): `window.matchMedia`,
+`IntersectionObserver`, `ResizeObserver`, `Element.prototype.scrollIntoView`.
+Mocks globais: `@/lib/prisma` (todos os models), `gsap`/`@gsap/react`/
+`gsap/ScrollTrigger`, `lenis`. **Não re-mockar esses nos testes.**
 
-## 4. Componentes
+## 4. Mocks e a estratégia de duas camadas (Prisma)
+
+- **GSAP/Lenis** já mockados globalmente — não re-mockar.
+- **Prisma — duas camadas (importante):**
+  1. **Unit/Integração (Vitest, mock):** mockamos o Prisma para validar
+     **orquestração** rápido — ordem de chamadas, payloads, status HTTP,
+     ramos de erro. Ex.: `api-checkout.test.ts` afirma que o handler
+     recalcula preço do banco e usa `$transaction`.
+  2. **E2E (Playwright, banco real):** a **regra crítica** (estoque
+     decrementa, cupom incrementa `usedCount`, pedido é criado) é validada
+     contra **Postgres real** em `e2e/checkout-flow.spec.ts`. É lá que se
+     confia no comportamento de verdade, não no mock.
+  - Resumo: mock = feedback rápido de orquestração; banco real = prova da
+    regra crítica. Complementares, não competem.
+- **fetch**: `vi.spyOn(globalThis, "fetch")` (restaurar no `afterEach`).
+
+## 5. Componentes
 
 - `render` de `@testing-library/react`.
 - Queries por **role/label** (acessíveis), evite `getByTestId` salvo
   necessidade.
-- Sempre `userEvent` em vez de `fireEvent` para interações.
+- **Interações: usar `userEvent`** (`const user = userEvent.setup()`), não
+  `fireEvent` — dispara eventos compostos (focus/blur/keydown) realistas,
+  essenciais para forms RHF e primitivos Radix.
 - Componentes async (RSC) **não** podem ser testados unitariamente —
   cobrir via E2E ou testar o `*-client.tsx` filho.
+- **Limite do unit**: corpos de `useGSAP(...)` e branches de Radix
+  Select/Calendar **não** rodam em jsdom — cobertos em E2E. Não escrever
+  testes frágeis (ex.: afirmar que `gsap.from` foi chamado).
 
 ## 5. E2E (Playwright)
 
