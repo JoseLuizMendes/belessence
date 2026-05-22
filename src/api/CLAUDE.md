@@ -16,8 +16,6 @@
 | Arquivo | Papel |
 | --- | --- |
 | `utils.ts` | `cn()` (twMerge + clsx) e `formatPrice()` (BRL) |
-| `api.ts` | Wrapper de fetch (cliente HTTP simples) |
-| `products.ts` | Cliente HTTP para `/api/products` |
 | `search/` | (reservado para utilidades de busca) |
 
 ## 2. Regras
