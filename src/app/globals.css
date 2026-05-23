@@ -313,6 +313,17 @@
     color: var(--color-brand-pink);
   }
 
+  /* SVG fill — as cores brand não estão no @theme, então as utilities fill
+     precisam ser declaradas à mão (igual às de text e bg). Usadas no coração
+     da wishlist. */
+  .fill-brand-wine {
+    fill: var(--color-brand-wine);
+  }
+
+  .fill-brand-pink {
+    fill: var(--color-brand-pink);
+  }
+
   .text-ink-strong {
     color: var(--color-ink-strong);
   }
