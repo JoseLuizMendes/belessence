@@ -21,7 +21,15 @@
 
 Rotas pt-BR atuais: `/`, `/sobre`, `/contato`, `/ajuda`, `/favoritos`,
 `/meus-pedidos`, `/checkout`, `/sucesso/[id]`, `/collections/[slug]`,
-`/product/[slug]`, `/allProducts`, `/admin/*`.
+`/product/[slug]`, `/allProducts`, `/entrar`, `/cadastro`, `/admin/*`.
+
+**Autenticação do cliente (Auth.js v5):** o route handler
+`api/auth/[...nextauth]/route.ts` expõe `/api/auth/*`. As páginas `/entrar`
+e `/cadastro` usam `AuthPanel`. A sessão é JWT (provider de credenciais);
+config em [`src/lib/auth.ts`](../lib/auth.ts). **É separada do admin** —
+`/admin/*` continua protegido pelo cookie `admin_session` no middleware,
+que **não** foi alterado. `/checkout` valida sessão no servidor (`auth()`)
+e redireciona para `/entrar?callbackUrl=/checkout` se deslogado.
 
 ## 2. Regras de RSC (default)
 

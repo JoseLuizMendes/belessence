@@ -8,11 +8,24 @@
 
 ## 1. Conteúdo
 
-- `schema.prisma` — modelo de dados (Product, Order, OrderItem, Review,
-  Coupon, ContactMessage, NewsletterSubscriber, etc.).
-- `seed.ts` — popula banco de dev. Script registrado em
-  `package.json` (`"prisma": { "seed": "tsx prisma/seed.ts" }`).
+- `schema.prisma` — modelo de dados:
+  - **Catálogo/pedidos:** Product (com enum `Gender`), Order, OrderItem,
+    Review, Coupon, ContactMessage, NewsletterSubscriber.
+  - **Auth (Auth.js):** User, Account, Session, VerificationToken. Campos
+    OAuth em snake_case são exigência do `@auth/prisma-adapter` — não
+    renomear. `User.passwordHash` guarda o hash bcrypt das contas de
+    credenciais (null em contas só-OAuth).
+  - **Dados privados por usuário:** WishlistItem e CartItem, ambos com
+    `userId` (FK `onDelete: Cascade`) e `@@unique([userId, productId])`.
+- `seed.ts` — popula banco de dev (produtos já recebem `gender`). Script
+  registrado em `package.json` (`"prisma": { "seed": "tsx prisma/seed.ts" }`).
 - `sql/` — SQL manual (extensões, RLS, índices que o Prisma não cobre).
+
+> Histórico: o banco de dev (Neon) vem sendo sincronizado via
+> `prisma db push` (sem pasta `migrations/`). Mudanças aditivas (colunas com
+> default, tabelas novas) são seguras por push. **Evitar `migrate dev` sobre
+> esse banco sem baseline** — ele detecta drift e pode propor reset
+> (perda de dados).
 
 ## 2. Fluxo de mudança de schema
 
