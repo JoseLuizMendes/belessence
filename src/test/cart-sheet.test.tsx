@@ -38,14 +38,26 @@ const { state, removeFromCart, updateQuantity, setIsCartOpen } = vi.hoisted(
 );
 
 vi.mock("@/components/cart", () => ({
-  useCart: () => ({
-    items: state.items,
-    cartTotal: state.cartTotal,
-    isCartOpen: state.isCartOpen,
-    setIsCartOpen,
-    removeFromCart,
-    updateQuantity,
-  }),
+  useCart: () => {
+    const items = state.items;
+    return {
+      items,
+      cartTotal: state.cartTotal,
+      isCartOpen: state.isCartOpen,
+      setIsCartOpen,
+      removeFromCart,
+      updateQuantity,
+      // Seleção para checkout parcial — nos testes, tudo selecionado.
+      selectedIds: items.map((i) => i.id),
+      selectedItems: items,
+      selectedCount: items.reduce((acc, i) => acc + i.quantity, 0),
+      selectedTotal: state.cartTotal,
+      isSelected: () => true,
+      toggleSelected: () => {},
+      setAllSelected: () => {},
+      removeOrdered: () => {},
+    };
+  },
 }));
 
 vi.mock("next/image", () => ({

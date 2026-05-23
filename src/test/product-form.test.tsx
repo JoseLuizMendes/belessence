@@ -68,6 +68,7 @@ const defaults = {
   badgeVariant: null,
   collection: "day",
   category: "perfume",
+  gender: "UNISSEX" as const,
   stock: 10,
   images: [],
   features: ["Long-lasting"],

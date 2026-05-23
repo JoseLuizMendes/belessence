@@ -23,6 +23,8 @@ const {
   updateQuantity,
   removeFromCart,
   clearCart,
+  removeOrdered,
+  setAllSelected,
   setIsCartOpen,
   routerPush,
   toastSuccess,
@@ -44,6 +46,8 @@ const {
   updateQuantity: vi.fn(),
   removeFromCart: vi.fn(),
   clearCart: vi.fn(),
+  removeOrdered: vi.fn(),
+  setAllSelected: vi.fn(),
   setIsCartOpen: vi.fn(),
   routerPush: vi.fn(),
   toastSuccess: vi.fn(),
@@ -51,15 +55,27 @@ const {
 }));
 
 vi.mock("@/components/cart", () => ({
-  useCart: () => ({
-    items: state.items,
-    cartTotal: state.cartTotal,
-    isCartOpen: state.isCartOpen,
-    setIsCartOpen,
-    updateQuantity,
-    removeFromCart,
-    clearCart,
-  }),
+  useCart: () => {
+    const items = state.items;
+    return {
+      items,
+      cartTotal: state.cartTotal,
+      isCartOpen: state.isCartOpen,
+      setIsCartOpen,
+      updateQuantity,
+      removeFromCart,
+      clearCart,
+      // Seleção — nos testes, tudo selecionado.
+      selectedIds: items.map((i) => i.id),
+      selectedItems: items,
+      selectedCount: items.reduce((acc, i) => acc + i.quantity, 0),
+      selectedTotal: state.cartTotal,
+      isSelected: () => true,
+      toggleSelected: () => {},
+      setAllSelected,
+      removeOrdered,
+    };
+  },
 }));
 
 vi.mock("next/navigation", () => ({
@@ -358,7 +374,8 @@ describe("CheckoutClient — submit", () => {
 
     await waitFor(() => expect(routerPush).toHaveBeenCalled());
     expect(routerPush).toHaveBeenCalledWith("/sucesso/ord-abc");
-    expect(clearCart).toHaveBeenCalledOnce();
+    // Remove apenas os itens comprados (não limpa o carrinho inteiro).
+    expect(removeOrdered).toHaveBeenCalledWith(["uuid-1"]);
     expect(toastSuccess).toHaveBeenCalledWith(
       "Pedido confirmado!",
       expect.objectContaining({ description: expect.any(String) }),
@@ -394,6 +411,6 @@ describe("CheckoutClient — submit", () => {
       expect.stringMatching(/estoque insuficiente/i),
     );
     expect(routerPush).not.toHaveBeenCalled();
-    expect(clearCart).not.toHaveBeenCalled();
+    expect(removeOrdered).not.toHaveBeenCalled();
   });
 });

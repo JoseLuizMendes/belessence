@@ -17,7 +17,7 @@ const mockProduct = {
 
 describe("useCartStore", () => {
   beforeEach(() => {
-    useCartStore.setState({ items: [], cartCount: 0, cartTotal: 0, isOpen: false });
+    useCartStore.setState({ items: [], selectedIds: [], cartCount: 0, cartTotal: 0, isOpen: false });
   });
 
   it("começa com carrinho vazio", () => {
@@ -82,5 +82,50 @@ describe("useCartStore", () => {
     useCartStore.getState().addItem(mockProduct);
     useCartStore.getState().addItem(product2);
     expect(useCartStore.getState().cartTotal).toBeCloseTo(189.9 + 249.9);
+  });
+});
+
+describe("useCartStore — seleção para checkout parcial", () => {
+  const product2 = { ...mockProduct, id: "2", slug: "golden-essence", price: 249.9 };
+
+  beforeEach(() => {
+    useCartStore.setState({ items: [], selectedIds: [], cartCount: 0, cartTotal: 0, isOpen: false });
+  });
+
+  it("item adicionado entra selecionado por padrão", () => {
+    useCartStore.getState().addItem(mockProduct);
+    expect(useCartStore.getState().selectedIds).toContain("1");
+  });
+
+  it("toggleSelected alterna a seleção do item", () => {
+    useCartStore.getState().addItem(mockProduct);
+    useCartStore.getState().toggleSelected("1");
+    expect(useCartStore.getState().selectedIds).not.toContain("1");
+    useCartStore.getState().toggleSelected("1");
+    expect(useCartStore.getState().selectedIds).toContain("1");
+  });
+
+  it("setAllSelected(false) desmarca todos e (true) marca todos", () => {
+    useCartStore.getState().addItem(mockProduct);
+    useCartStore.getState().addItem(product2);
+    useCartStore.getState().setAllSelected(false);
+    expect(useCartStore.getState().selectedIds).toEqual([]);
+    useCartStore.getState().setAllSelected(true);
+    expect(useCartStore.getState().selectedIds.sort()).toEqual(["1", "2"]);
+  });
+
+  it("removeItem tira o item da seleção também", () => {
+    useCartStore.getState().addItem(mockProduct);
+    useCartStore.getState().removeItem("1");
+    expect(useCartStore.getState().selectedIds).not.toContain("1");
+  });
+
+  it("removeOrdered remove comprados e mantém o resto (re-selecionado)", () => {
+    useCartStore.getState().addItem(mockProduct);
+    useCartStore.getState().addItem(product2);
+    useCartStore.getState().removeOrdered(["1"]);
+    const { items, selectedIds } = useCartStore.getState();
+    expect(items.map((i) => i.id)).toEqual(["2"]);
+    expect(selectedIds).toEqual(["2"]);
   });
 });

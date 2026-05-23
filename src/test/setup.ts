@@ -147,6 +147,37 @@ vi.mock("@gsap/react", () => ({
   useGSAP: vi.fn((fn: () => void) => fn()),
 }));
 
+// Mock do next-auth/react — por padrão o usuário está autenticado, para que
+// ações com auth-gate (curtir, carrinho) rodem direto nos testes de
+// comportamento. Testes que precisam do estado deslogado podem sobrescrever.
+vi.mock("next-auth/react", () => ({
+  useSession: () => ({
+    data: { user: { id: "test-user", name: "Test", email: "test@belessence.dev" } },
+    status: "authenticated",
+  }),
+  signIn: vi.fn(),
+  signOut: vi.fn(),
+  SessionProvider: ({ children }: { children?: unknown }) => children,
+}));
+
+// Mock das Server Actions de carrinho/wishlist — as stores as importam, mas
+// nos testes unitários queremos isolar do servidor (auth + Prisma). Por padrão
+// retornam sucesso, então o update otimista das stores se mantém.
+vi.mock("@/lib/cart-actions", () => ({
+  getCartAction: vi.fn(async () => []),
+  addToCartAction: vi.fn(async () => ({ ok: true })),
+  setCartQuantityAction: vi.fn(async () => ({ ok: true })),
+  removeFromCartAction: vi.fn(async () => ({ ok: true })),
+  clearCartAction: vi.fn(async () => ({ ok: true })),
+}));
+
+vi.mock("@/lib/wishlist-actions", () => ({
+  getWishlistAction: vi.fn(async () => []),
+  toggleWishlistAction: vi.fn(async () => ({ ok: true, favorited: true })),
+  removeWishlistAction: vi.fn(async () => ({ ok: true })),
+  clearWishlistAction: vi.fn(async () => ({ ok: true })),
+}));
+
 vi.mock("lenis", () => ({
   default: vi.fn().mockImplementation(() => ({
     on: vi.fn(),

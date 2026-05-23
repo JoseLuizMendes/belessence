@@ -103,11 +103,31 @@ describe("getFilteredProducts — WHERE", () => {
     expect(lastFindManyArg().where.AND).toContainEqual({ collection: "night" });
   });
 
-  it("category e genero (alias) mapeiam para category insensitive", async () => {
-    await getFilteredProducts({ genero: "feminino" });
+  it("category filtra a coluna category (insensitive)", async () => {
+    await getFilteredProducts({ category: "perfume" });
     expect(lastFindManyArg().where.AND).toContainEqual({
-      category: { equals: "feminino", mode: "insensitive" },
+      category: { equals: "perfume", mode: "insensitive" },
     });
+  });
+
+  it("genero filtra a coluna gender normalizada para o enum", async () => {
+    await getFilteredProducts({ genero: "feminino" });
+    expect(lastFindManyArg().where.AND).toContainEqual({ gender: "FEMININO" });
+  });
+
+  it("category e genero combinam (AND) — ex.: perfumes femininos", async () => {
+    await getFilteredProducts({ category: "perfume", genero: "FEMININO" });
+    const and = lastFindManyArg().where.AND;
+    expect(and).toContainEqual({
+      category: { equals: "perfume", mode: "insensitive" },
+    });
+    expect(and).toContainEqual({ gender: "FEMININO" });
+  });
+
+  it("genero inválido é ignorado (não adiciona cláusula gender)", async () => {
+    await getFilteredProducts({ genero: "xyz" });
+    const and = lastFindManyArg().where.AND;
+    expect(and.some((c) => "gender" in c)).toBe(false);
   });
 
   it("busca textual gera OR em 4 campos", async () => {
