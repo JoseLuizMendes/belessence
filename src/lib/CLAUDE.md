@@ -9,19 +9,33 @@
 
 | Arquivo | Responsabilidade | Server/Client |
 | --- | --- | --- |
-| `prisma.ts` | Singleton do Prisma Client | **Server-only** |
-| `products-db.ts` | Queries de produto | Server-only |
+| `prisma.ts` | Singleton do Prisma Client (config SSL explícita no Pool) | **Server-only** |
+| `products-db.ts` | Queries de produto (inclui filtro de `gender`) | Server-only |
 | `coupons.ts` | Regras e validação de cupom | Server-only |
 | `shipping.ts` | Cálculo de frete por UF | Server-only |
 | `payment-provider.ts` | Wrapper Mercado Pago | Server-only |
+| `auth.ts` | Config do Auth.js v5 (NextAuth) — providers, callbacks | **Server-only** |
+| `auth-actions.ts` | Server Action `registerUser` (cadastro credenciais) | **Server-only** (`"use server"`) |
+| `wishlist-db.ts` | Queries da wishlist por usuário | **Server-only** |
+| `wishlist-actions.ts` | Server Actions da wishlist (auth + db) | **Server-only** (`"use server"`) |
+| `cart-db.ts` | Queries do carrinho por usuário (preço relido do banco) | **Server-only** |
+| `cart-actions.ts` | Server Actions do carrinho (auth + db) | **Server-only** (`"use server"`) |
 | `product-status.ts` | Lógica de status (NOVO, PROMOÇÃO, ESGOTADO) | Compartilhado |
 | `product-image.ts` | Helpers de imagem/Cloudinary | Compartilhado |
-| `validations.ts` | Schemas Zod (form + handler) | Compartilhado |
+| `validations.ts` | Schemas Zod (form + handler; inclui login/cadastro) | Compartilhado |
 | `design-tokens.ts` | Tokens OKLCH + tipografia + espaçamento | Compartilhado |
 | `gsap-utils.ts` | Helpers de motion | **Client-only** |
-| `cart-store.ts` | Zustand store do carrinho | **Client-only** |
-| `wishlist-store.ts` | Zustand store de favoritos | **Client-only** |
-| `hooks/` | React hooks | **Client-only** (ver [hooks/CLAUDE.md](hooks/CLAUDE.md)) |
+| `cart-store.ts` | Zustand — **cache** do carrinho do servidor (sem persist) | **Client-only** |
+| `wishlist-store.ts` | Zustand — **cache** dos favoritos do servidor (sem persist) | **Client-only** |
+| `auth-gate-store.ts` | Zustand — modal de login que bloqueia ações | **Client-only** |
+| `hooks/` | React hooks (inclui `use-require-auth`) | **Client-only** (ver [hooks/CLAUDE.md](hooks/CLAUDE.md)) |
+
+> **Carrinho e favoritos são privados por usuário, no banco.** As stores
+> Zustand (`cart-store`/`wishlist-store`) **não** usam mais `localStorage`:
+> são cache hidratado do servidor no login e zerado no logout (ver
+> `components/auth/auth-data-sync.tsx`). Mutações são otimistas e
+> sincronizam via Server Actions com rollback. **Nunca** voltar a persistir
+> esses dados em `localStorage` global — vaza dados entre usuários.
 
 ## 2. Regras gerais
 

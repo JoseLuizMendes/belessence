@@ -8,7 +8,7 @@
  */
 
 import { prisma } from "@/lib/prisma";
-import type { ProductStatus } from "@prisma/client";
+import type { ProductStatus, Gender } from "@prisma/client";
 
 // ─── TIPOS ───────────────────────────────────────────────────────────────────
 
@@ -28,6 +28,8 @@ export interface Product {
   features: string[];
   collection: string;
   category: string;
+  /** Gênero da fragrância (FEMININO/MASCULINO/UNISSEX). */
+  gender: Gender;
   totalSold: number;
   seasonalSold: number;
   /** Quantidade em estoque. 0 → esgotado. */
@@ -61,6 +63,7 @@ type RawProduct = {
   features: string[];
   collection: string;
   category: string;
+  gender: Gender;
   totalSold: number;
   seasonalSold: number;
   stock: number;
@@ -143,6 +146,7 @@ const PRODUCT_SELECT = {
   features: true,
   collection: true,
   category: true,
+  gender: true,
   totalSold: true,
   seasonalSold: true,
   stock: true,
@@ -265,9 +269,9 @@ export type ProductSort =
 export interface ProductFilters {
   /** filtra por coleção (night/day/limited) */
   collection?: string;
-  /** filtro por categoria (perfume/cologne/...). Aceita "feminino"/"masculino"/"unissex" → mapeia para gênero futuro */
+  /** filtro por categoria (perfume/cologne/...) */
   category?: string;
-  /** filtro pelo "genero" — alias intuitivo para category */
+  /** filtro por gênero da fragrância (feminino/masculino/unissex) — combinável com category */
   genero?: string;
   /** busca textual em name/shortDescription/description */
   search?: string;
@@ -289,6 +293,19 @@ const SORT_MAP: Record<ProductSort, { field: string; dir: "asc" | "desc" }> = {
   "name-asc": { field: "name", dir: "asc" },
 };
 
+/**
+ * Normaliza um valor textual de gênero para o enum `Gender`.
+ * Aceita variações ("feminina", "Femininas", "FEMININO", ...) por prefixo.
+ * Retorna `null` se não reconhecer (filtro é ignorado).
+ */
+export function normalizeGender(raw: string): Gender | null {
+  const v = raw.trim().toUpperCase();
+  if (v.startsWith("FEM")) return "FEMININO";
+  if (v.startsWith("MAS")) return "MASCULINO";
+  if (v.startsWith("UNI")) return "UNISSEX";
+  return null;
+}
+
 /** Constrói o cláusula WHERE compartilhada por getFilteredProducts/countFilteredProducts */
 function buildProductWhere(
   filters: ProductFilters,
@@ -301,9 +318,14 @@ function buildProductWhere(
 
   if (collection) whereConditions.push({ collection });
 
-  const effectiveCategory = category ?? genero;
-  if (effectiveCategory) {
-    whereConditions.push({ category: { equals: effectiveCategory, mode: "insensitive" } });
+  if (category) {
+    whereConditions.push({ category: { equals: category, mode: "insensitive" } });
+  }
+
+  // Gênero é enum — combina com category via AND (ex.: perfumes femininos).
+  if (genero) {
+    const g = normalizeGender(genero);
+    if (g) whereConditions.push({ gender: g });
   }
 
   if (search && search.trim()) {

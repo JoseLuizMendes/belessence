@@ -1,66 +1,108 @@
 /**
- * Wishlist Store — Zustand + persist middleware
+ * Wishlist Store — Zustand (cache do servidor)
  * ─────────────────────────────────────────────────────────────────────
- * Lista de favoritos do usuário. Persiste no localStorage (key: belessence-wishlist).
- * Sem sincronização com banco (não há auth) — funciona por dispositivo.
+ * Os favoritos são privados por usuário e vivem no banco (tabela
+ * wishlist_items). Esta store é apenas um cache client para UI instantânea:
+ *  - `hydrate(ids)` é chamado após o login (AuthDataSync) com os IDs do banco.
+ *  - `reset()` é chamado no logout — nada de dados de um usuário sobra para
+ *    o próximo (sem persistência em localStorage).
+ *  - Mutações fazem update otimista e sincronizam via Server Action, com
+ *    rollback em caso de falha.
  *
  * Uso: import { useWishlistStore } from '@/lib/wishlist-store'
  */
 
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { toast } from "sonner";
+import {
+  toggleWishlistAction,
+  removeWishlistAction,
+  clearWishlistAction,
+} from "@/lib/wishlist-actions";
 
 interface WishlistState {
-  /** IDs dos produtos favoritados */
+  /** IDs dos produtos favoritados (cache do servidor). */
   items: string[];
-
-  /** Total de itens (helper) */
+  /** Total de itens (helper). */
   count: number;
 
-  /** Adiciona/remove um produto da lista */
+  /** Adiciona/remove um produto (otimista + servidor). */
   toggle: (productId: string) => void;
-
-  /** Verifica se um produto está na lista */
+  /** Verifica se um produto está na lista. */
   has: (productId: string) => boolean;
-
-  /** Remove um produto específico */
+  /** Remove um produto específico (otimista + servidor). */
   remove: (productId: string) => void;
-
-  /** Limpa toda a lista */
+  /** Limpa toda a lista (otimista + servidor). */
   clear: () => void;
+
+  /** Popula a store com os favoritos do usuário (pós-login). */
+  hydrate: (ids: string[]) => void;
+  /** Zera a store (logout) — não deixa resíduo entre usuários. */
+  reset: () => void;
 }
 
-export const useWishlistStore = create<WishlistState>()(
-  persist(
-    (set, get) => ({
-      items: [],
-      count: 0,
+export const useWishlistStore = create<WishlistState>((set, get) => ({
+  items: [],
+  count: 0,
 
-      toggle: (productId) => {
-        const items = get().items;
-        const exists = items.includes(productId);
-        const newItems = exists
-          ? items.filter((id) => id !== productId)
-          : [...items, productId];
-        set({ items: newItems, count: newItems.length });
-      },
+  toggle: (productId) => {
+    const prev = get().items;
+    const exists = prev.includes(productId);
+    const next = exists
+      ? prev.filter((id) => id !== productId)
+      : [...prev, productId];
+    set({ items: next, count: next.length });
 
-      has: (productId) => get().items.includes(productId),
+    toggleWishlistAction(productId)
+      .then((res) => {
+        if (!res.ok) {
+          set({ items: prev, count: prev.length });
+          toast.error("Não foi possível atualizar os favoritos");
+        }
+      })
+      .catch(() => {
+        set({ items: prev, count: prev.length });
+        toast.error("Não foi possível atualizar os favoritos");
+      });
+  },
 
-      remove: (productId) => {
-        const newItems = get().items.filter((id) => id !== productId);
-        set({ items: newItems, count: newItems.length });
-      },
+  has: (productId) => get().items.includes(productId),
 
-      clear: () => set({ items: [], count: 0 }),
-    }),
-    {
-      name: "belessence-wishlist",
-      storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
-        items: state.items,
-        count: state.count,
-      }),
-    },
-  ),
-);
+  remove: (productId) => {
+    const prev = get().items;
+    const next = prev.filter((id) => id !== productId);
+    set({ items: next, count: next.length });
+
+    removeWishlistAction(productId)
+      .then((res) => {
+        if (!res.ok) {
+          set({ items: prev, count: prev.length });
+          toast.error("Não foi possível remover dos favoritos");
+        }
+      })
+      .catch(() => {
+        set({ items: prev, count: prev.length });
+        toast.error("Não foi possível remover dos favoritos");
+      });
+  },
+
+  clear: () => {
+    const prev = get().items;
+    set({ items: [], count: 0 });
+
+    clearWishlistAction()
+      .then((res) => {
+        if (!res.ok) {
+          set({ items: prev, count: prev.length });
+          toast.error("Não foi possível limpar os favoritos");
+        }
+      })
+      .catch(() => {
+        set({ items: prev, count: prev.length });
+        toast.error("Não foi possível limpar os favoritos");
+      });
+  },
+
+  hydrate: (ids) => set({ items: ids, count: ids.length }),
+  reset: () => set({ items: [], count: 0 }),
+}));
