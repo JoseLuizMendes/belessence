@@ -8,6 +8,8 @@
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import CheckoutClient from "@/components/checkout-client";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -15,7 +17,13 @@ export const metadata: Metadata = {
   description: "Finalize seu pedido Mari Beauty",
 };
 
-export default function CheckoutPage() {
+export default async function CheckoutPage() {
+  // Comprar exige login — backstop server-side (não dá pra burlar pelo client).
+  const session = await auth();
+  if (!session?.user) {
+    redirect("/entrar?callbackUrl=/checkout");
+  }
+
   return (
     <div className="min-h-screen bg-brand-pink flex flex-col">
       <Header />

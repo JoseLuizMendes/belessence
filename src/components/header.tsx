@@ -31,6 +31,7 @@ import { CartSheet } from "./cart-sheet";
 import { MariLogo } from "./mari-logo";
 import Link from "next/link";
 import { useWishlistStore } from "@/lib/wishlist-store";
+import { AccountMenu } from "./auth/account-menu";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -38,6 +39,17 @@ const NAV_LINKS = [
   { label: "Início",   id: "inicio" },
   { label: "Coleções", id: "colecoes" },
   { label: "Sobre",    id: "sobre" },
+];
+
+const FRAGRANCE_CATEGORY_LINKS = [
+  { label: "Perfumes", href: "/allProducts?category=perfume" },
+  { label: "Colônias", href: "/allProducts?category=cologne" },
+];
+
+const FRAGRANCE_GENDER_LINKS = [
+  { label: "Femininas", href: "/allProducts?genero=FEMININO" },
+  { label: "Masculinas", href: "/allProducts?genero=MASCULINO" },
+  { label: "Unissex", href: "/allProducts?genero=UNISSEX" },
 ];
 
 export default function Header() {
@@ -150,13 +162,31 @@ export default function Header() {
                     Fragrâncias
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <div className="w-52 space-y-0.5 p-3">
-                      {["Femininas", "Masculinas", "Unissex"].map((cat) => (
-                        <NavigationMenuLink
-                          key={cat}
-                          className="block cursor-pointer rounded-sm px-3 py-2.5 text-xs tracking-[0.08em] uppercase text-ink-soft transition-colors hover:bg-accent"
-                        >
-                          {cat}
+                    <div className="w-56 p-3">
+                      <p className="px-3 pb-1.5 pt-1 text-[9px] font-semibold tracking-[0.2em] uppercase text-ink-muted">
+                        Tipo
+                      </p>
+                      {FRAGRANCE_CATEGORY_LINKS.map((item) => (
+                        <NavigationMenuLink key={item.label} asChild>
+                          <Link
+                            href={item.href}
+                            className="block cursor-pointer rounded-sm px-3 py-2.5 text-xs tracking-[0.08em] uppercase text-ink-soft transition-colors hover:bg-accent"
+                          >
+                            {item.label}
+                          </Link>
+                        </NavigationMenuLink>
+                      ))}
+                      <p className="px-3 pb-1.5 pt-3 text-[9px] font-semibold tracking-[0.2em] uppercase text-ink-muted">
+                        Gênero
+                      </p>
+                      {FRAGRANCE_GENDER_LINKS.map((item) => (
+                        <NavigationMenuLink key={item.label} asChild>
+                          <Link
+                            href={item.href}
+                            className="block cursor-pointer rounded-sm px-3 py-2.5 text-xs tracking-[0.08em] uppercase text-ink-soft transition-colors hover:bg-accent"
+                          >
+                            {item.label}
+                          </Link>
                         </NavigationMenuLink>
                       ))}
                     </div>
@@ -181,6 +211,9 @@ export default function Header() {
                 className="h-9 w-40 lg:w-56 xl:w-72 rounded-none border-0 bg-transparent pl-9 text-xs text-ink-strong placeholder:text-ink-muted placeholder:tracking-[0.02em] focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
               />
             </form>
+
+            {/* Conta */}
+            <AccountMenu />
 
             {/* Wishlist */}
             <Link href="/favoritos" aria-label="Meus favoritos">
@@ -245,7 +278,7 @@ export default function Header() {
                   <Separator className="bg-border-subtle" />
 
                   {/* Nav links mobile */}
-                  {[...NAV_LINKS, { label: "Fragrâncias", id: "inicio" }].map(({ label, id }) => (
+                  {NAV_LINKS.map(({ label, id }) => (
                     <button
                       key={label}
                       onClick={() => scrollTo(id)}
@@ -254,6 +287,23 @@ export default function Header() {
                       {label}
                     </button>
                   ))}
+
+                  {/* Fragrâncias — links reais (tipo + gênero) */}
+                  <p className="px-4 pt-5 pb-1 text-[9px] font-semibold tracking-[0.2em] uppercase text-ink-muted">
+                    Fragrâncias
+                  </p>
+                  {[...FRAGRANCE_CATEGORY_LINKS, ...FRAGRANCE_GENDER_LINKS].map(
+                    ({ label, href }) => (
+                      <Link
+                        key={label}
+                        href={href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="border-b border-b-border px-4 py-4 text-left text-[11px] tracking-[0.16em] uppercase text-ink-soft transition-colors hover:bg-surface-section"
+                      >
+                        {label}
+                      </Link>
+                    ),
+                  )}
                 </div>
               </SheetContent>
             </Sheet>

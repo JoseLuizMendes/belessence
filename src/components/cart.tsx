@@ -22,6 +22,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
 export function useCart() {
   const store = useCartStore();
 
+  const selectedItems = store.items.filter((i) =>
+    store.selectedIds.includes(i.id),
+  );
+  const selectedCount = selectedItems.reduce((acc, i) => acc + i.quantity, 0);
+  const selectedTotal = selectedItems.reduce(
+    (acc, i) => acc + i.price * i.quantity,
+    0,
+  );
+
   return {
     items: store.items,
     cartCount: store.cartCount,
@@ -34,5 +43,15 @@ export function useCart() {
     updateQuantity: (productId: string, quantity: number) =>
       store.updateQuantity(productId, quantity),
     clearCart: () => store.clearCart(),
+
+    // Seleção para checkout parcial
+    selectedIds: store.selectedIds,
+    selectedItems,
+    selectedCount,
+    selectedTotal,
+    isSelected: (productId: string) => store.selectedIds.includes(productId),
+    toggleSelected: (productId: string) => store.toggleSelected(productId),
+    setAllSelected: (selected: boolean) => store.setAllSelected(selected),
+    removeOrdered: (productIds: string[]) => store.removeOrdered(productIds),
   };
 }

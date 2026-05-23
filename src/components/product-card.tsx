@@ -27,6 +27,7 @@ import { ShoppingBag, Ban, Clock } from "lucide-react";
 import { formatPrice } from "@/api/utils";
 import { useCart } from "./cart";
 import { WishlistButton } from "./wishlist-button";
+import { useRequireAuth } from "@/lib/hooks/use-require-auth";
 import { productImageSrc } from "@/lib/product-image";
 import {
   getEffectivePromotion,
@@ -87,6 +88,7 @@ export function ProductCard({
   animateAttr = "data-product-card",
 }: ProductCardProps) {
   const { addToCart } = useCart();
+  const requireAuth = useRequireAuth();
 
   const price = Number(product.price);
   const status: ProductStatus = product.status ?? "NORMAL";
@@ -192,17 +194,19 @@ export function ProductCard({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              addToCart({
-                id: product.id,
-                slug: product.slug,
-                name: product.name,
-                shortDescription: product.shortDescription,
-                price,
-                originalPrice: displayOriginalPrice ?? undefined,
-                badge: product.badge ?? undefined,
-                badgeVariant: toBadgeVariant(product.badgeVariant),
-                image: product.images[0],
-              });
+              requireAuth(() =>
+                addToCart({
+                  id: product.id,
+                  slug: product.slug,
+                  name: product.name,
+                  shortDescription: product.shortDescription,
+                  price,
+                  originalPrice: displayOriginalPrice ?? undefined,
+                  badge: product.badge ?? undefined,
+                  badgeVariant: toBadgeVariant(product.badgeVariant),
+                  image: product.images[0],
+                }),
+              );
             }}
             className="absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-full bg-brand-wine text-brand-pink shadow-card opacity-0 scale-90 transition-all duration-300 group-hover:opacity-100 group-hover:scale-100 hover:bg-ink-strong focus-visible:opacity-100 focus-visible:scale-100"
           >

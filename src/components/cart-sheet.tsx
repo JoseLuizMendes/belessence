@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Sheet,
   SheetContent,
@@ -16,7 +17,21 @@ import Image from "next/image";
 import Link from "next/link";
 
 export function CartSheet({ children }: { children: React.ReactNode }) {
-  const { items, removeFromCart, updateQuantity, cartTotal, isCartOpen, setIsCartOpen } = useCart();
+  const {
+    items,
+    removeFromCart,
+    updateQuantity,
+    isCartOpen,
+    setIsCartOpen,
+    isSelected,
+    toggleSelected,
+    setAllSelected,
+    selectedCount,
+    selectedItems,
+    selectedTotal,
+  } = useCart();
+
+  const allSelected = items.length > 0 && selectedItems.length === items.length;
 
   return (
     <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
@@ -27,7 +42,9 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
         <SheetHeader className="px-5 sm:px-6 pt-6 pb-4 border-b border-border-subtle">
           <SheetTitle className="font-playfair text-2xl text-ink-strong">Seu Carrinho</SheetTitle>
           <SheetDescription className="text-ink-soft">
-            {items.length === 0 ? "Seu carrinho está vazio" : `${items.length} ${items.length === 1 ? "item selecionado" : "itens selecionados"}`}
+            {items.length === 0
+              ? "Seu carrinho está vazio"
+              : `${selectedItems.length} de ${items.length} ${items.length === 1 ? "item selecionado" : "itens selecionados"}`}
           </SheetDescription>
         </SheetHeader>
 
@@ -38,9 +55,28 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
                     <p className="text-sm">Nenhum produto selecionado</p>
                 </div>
             )}
+
+            {items.length > 0 && (
+              <label className="mb-4 flex items-center gap-2.5 text-xs text-ink-soft cursor-pointer select-none">
+                <Checkbox
+                  checked={allSelected}
+                  onCheckedChange={(c) => setAllSelected(c === true)}
+                  aria-label="Selecionar todos os itens"
+                />
+                Selecionar todos
+              </label>
+            )}
+
             <div className="space-y-5">
                 {items.map((item) => (
                     <div key={item.id} className="flex gap-3 sm:gap-4">
+                        <div className="flex items-center">
+                          <Checkbox
+                            checked={isSelected(item.id)}
+                            onCheckedChange={() => toggleSelected(item.id)}
+                            aria-label={`Selecionar ${item.name} para o checkout`}
+                          />
+                        </div>
                         <div className="h-20 w-20 bg-surface-section rounded-token-sm flex items-center justify-center flex-shrink-0 relative overflow-hidden">
                              {item.image ? (
                                 <Image
@@ -97,13 +133,27 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
 
         <div className="space-y-4 px-5 sm:px-6 py-5 border-t border-border-subtle bg-background">
             <div className="flex items-center justify-between font-medium text-base">
-                <span className="text-ink-strong">Total</span>
-                <span className="text-brand-wine font-bold tabular-nums">{formatPrice(cartTotal)}</span>
+                <span className="text-ink-strong">Total selecionado</span>
+                <span className="text-brand-wine font-bold tabular-nums">{formatPrice(selectedTotal)}</span>
             </div>
-            <Button asChild className="w-full bg-brand-wine text-brand-pink hover:bg-brand-wine/90 loreal-btn-pill h-12 text-[12px] font-medium tracking-[0.18em] uppercase" size="lg" disabled={items.length === 0}>
+            {items.length > 0 && selectedCount === 0 && (
+              <p className="text-xs text-ink-muted">
+                Selecione ao menos um item para finalizar.
+              </p>
+            )}
+            <Button
+              asChild={selectedCount > 0}
+              className="w-full bg-brand-wine text-brand-pink hover:bg-brand-wine/90 loreal-btn-pill h-12 text-[12px] font-medium tracking-[0.18em] uppercase"
+              size="lg"
+              disabled={selectedCount === 0}
+            >
+              {selectedCount > 0 ? (
                 <Link href="/checkout" onClick={() => setIsCartOpen(false)}>
-                  Finalizar Compra
+                  Finalizar Compra ({selectedCount})
                 </Link>
+              ) : (
+                <span>Finalizar Compra</span>
+              )}
             </Button>
         </div>
       </SheetContent>

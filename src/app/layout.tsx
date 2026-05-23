@@ -3,6 +3,9 @@ import { Poppins } from "next/font/google";
 import { CartProvider } from "@/components/cart";
 import { Toaster } from "@/components/ui/sonner";
 import { LenisProvider } from "@/components/providers/lenis-provider";
+import { AuthSessionProvider } from "@/components/providers/session-provider";
+import { AuthDialog } from "@/components/auth/auth-dialog";
+import { AuthDataSync } from "@/components/auth/auth-data-sync";
 import "./globals.css";
 
 // ─── FONTES ──────────────────────────────────────────────────────────────────
@@ -41,11 +44,17 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={`${poppins.variable} antialiased font-sans`}>
-        <LenisProvider>
-          <CartProvider>
-            {children}
-          </CartProvider>
-        </LenisProvider>
+        <AuthSessionProvider>
+          {/* Hidrata carrinho/favoritos no login e limpa no logout */}
+          <AuthDataSync />
+          <LenisProvider>
+            <CartProvider>
+              {children}
+            </CartProvider>
+          </LenisProvider>
+          {/* Modal de bloqueio de ações que exigem login (curtir/carrinho/comprar) */}
+          <AuthDialog />
+        </AuthSessionProvider>
         {/* Toast system — Sonner shadcn (puxa --popover / --border do theme) */}
         <Toaster
           position="bottom-right"

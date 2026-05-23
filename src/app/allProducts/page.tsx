@@ -50,6 +50,13 @@ const FILTERS = [
   { label: "Colônias", value: "cologne" },
 ];
 
+const GENDER_FILTERS = [
+  { label: "Todos", value: "" },
+  { label: "Feminino", value: "FEMININO" },
+  { label: "Masculino", value: "MASCULINO" },
+  { label: "Unissex", value: "UNISSEX" },
+];
+
 const SORT_OPTIONS: Array<{ label: string; value: ProductSort }> = [
   { label: "Mais vendidos", value: "best-seller" },
   { label: "Lançamentos", value: "newest" },
@@ -60,14 +67,20 @@ const SORT_OPTIONS: Array<{ label: string; value: ProductSort }> = [
 
 const PAGE_SIZE = 12;
 
-function buildHref(
-  current: { category?: string; sort?: string; q?: string; show?: number },
-  changes: Partial<{ category?: string; sort?: string; q?: string; show?: number }>,
-): string {
+type FilterState = {
+  category?: string;
+  genero?: string;
+  sort?: string;
+  q?: string;
+  show?: number;
+};
+
+function buildHref(current: FilterState, changes: Partial<FilterState>): string {
   const merged = { ...current, ...changes };
   const params = new URLSearchParams();
   if (merged.q) params.set("q", merged.q);
   if (merged.category) params.set("category", merged.category);
+  if (merged.genero) params.set("genero", merged.genero);
   if (merged.sort) params.set("sort", merged.sort);
   if (merged.show && merged.show !== PAGE_SIZE) {
     params.set("show", String(merged.show));
@@ -85,7 +98,8 @@ function parseShow(raw: string | undefined): number {
 
 export default async function AllProductsPage({ searchParams }: PageProps) {
   const sp = await searchParams;
-  const activeCategory = sp.category ?? sp.genero ?? "";
+  const activeCategory = sp.category ?? "";
+  const activeGender = sp.genero ?? "";
   const activeSort = (SORT_OPTIONS.find((o) => o.value === sp.sort)?.value ??
     "best-seller") as ProductSort;
   const searchQuery = sp.q?.trim() ?? "";
@@ -93,6 +107,7 @@ export default async function AllProductsPage({ searchParams }: PageProps) {
 
   const filters = {
     category: activeCategory || undefined,
+    genero: activeGender || undefined,
     sort: activeSort,
     search: searchQuery || undefined,
   };
@@ -105,8 +120,9 @@ export default async function AllProductsPage({ searchParams }: PageProps) {
   const visible = allFiltered.slice(0, show);
   const hasMore = show < total;
 
-  const current = {
+  const current: FilterState = {
     category: activeCategory || undefined,
+    genero: activeGender || undefined,
     sort: activeSort,
     q: searchQuery || undefined,
     show,
@@ -166,28 +182,61 @@ export default async function AllProductsPage({ searchParams }: PageProps) {
           )}
 
           {/* Filtros + ordenação */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-10 sm:mb-14">
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              {FILTERS.map((filter) => {
-                const isActive = activeCategory === filter.value;
-                return (
-                  <Link
-                    key={filter.label}
-                    href={buildHref(current, {
-                      category: filter.value || undefined,
-                      show: PAGE_SIZE,
-                    })}
-                    className={[
-                      "px-5 py-2 rounded-full text-[11px] font-medium tracking-[0.18em] uppercase transition-all active:scale-95",
-                      isActive
-                        ? "bg-brand-wine text-brand-pink"
-                        : "bg-surface-panel text-ink-soft border border-border-subtle hover:border-brand-wine hover:text-brand-wine",
-                    ].join(" ")}
-                  >
-                    {filter.label}
-                  </Link>
-                );
-              })}
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between mb-10 sm:mb-14">
+            <div className="flex flex-col gap-3">
+              {/* Categoria */}
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <span className="text-[10px] font-medium tracking-[0.2em] uppercase text-ink-muted w-16 shrink-0">
+                  Tipo
+                </span>
+                {FILTERS.map((filter) => {
+                  const isActive = activeCategory === filter.value;
+                  return (
+                    <Link
+                      key={filter.label}
+                      href={buildHref(current, {
+                        category: filter.value || undefined,
+                        show: PAGE_SIZE,
+                      })}
+                      className={[
+                        "px-5 py-2 rounded-full text-[11px] font-medium tracking-[0.18em] uppercase transition-all active:scale-95",
+                        isActive
+                          ? "bg-brand-wine text-brand-pink"
+                          : "bg-surface-panel text-ink-soft border border-border-subtle hover:border-brand-wine hover:text-brand-wine",
+                      ].join(" ")}
+                    >
+                      {filter.label}
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {/* Gênero */}
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <span className="text-[10px] font-medium tracking-[0.2em] uppercase text-ink-muted w-16 shrink-0">
+                  Gênero
+                </span>
+                {GENDER_FILTERS.map((filter) => {
+                  const isActive = activeGender === filter.value;
+                  return (
+                    <Link
+                      key={filter.label}
+                      href={buildHref(current, {
+                        genero: filter.value || undefined,
+                        show: PAGE_SIZE,
+                      })}
+                      className={[
+                        "px-5 py-2 rounded-full text-[11px] font-medium tracking-[0.18em] uppercase transition-all active:scale-95",
+                        isActive
+                          ? "bg-brand-wine text-brand-pink"
+                          : "bg-surface-panel text-ink-soft border border-border-subtle hover:border-brand-wine hover:text-brand-wine",
+                      ].join(" ")}
+                    >
+                      {filter.label}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
 
             <SortSelect options={SORT_OPTIONS} defaultValue={activeSort} />

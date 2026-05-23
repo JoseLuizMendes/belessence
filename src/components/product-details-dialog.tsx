@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, ShoppingBag } from "lucide-react";
 import { Product, useCart } from "./cart";
+import { useRequireAuth } from "@/lib/hooks/use-require-auth";
 
 interface ProductDetailsDialogProps {
   product: Product | null;
@@ -24,6 +25,7 @@ export function ProductDetailsDialog({
     triggerLabel = "Ver detalhes",
 }: ProductDetailsDialogProps) {
   const { addToCart } = useCart();
+    const requireAuth = useRequireAuth();
     const [open, setOpen] = React.useState(false);
 
   if (!product) return null;
@@ -77,8 +79,10 @@ export function ProductDetailsDialog({
 
                 <div className="pt-4 flex gap-3">
                     <Button className="flex-1" size="lg" onClick={() => {
-                        addToCart(product);
-                        setOpen(false);
+                        requireAuth(() => {
+                            addToCart(product);
+                            setOpen(false);
+                        });
                     }}>
                         Adicionar ao Carrinho
                     </Button>

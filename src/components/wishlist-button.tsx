@@ -12,6 +12,7 @@ import { Heart } from "lucide-react";
 import { useWishlistStore } from "@/lib/wishlist-store";
 import { toast } from "sonner";
 import { useHasMounted } from "@/lib/hooks/use-has-mounted";
+import { useRequireAuth } from "@/lib/hooks/use-require-auth";
 
 interface WishlistButtonProps {
   productId: string;
@@ -30,22 +31,25 @@ export function WishlistButton({
   const mounted = useHasMounted();
   const toggle = useWishlistStore((s) => s.toggle);
   const has = useWishlistStore((s) => s.items.includes(productId));
+  const requireAuth = useRequireAuth();
 
   const isFavorited = mounted && has;
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    toggle(productId);
-    if (has) {
-      toast.success(`Removido dos favoritos`, {
-        description: productName,
-      });
-    } else {
-      toast.success(`Adicionado aos favoritos ❤`, {
-        description: productName,
-      });
-    }
+    requireAuth(() => {
+      toggle(productId);
+      if (has) {
+        toast.success(`Removido dos favoritos`, {
+          description: productName,
+        });
+      } else {
+        toast.success(`Adicionado aos favoritos ❤`, {
+          description: productName,
+        });
+      }
+    });
   };
 
   const baseClasses =

@@ -13,6 +13,7 @@
 import { useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { useCart } from "@/components/cart";
+import { useRequireAuth } from "@/lib/hooks/use-require-auth";
 import { WishlistButton } from "@/components/wishlist-button";
 import { ProductReviews } from "@/components/product-reviews";
 import {
@@ -45,6 +46,7 @@ const TABS: { key: TabKey; label: string }[] = [
 
 export default function ProductDetailsClient({ product }: ProductDetailsClientProps) {
   const { addToCart } = useCart();
+  const requireAuth = useRequireAuth();
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [activeTab, setActiveTab] = useState<TabKey>("descricao");
@@ -63,19 +65,21 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
   }, { scope: pageRef });
 
   const handleAddToCart = () => {
-    for (let i = 0; i < quantity; i++) {
-      addToCart({
-        id: product.id,
-        slug: product.slug,
-        name: product.name,
-        shortDescription: product.shortDescription,
-        price: Number(product.price),
-        originalPrice: product.originalPrice ? Number(product.originalPrice) : undefined,
-        badge: product.badge ?? undefined,
-        badgeVariant: (product.badgeVariant as "default" | "secondary" | "destructive" | "outline") ?? undefined,
-        image: product.images[0],
-      });
-    }
+    requireAuth(() => {
+      for (let i = 0; i < quantity; i++) {
+        addToCart({
+          id: product.id,
+          slug: product.slug,
+          name: product.name,
+          shortDescription: product.shortDescription,
+          price: Number(product.price),
+          originalPrice: product.originalPrice ? Number(product.originalPrice) : undefined,
+          badge: product.badge ?? undefined,
+          badgeVariant: (product.badgeVariant as "default" | "secondary" | "destructive" | "outline") ?? undefined,
+          image: product.images[0],
+        });
+      }
+    });
   };
 
   const priceNum = Number(product.price);

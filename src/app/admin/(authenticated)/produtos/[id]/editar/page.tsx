@@ -52,6 +52,7 @@ export default async function EditarProdutoPage({ params }: PageProps) {
           badgeVariant: product.badgeVariant,
           collection: product.collection,
           category: product.category,
+          gender: product.gender,
           stock: product.stock,
           images: product.images,
           features: product.features,

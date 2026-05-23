@@ -103,7 +103,25 @@ function maskCep(value: string): string {
 
 export default function CheckoutClient() {
   const router = useRouter();
-  const { items, cartTotal, updateQuantity, removeFromCart, clearCart } = useCart();
+  const {
+    items,
+    updateQuantity,
+    removeFromCart,
+    selectedItems,
+    selectedTotal,
+    setAllSelected,
+    removeOrdered,
+  } = useCart();
+
+  // Se chegou ao checkout sem nada selecionado (mas com carrinho), seleciona
+  // tudo por padrão — garante um estado utilizável em navegação direta.
+  useEffect(() => {
+    if (items.length > 0 && selectedItems.length === 0) {
+      setAllSelected(true);
+    }
+  }, [items.length, selectedItems.length, setAllSelected]);
+
+  const unselectedCount = items.length - selectedItems.length;
 
   // Estados do checkout
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
@@ -134,8 +152,8 @@ export default function CheckoutClient() {
 
   const cep = watch("address.cep");
 
-  // Subtotal sem desconto
-  const subtotal = cartTotal;
+  // Subtotal sem desconto — apenas dos itens selecionados para checkout.
+  const subtotal = selectedTotal;
   const discount = appliedCoupon?.discount ?? 0;
   const subtotalAfterDiscount = Math.max(0, subtotal - discount);
   const total = subtotalAfterDiscount + shippingCost;
@@ -220,19 +238,20 @@ export default function CheckoutClient() {
 
   // ── Submit do checkout ─────────────────────────────────────────────────────
   const onSubmit = async (data: CheckoutInput) => {
-    if (items.length === 0) {
-      toast.error("Sua bolsa está vazia.");
+    if (selectedItems.length === 0) {
+      toast.error("Selecione ao menos um item para finalizar.");
       return;
     }
     setSubmitting(true);
     try {
+      const purchasedIds = selectedItems.map((i) => i.id);
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           customer: data.customer,
           address: data.address,
-          items: items.map((i) => ({ productId: i.id, quantity: i.quantity })),
+          items: selectedItems.map((i) => ({ productId: i.id, quantity: i.quantity })),
           couponCode: appliedCoupon?.code,
         }),
       });
@@ -247,7 +266,8 @@ export default function CheckoutClient() {
       toast.success("Pedido confirmado!", {
         description: "Você será redirecionada em instantes...",
       });
-      clearCart();
+      // Remove só os itens comprados — os não selecionados ficam no carrinho.
+      removeOrdered(purchasedIds);
       router.push(`/sucesso/${result.orderId}`);
     } catch {
       toast.error("Erro ao finalizar pedido. Tente novamente.");
@@ -481,9 +501,9 @@ export default function CheckoutClient() {
             </h2>
             <div className="h-px w-12 bg-brand-pink/40 mb-6" />
 
-            {/* Lista de items */}
+            {/* Lista de items (apenas os selecionados para checkout) */}
             <div className="space-y-5 mb-6 max-h-96 overflow-y-auto pr-1">
-              {items.map((item) => (
+              {selectedItems.map((item) => (
                 <div key={item.id} className="flex items-start gap-4">
                   <div className="relative w-16 h-16 flex-shrink-0 rounded-token-sm overflow-hidden bg-brand-pink/10">
                     <Image
@@ -538,6 +558,16 @@ export default function CheckoutClient() {
                 </div>
               ))}
             </div>
+
+            {unselectedCount > 0 && (
+              <p className="mb-4 text-[11px] text-brand-pink/70">
+                {unselectedCount}{" "}
+                {unselectedCount === 1
+                  ? "item permanecerá no seu carrinho"
+                  : "itens permanecerão no seu carrinho"}{" "}
+                após esta compra.
+              </p>
+            )}
 
             {/* Totais */}
             <div className="border-t border-brand-pink/15 pt-5 space-y-3">

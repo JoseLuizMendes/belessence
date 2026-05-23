@@ -4,6 +4,10 @@
 > - [`ui/`](ui/CLAUDE.md) — primitivos shadcn/Radix (não editar à toa)
 > - [`admin/`](admin/CLAUDE.md) — componentes do painel admin
 > - [`providers/`](providers/CLAUDE.md) — providers globais
+> - `auth/` — autenticação do cliente: `auth-form` (login/cadastro),
+>   `auth-dialog` (modal de bloqueio de ações), `auth-panel` (páginas
+>   /entrar e /cadastro), `account-menu` (header) e `auth-data-sync`
+>   (hidrata carrinho/favoritos no login, limpa no logout).
 
 ---
 

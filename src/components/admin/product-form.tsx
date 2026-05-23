@@ -49,7 +49,7 @@ import {
 import { CalendarIcon, Loader2, Trash2, X } from "lucide-react";
 import { cn } from "@/api/utils";
 import { CloudinaryUpload } from "./cloudinary-upload";
-import type { ProductStatus } from "@prisma/client";
+import type { ProductStatus, Gender } from "@prisma/client";
 
 export interface ProductFormData {
   id?: string;
@@ -63,6 +63,7 @@ export interface ProductFormData {
   badgeVariant: string | null;
   collection: string;
   category: string;
+  gender: Gender;
   stock: number;
   images: string[];
   features: string[];
@@ -150,6 +151,9 @@ export function ProductForm({
   );
   const [category, setCategory] = useState<string>(
     defaultValues?.category ?? "perfume",
+  );
+  const [gender, setGender] = useState<string>(
+    defaultValues?.gender ?? "UNISSEX",
   );
   const [badgeVariant, setBadgeVariant] = useState<string>(
     defaultValues?.badgeVariant ?? "default",
@@ -583,6 +587,23 @@ export function ProductForm({
                 <SelectItem value="cologne">Colônia</SelectItem>
                 <SelectItem value="body-care">Cuidados Corporais</SelectItem>
                 <SelectItem value="gift-set">Kit</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
+              Gênero
+            </label>
+            <input type="hidden" name="gender" value={gender} />
+            <Select value={gender} onValueChange={setGender}>
+              <SelectTrigger className="h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="FEMININO">Feminino</SelectItem>
+                <SelectItem value="MASCULINO">Masculino</SelectItem>
+                <SelectItem value="UNISSEX">Unissex</SelectItem>
               </SelectContent>
             </Select>
           </div>
