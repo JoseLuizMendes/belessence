@@ -18,6 +18,15 @@ import { formatPrice } from "@/api/utils";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { ArrowRight, Package, Search, ShoppingBag } from "lucide-react";
 import { productImageSrc } from "@/lib/product-image";
 import type { Metadata } from "next";
@@ -91,13 +100,13 @@ export default async function MeusPedidosPage({ searchParams }: PageProps) {
           >
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-muted" />
-              <input
+              <Input
                 type="email"
                 name="email"
                 defaultValue={email ?? ""}
                 placeholder="voce@email.com"
                 required
-                className="h-12 w-full pl-10 pr-4 text-sm bg-surface-panel border border-border-subtle rounded-token-sm outline-none focus:border-brand-wine transition-colors"
+                className="h-12 pl-10 bg-surface-panel border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0"
               />
             </div>
             <Button
@@ -110,23 +119,30 @@ export default async function MeusPedidosPage({ searchParams }: PageProps) {
 
           {/* Resultado */}
           {!email ? null : orders.length === 0 ? (
-            <div className="text-center py-12 bg-surface-panel rounded-token-md">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-section flex items-center justify-center">
-                <ShoppingBag className="h-7 w-7 text-brand-wine/60" strokeWidth={1.2} />
-              </div>
-              <p className="text-base text-ink-strong font-medium mb-2">
-                Nenhum pedido encontrado
-              </p>
-              <p className="text-sm text-ink-soft mb-6">
-                Não encontramos pedidos para este e-mail.
-              </p>
-              <Link href="/allProducts">
-                <Button className="loreal-btn-pill h-11 px-6 bg-brand-wine text-brand-pink text-[11px] font-medium tracking-[0.18em] uppercase hover:bg-brand-wine/90">
-                  Explorar coleção
-                  <ArrowRight className="ml-2 h-3.5 w-3.5" />
-                </Button>
-              </Link>
-            </div>
+            <Empty className="bg-surface-panel rounded-token-md py-12">
+              <EmptyHeader>
+                <EmptyMedia
+                  variant="icon"
+                  className="size-16 rounded-full bg-surface-section"
+                >
+                  <ShoppingBag className="size-7 text-brand-wine/60" strokeWidth={1.2} />
+                </EmptyMedia>
+                <EmptyTitle className="text-base text-ink-strong font-medium">
+                  Nenhum pedido encontrado
+                </EmptyTitle>
+                <EmptyDescription className="text-sm text-ink-soft">
+                  Não encontramos pedidos para este e-mail.
+                </EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent>
+                <Link href="/allProducts">
+                  <Button className="loreal-btn-pill h-11 px-6 bg-brand-wine text-brand-pink text-[11px] font-medium tracking-[0.18em] uppercase hover:bg-brand-wine/90">
+                    Explorar coleção
+                    <ArrowRight className="ml-2 h-3.5 w-3.5" />
+                  </Button>
+                </Link>
+              </EmptyContent>
+            </Empty>
           ) : (
             <ul className="space-y-5">
               {orders.map((order) => {
