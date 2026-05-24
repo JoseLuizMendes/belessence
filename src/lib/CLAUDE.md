@@ -16,6 +16,9 @@
 | `payment-provider.ts` | Wrapper Mercado Pago | Server-only |
 | `auth.ts` | Config do Auth.js v5 (NextAuth) — providers, callbacks | **Server-only** |
 | `auth-actions.ts` | Server Action `registerUser` (cadastro credenciais) | **Server-only** (`"use server"`) |
+| `admin-auth.ts` | Cookie de sessão admin assinado (jose) — `verifyAdminSession` | **Server-only (Edge-safe — só jose)** |
+| `admin-login.ts` | Login admin: bcrypt + TOTP + lockout | **Server-only (Node)** |
+| `admin-google.ts` | OAuth Google do admin (arctic) + allowlist de email | **Server-only (Node)** |
 | `wishlist-db.ts` | Queries da wishlist por usuário | **Server-only** |
 | `wishlist-actions.ts` | Server Actions da wishlist (auth + db) | **Server-only** (`"use server"`) |
 | `cart-db.ts` | Queries do carrinho por usuário (preço relido do banco) | **Server-only** |
