@@ -20,15 +20,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { v2 as cloudinary } from "cloudinary";
-
-const ADMIN_COOKIE = "admin_session";
+import { ADMIN_COOKIE, verifyAdminSession } from "@/lib/admin-auth";
 
 export async function POST(req: NextRequest) {
   // Defesa em profundidade — o middleware já protege, mas conferimos aqui.
   const cookieStore = await cookies();
-  const session = cookieStore.get(ADMIN_COOKIE);
-  const expected = process.env.ADMIN_SECRET;
-  if (!session || !expected || session.value !== expected) {
+  const isAuthed = await verifyAdminSession(cookieStore.get(ADMIN_COOKIE)?.value);
+  if (!isAuthed) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
