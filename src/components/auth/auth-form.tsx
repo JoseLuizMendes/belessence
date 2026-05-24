@@ -19,8 +19,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { registerUser } from "@/lib/auth-actions";
@@ -99,7 +99,7 @@ function LoginForm({ onSuccess }: { onSuccess?: () => void }) {
         )}
       </div>
       <Button type="submit" disabled={submitting} className="w-full">
-        {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+        {submitting && <Spinner />}
         Entrar
       </Button>
     </form>
@@ -184,7 +184,7 @@ function RegisterForm({ onSuccess }: { onSuccess?: () => void }) {
         )}
       </div>
       <Button type="submit" disabled={submitting} className="w-full">
-        {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+        {submitting && <Spinner />}
         Criar conta
       </Button>
     </form>
@@ -225,30 +225,32 @@ export function AuthForm({ initialMode = "login", onSuccess, onModeChange }: Aut
         {mode === "login" ? (
           <>
             Não tem conta?{" "}
-            <button
+            <Button
               type="button"
+              variant="link"
               onClick={() => {
                 setMode("register");
                 onModeChange?.("register");
               }}
-              className="font-medium text-brand-wine underline-offset-2 hover:underline"
+              className="h-auto p-0 align-baseline font-medium text-brand-wine underline-offset-2"
             >
               Criar conta
-            </button>
+            </Button>
           </>
         ) : (
           <>
             Já tem conta?{" "}
-            <button
+            <Button
               type="button"
+              variant="link"
               onClick={() => {
                 setMode("login");
                 onModeChange?.("login");
               }}
-              className="font-medium text-brand-wine underline-offset-2 hover:underline"
+              className="h-auto p-0 align-baseline font-medium text-brand-wine underline-offset-2"
             >
               Entrar
-            </button>
+            </Button>
           </>
         )}
       </p>
