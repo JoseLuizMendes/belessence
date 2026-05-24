@@ -317,3 +317,18 @@ model CartItem {
   @@index([userId])
   @@map("cart_items")
 }
+
+// ─── LOCKOUT DE LOGIN DO ADMIN ────────────────────────────────────────────────
+// Rate limit por chave (IP) para o login admin via senha+TOTP. Recuperável
+// pelo suporte: auto-expira (lockedUntil) e pode ser zerado por script.
+
+model AdminLoginAttempt {
+  id          String    @id @default(uuid())
+  /// Chave do contador — normalmente o IP da requisição.
+  key         String    @unique
+  attempts    Int       @default(0)
+  lockedUntil DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  @@map("admin_login_attempts")
+}
