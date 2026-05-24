@@ -1,0 +1,233 @@
+"use client";
+
+/**
+ * CouponForm — formulário de cupom usado dentro do Dialog (criar/editar).
+ * Recebe a server action já vinculada (create ou update(id)) e fecha via onDone.
+ */
+
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { CouponActionResult } from "@/app/admin/(authenticated)/cupons/actions";
+
+export interface CouponFormData {
+  id?: string;
+  code: string;
+  type: "PERCENTAGE" | "FIXED";
+  value: number;
+  minOrder: number | null;
+  maxUses: number | null;
+  /** ISO string ou null. */
+  expiresAt: string | null;
+  active: boolean;
+}
+
+interface CouponFormProps {
+  defaultValues?: CouponFormData;
+  action: (formData: FormData) => Promise<CouponActionResult>;
+  onDone: () => void;
+}
+
+function toDayInput(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+const labelCls =
+  "block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2";
+const inputCls =
+  "h-11 bg-surface-base border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0";
+
+export function CouponForm({ defaultValues, action, onDone }: CouponFormProps) {
+  const [isPending, startTransition] = useTransition();
+  const [type, setType] = useState<"PERCENTAGE" | "FIXED">(
+    defaultValues?.type ?? "PERCENTAGE",
+  );
+  const [active, setActive] = useState<boolean>(defaultValues?.active ?? true);
+  const [errors, setErrors] = useState<Record<string, string[] | undefined>>(
+    {},
+  );
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    setErrors({});
+    startTransition(async () => {
+      const result = await action(formData);
+      if (result.ok) {
+        toast.success(
+          defaultValues?.id ? "Cupom atualizado." : "Cupom criado.",
+        );
+        onDone();
+        return;
+      }
+      if (result.fieldErrors) setErrors(result.fieldErrors);
+      toast.error(
+        result.error ?? "Confira os campos destacados e tente novamente.",
+      );
+    });
+  };
+
+  const fieldError = (name: string) =>
+    errors[name]?.[0] ? (
+      <p className="mt-1 text-xs text-destructive">{errors[name]![0]}</p>
+    ) : null;
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div>
+        <Label htmlFor="code" className={labelCls}>
+          Código
+        </Label>
+        <Input
+          id="code"
+          name="code"
+          required
+          autoFocus
+          defaultValue={defaultValues?.code ?? ""}
+          placeholder="BEMVINDA10"
+          className={`${inputCls} uppercase tracking-[0.12em]`}
+        />
+        {fieldError("code")}
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label className={labelCls}>Tipo</Label>
+          <input type="hidden" name="type" value={type} />
+          <Select
+            value={type}
+            onValueChange={(v) => setType(v as "PERCENTAGE" | "FIXED")}
+          >
+            <SelectTrigger className="h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="PERCENTAGE">Percentual (%)</SelectItem>
+              <SelectItem value="FIXED">Valor fixo (R$)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label htmlFor="value" className={labelCls}>
+            {type === "PERCENTAGE" ? "Valor (%)" : "Valor (R$)"}
+          </Label>
+          <Input
+            id="value"
+            name="value"
+            type="number"
+            step={type === "PERCENTAGE" ? "1" : "0.01"}
+            min="0"
+            required
+            defaultValue={defaultValues?.value ?? ""}
+            placeholder={type === "PERCENTAGE" ? "10" : "20,00"}
+            className={inputCls}
+          />
+          {fieldError("value")}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="minOrder" className={labelCls}>
+            Pedido mínimo (R$)
+          </Label>
+          <Input
+            id="minOrder"
+            name="minOrder"
+            type="number"
+            step="0.01"
+            min="0"
+            defaultValue={defaultValues?.minOrder ?? ""}
+            placeholder="Opcional"
+            className={inputCls}
+          />
+          {fieldError("minOrder")}
+        </div>
+
+        <div>
+          <Label htmlFor="maxUses" className={labelCls}>
+            Limite de usos
+          </Label>
+          <Input
+            id="maxUses"
+            name="maxUses"
+            type="number"
+            step="1"
+            min="1"
+            defaultValue={defaultValues?.maxUses ?? ""}
+            placeholder="Ilimitado"
+            className={inputCls}
+          />
+          {fieldError("maxUses")}
+        </div>
+      </div>
+
+      <div>
+        <Label htmlFor="expiresAt" className={labelCls}>
+          Validade
+        </Label>
+        <Input
+          id="expiresAt"
+          name="expiresAt"
+          type="date"
+          defaultValue={toDayInput(defaultValues?.expiresAt ?? null)}
+          className={inputCls}
+        />
+        <p className="mt-1 text-xs text-ink-muted">
+          Deixe em branco para não expirar.
+        </p>
+        {fieldError("expiresAt")}
+      </div>
+
+      <div className="flex items-center gap-3 pt-1">
+        <input type="hidden" name="active" value={active ? "true" : "false"} />
+        <Switch
+          id="active"
+          checked={active}
+          onCheckedChange={setActive}
+          className="data-[state=checked]:bg-brand-wine"
+        />
+        <Label htmlFor="active" className="text-sm text-ink-strong cursor-pointer">
+          Cupom ativo
+        </Label>
+      </div>
+
+      <div className="flex justify-end gap-3 pt-2">
+        <Button
+          type="submit"
+          disabled={isPending}
+          className="loreal-btn-pill h-11 px-7 bg-brand-wine text-brand-pink text-[11px] font-medium tracking-[0.18em] uppercase hover:bg-brand-wine/90 disabled:opacity-60"
+        >
+          {isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Salvando…
+            </>
+          ) : defaultValues?.id ? (
+            "Salvar alterações"
+          ) : (
+            "Criar cupom"
+          )}
+        </Button>
+      </div>
+    </form>
+  );
+}
