@@ -8,7 +8,16 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 
 const STATUS_OPTIONS = [
   { value: "PENDING", label: "Aguardando pagamento" },
@@ -57,35 +66,47 @@ export function OrderStatusForm({
       className="bg-surface-panel rounded-token-md p-6 space-y-4"
     >
       <div>
-        <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
-          Status do pedido
-        </label>
-        <select
-          name="status"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className="h-11 w-full px-4 text-sm bg-surface-base border border-border-subtle rounded-token-sm outline-none focus:border-brand-wine"
+        <Label
+          htmlFor="status"
+          className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2"
         >
-          {STATUS_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+          Status do pedido
+        </Label>
+        {/* Select shadcn é controlado; hidden input carrega o valor no FormData */}
+        <input type="hidden" name="status" value={status} />
+        <Select value={status} onValueChange={setStatus}>
+          <SelectTrigger
+            id="status"
+            className="data-[size=default]:h-11 w-full bg-surface-base border-border-subtle rounded-token-sm"
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {STATUS_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div>
-        <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
+        <Label
+          htmlFor="trackingCode"
+          className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2"
+        >
           Código de rastreio {requiresTracking && <span className="text-destructive">*</span>}
-        </label>
-        <input
+        </Label>
+        <Input
+          id="trackingCode"
           name="trackingCode"
           type="text"
           value={trackingCode}
           onChange={(e) => setTrackingCode(e.target.value)}
           placeholder="BR123456789XX"
           required={requiresTracking}
-          className="h-11 w-full px-4 text-sm bg-surface-base border border-border-subtle rounded-token-sm outline-none focus:border-brand-wine"
+          className="h-11 bg-surface-base border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0"
         />
         <p className="mt-1 text-xs text-ink-muted">
           {requiresTracking
@@ -101,7 +122,7 @@ export function OrderStatusForm({
       >
         {isPending ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <Spinner className="mr-2" />
             Salvando...
           </>
         ) : (

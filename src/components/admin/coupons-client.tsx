@@ -216,7 +216,7 @@ export function CouponsClient({ coupons }: { coupons: CouponDTO[] }) {
                     <Switch
                       checked={c.active}
                       onCheckedChange={(next) => handleToggle(c, next)}
-                      className="data-[state=checked]:bg-brand-wine"
+                      className="data-[state=checked]:bg-accent-foreground"
                       aria-label="Ativar cupom"
                     />
                   </div>
@@ -308,7 +308,7 @@ export function CouponsClient({ coupons }: { coupons: CouponDTO[] }) {
                         <Switch
                           checked={c.active}
                           onCheckedChange={(next) => handleToggle(c, next)}
-                          className="data-[state=checked]:bg-brand-wine"
+                          className="data-[state=checked]:bg-primary"
                           aria-label="Ativar cupom"
                         />
                       </TableCell>

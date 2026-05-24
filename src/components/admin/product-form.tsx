@@ -34,6 +34,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { NumberField } from "@/components/ui/number-field";
 import { Textarea } from "@/components/ui/textarea";
 import {
   AlertDialog,
@@ -46,7 +47,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { CalendarIcon, Loader2, Trash2, X } from "lucide-react";
+import { CalendarIcon, Trash2, X } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/api/utils";
 import { CloudinaryUpload } from "./cloudinary-upload";
 import type { ProductStatus, Gender } from "@prisma/client";
@@ -303,15 +305,14 @@ export function ProductForm({
             >
               Preço cheio (R$)
             </Label>
-            <Input
+            <NumberField
               id="price"
-              type="number"
               name="price"
-              step="0.01"
-              min="0"
+              step={0.01}
+              min={0}
               required
               value={price}
-              onChange={(e) => setPrice(e.target.value)}
+              onValueChange={setPrice}
               className="h-11 bg-surface-base border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0"
             />
             <p className="mt-1 text-xs text-ink-muted">
@@ -320,14 +321,23 @@ export function ProductForm({
             </p>
           </div>
 
-          <FormField
-            name="stock"
-            label="Estoque"
-            type="number"
-            min="0"
-            defaultValue={defaultValues?.stock?.toString() ?? "0"}
-            required
-          />
+          <div>
+            <Label
+              htmlFor="stock"
+              className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2"
+            >
+              Estoque
+            </Label>
+            <NumberField
+              id="stock"
+              name="stock"
+              step={1}
+              min={0}
+              defaultValue={defaultValues?.stock?.toString() ?? "0"}
+              required
+              className="h-11 bg-surface-base border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0"
+            />
+          </div>
 
           {/* Campo escondido para enviar originalPrice apenas quando relevante. */}
           <input
@@ -347,15 +357,15 @@ export function ProductForm({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
+            <Label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
               Estado
-            </label>
+            </Label>
             <input type="hidden" name="status" value={status} />
             <Select
               value={status}
               onValueChange={(v) => setStatus(v as ProductStatus)}
             >
-              <SelectTrigger className="h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
+              <SelectTrigger className="data-[size=default]:h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -380,7 +390,7 @@ export function ProductForm({
                 id="isLimitedEdition"
                 checked={isLimitedEdition}
                 onCheckedChange={setIsLimitedEdition}
-                className="data-[state=checked]:bg-brand-wine"
+                className="data-[state=checked]:bg-primary"
               />
               <Label
                 htmlFor="isLimitedEdition"
@@ -395,9 +405,9 @@ export function ProductForm({
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
+            <Label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
               Marcar como &quot;Lançamento&quot; até (opcional)
-            </label>
+            </Label>
 
             {/* Input hidden — carrega o valor pro form action */}
             <input
@@ -480,15 +490,14 @@ export function ProductForm({
                 >
                   Preço promocional (R$)
                 </Label>
-                <Input
+                <NumberField
                   id="promoPrice"
-                  type="number"
                   name="promoPrice"
-                  step="0.01"
-                  min="0"
+                  step={0.01}
+                  min={0}
                   value={promoPrice}
-                  onChange={(e) => {
-                    setPromoPrice(e.target.value);
+                  onValueChange={(v) => {
+                    setPromoPrice(v);
                     // sincroniza originalPrice = price atual
                     setOriginalPriceField(price);
                   }}
@@ -557,12 +566,12 @@ export function ProductForm({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
+            <Label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
               Coleção
-            </label>
+            </Label>
             <input type="hidden" name="collection" value={collection} />
             <Select value={collection} onValueChange={setCollection}>
-              <SelectTrigger className="h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
+              <SelectTrigger className="data-[size=default]:h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -574,12 +583,12 @@ export function ProductForm({
           </div>
 
           <div>
-            <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
+            <Label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
               Categoria
-            </label>
+            </Label>
             <input type="hidden" name="category" value={category} />
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
+              <SelectTrigger className="data-[size=default]:h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -592,12 +601,12 @@ export function ProductForm({
           </div>
 
           <div>
-            <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
+            <Label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
               Gênero
-            </label>
+            </Label>
             <input type="hidden" name="gender" value={gender} />
             <Select value={gender} onValueChange={setGender}>
-              <SelectTrigger className="h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
+              <SelectTrigger className="data-[size=default]:h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -617,12 +626,12 @@ export function ProductForm({
           />
 
           <div>
-            <label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
+            <Label className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2">
               Estilo do badge customizado
-            </label>
+            </Label>
             <input type="hidden" name="badgeVariant" value={badgeVariant} />
             <Select value={badgeVariant} onValueChange={setBadgeVariant}>
-              <SelectTrigger className="h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
+              <SelectTrigger className="data-[size=default]:h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -720,7 +729,7 @@ export function ProductForm({
         >
           {isPending ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Spinner className="mr-2" />
               Salvando...
             </>
           ) : defaultValues?.id ? (

@@ -7,9 +7,19 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { CalendarIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
+import { NumberField } from "@/components/ui/number-field";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -19,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/api/utils";
 import type { CouponActionResult } from "@/app/admin/(authenticated)/cupons/actions";
 
 export interface CouponFormData {
@@ -39,10 +50,8 @@ interface CouponFormProps {
   onDone: () => void;
 }
 
-function toDayInput(iso: string | null): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
+/** Date → "YYYY-MM-DD" (componentes locais) para o input hidden do form. */
+function toDayValue(d: Date): string {
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
@@ -60,6 +69,10 @@ export function CouponForm({ defaultValues, action, onDone }: CouponFormProps) {
     defaultValues?.type ?? "PERCENTAGE",
   );
   const [active, setActive] = useState<boolean>(defaultValues?.active ?? true);
+  const [expiresAt, setExpiresAt] = useState<Date | undefined>(
+    defaultValues?.expiresAt ? new Date(defaultValues.expiresAt) : undefined,
+  );
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [errors, setErrors] = useState<Record<string, string[] | undefined>>(
     {},
   );
@@ -115,7 +128,7 @@ export function CouponForm({ defaultValues, action, onDone }: CouponFormProps) {
             value={type}
             onValueChange={(v) => setType(v as "PERCENTAGE" | "FIXED")}
           >
-            <SelectTrigger className="h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
+            <SelectTrigger className="data-[size=default]:h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -129,12 +142,11 @@ export function CouponForm({ defaultValues, action, onDone }: CouponFormProps) {
           <Label htmlFor="value" className={labelCls}>
             {type === "PERCENTAGE" ? "Valor (%)" : "Valor (R$)"}
           </Label>
-          <Input
+          <NumberField
             id="value"
             name="value"
-            type="number"
-            step={type === "PERCENTAGE" ? "1" : "0.01"}
-            min="0"
+            step={type === "PERCENTAGE" ? 1 : 0.01}
+            min={0}
             required
             defaultValue={defaultValues?.value ?? ""}
             placeholder={type === "PERCENTAGE" ? "10" : "20,00"}
@@ -149,12 +161,11 @@ export function CouponForm({ defaultValues, action, onDone }: CouponFormProps) {
           <Label htmlFor="minOrder" className={labelCls}>
             Pedido mínimo (R$)
           </Label>
-          <Input
+          <NumberField
             id="minOrder"
             name="minOrder"
-            type="number"
-            step="0.01"
-            min="0"
+            step={0.01}
+            min={0}
             defaultValue={defaultValues?.minOrder ?? ""}
             placeholder="Opcional"
             className={inputCls}
@@ -166,12 +177,11 @@ export function CouponForm({ defaultValues, action, onDone }: CouponFormProps) {
           <Label htmlFor="maxUses" className={labelCls}>
             Limite de usos
           </Label>
-          <Input
+          <NumberField
             id="maxUses"
             name="maxUses"
-            type="number"
-            step="1"
-            min="1"
+            step={1}
+            min={1}
             defaultValue={defaultValues?.maxUses ?? ""}
             placeholder="Ilimitado"
             className={inputCls}
@@ -181,16 +191,57 @@ export function CouponForm({ defaultValues, action, onDone }: CouponFormProps) {
       </div>
 
       <div>
-        <Label htmlFor="expiresAt" className={labelCls}>
-          Validade
-        </Label>
-        <Input
-          id="expiresAt"
+        <Label className={labelCls}>Validade</Label>
+        <input
+          type="hidden"
           name="expiresAt"
-          type="date"
-          defaultValue={toDayInput(defaultValues?.expiresAt ?? null)}
-          className={inputCls}
+          value={expiresAt ? toDayValue(expiresAt) : ""}
         />
+        <div className="flex items-stretch gap-2">
+          <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                className={cn(
+                  "h-11 flex-1 justify-start text-left font-normal text-sm rounded-token-sm border-border-subtle bg-surface-base hover:bg-surface-section",
+                  !expiresAt && "text-ink-muted",
+                )}
+              >
+                <CalendarIcon className="mr-2 size-4 text-ink-soft" />
+                {expiresAt
+                  ? format(expiresAt, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+                  : "Sem validade"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={expiresAt}
+                onSelect={(date) => {
+                  setExpiresAt(date);
+                  if (date) setCalendarOpen(false);
+                }}
+                locale={ptBR}
+                autoFocus
+                captionLayout="dropdown"
+              />
+            </PopoverContent>
+          </Popover>
+
+          {expiresAt && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => setExpiresAt(undefined)}
+              aria-label="Limpar validade"
+              className="h-11 w-11 shrink-0 text-ink-soft hover:text-destructive"
+            >
+              <X className="size-4" />
+            </Button>
+          )}
+        </div>
         <p className="mt-1 text-xs text-ink-muted">
           Deixe em branco para não expirar.
         </p>
@@ -203,7 +254,7 @@ export function CouponForm({ defaultValues, action, onDone }: CouponFormProps) {
           id="active"
           checked={active}
           onCheckedChange={setActive}
-          className="data-[state=checked]:bg-brand-wine"
+          className="data-[state=checked]:bg-accent-foreground"
         />
         <Label htmlFor="active" className="text-sm text-ink-strong cursor-pointer">
           Cupom ativo
@@ -218,7 +269,7 @@ export function CouponForm({ defaultValues, action, onDone }: CouponFormProps) {
         >
           {isPending ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Spinner className="mr-2" />
               Salvando…
             </>
           ) : defaultValues?.id ? (
