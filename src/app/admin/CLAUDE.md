@@ -1,8 +1,8 @@
 # CLAUDE.md — `src/app/admin/`
 
-> Painel administrativo do Belessence. Protegido por cookie
-> `admin_session === process.env.ADMIN_SECRET`, validado em
-> [`src/middleware.ts`](../../middleware.ts).
+> Painel administrativo do Belessence (single-tenant). Protegido por um cookie
+> `admin_session` que contém um **JWT assinado** (não o segredo em texto puro),
+> validado por `verifyAdminSession` em [`src/middleware.ts`](../../middleware.ts).
 
 ---
 
@@ -23,19 +23,36 @@ admin/
 O `(authenticated)` **não** garante autenticação por si só — o middleware
 sim. O grupo só evita o nome aparecer na URL.
 
-## 2. Regras de auth
+## 2. Regras de auth (blindado, single-tenant)
 
-1. **`/admin/login` é a única rota pública** sob `/admin`. Não adicione
-   outras exceções no middleware sem revisão.
-2. **Login flow** (esperado):
-   - POST `/api/admin/login` (criar se ainda não existe) compara senha
-     com `ADMIN_SECRET` e seta cookie `admin_session` com `httpOnly`,
-     `sameSite: 'lax'`, `secure` em prod.
-   - Logout: limpar cookie + `redirect('/admin/login')`.
-3. **`ADMIN_SECRET`** é segredo de servidor. Nunca expor via
-   `NEXT_PUBLIC_*`, nunca enviar para o client.
-4. UI admin **nunca** confia em `localStorage`/`sessionStorage` para
-   autorização — apenas cookie validado pelo middleware.
+**Cookie = JWT assinado.** O `admin_session` guarda um token assinado (jose
+HS256, chave = `ADMIN_SECRET`) com `exp` curto (~12h) e `TOKEN_VERSION`. O
+cookie **não é mais** o `ADMIN_SECRET`. Verificação única e compartilhada:
+[`src/lib/admin-auth.ts`](../../lib/admin-auth.ts) → `verifyAdminSession` (usada
+pelo middleware **e** por `/api/admin/cloudinary/sign`).
+
+**Dois caminhos de login** (ambos setam o mesmo cookie assinado):
+- **A — senha + TOTP:** server action em [`login/page.tsx`](login/page.tsx).
+  Senha via hash bcrypt (`ADMIN_PASSWORD_HASH`) + código TOTP
+  (`ADMIN_TOTP_SECRET`). Lógica em [`src/lib/admin-login.ts`](../../lib/admin-login.ts).
+  **Lockout por IP** (model `AdminLoginAttempt`) após 5 falhas → 15 min.
+- **B — Login com Google:** OAuth (arctic) com **allowlist de email**
+  (`ADMIN_ALLOWLIST_EMAILS`). Rotas **públicas** `/api/admin/oauth/google` e
+  `.../callback` (exceções explícitas no middleware). Lógica em
+  [`src/lib/admin-google.ts`](../../lib/admin-google.ts).
+
+**Rotas públicas** (pré-login, liberadas no middleware): `/admin/login`,
+`/api/admin/oauth/google`, `/api/admin/oauth/google/callback`. Não adicionar
+outras sem revisão.
+
+**Recuperação pelo TI:** dois caminhos (um cobre o outro); lockout auto-expira
+e `scripts/admin-unlock.mjs` zera na hora; `scripts/admin-setup.mjs` re-gera
+hash da senha + segredo TOTP (QR). `TOKEN_VERSION` (em `admin-auth.ts`) revoga
+todas as sessões.
+
+**Segredos** (`ADMIN_SECRET`, `ADMIN_PASSWORD_HASH`, `ADMIN_TOTP_SECRET`,
+`AUTH_GOOGLE_*`): server-only, nunca `NEXT_PUBLIC_*`. UI admin **nunca** confia
+em `localStorage`/`sessionStorage` — apenas o cookie validado no servidor.
 
 ## 3. UX do admin
 

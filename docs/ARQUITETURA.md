@@ -17,6 +17,7 @@
 | **Privacidade de dados** | Carrinho e favoritos passaram de `localStorage` global para **banco, por usuário**. |
 | **Checkout parcial** | Cliente escolhe quais itens finalizar (mín. 1, máx. todos); o resto fica no carrinho. |
 | **Filtros** | Dropdown "Fragrâncias" funcional: categoria (perfume/colônia) + gênero, combináveis. |
+| **Admin blindado** | Cookie assinado (jose) + senha bcrypt + TOTP **ou** Login Google (allowlist) + lockout. |
 | **Correções** | Coração da wishlist preenche; warning de SSL do Postgres; garantia de imagens. |
 
 ---
@@ -166,18 +167,53 @@ manter o restante no carrinho.
 
 ---
 
-## 8. Variáveis de ambiente
+## 8. Admin — acesso restrito (single-tenant, blindado)
+
+`/admin/*` é exclusivo da noiva. O middleware
+[`src/middleware.ts`](../src/middleware.ts) só aceita um **cookie de sessão
+assinado** (`admin_session` = JWT jose HS256, chave `ADMIN_SECRET`, `exp` ~12h,
+`TOKEN_VERSION`). O cookie **não é** mais o segredo. Verificação única e
+compartilhada em [`src/lib/admin-auth.ts`](../src/lib/admin-auth.ts)
+(`verifyAdminSession`), usada pelo middleware **e** por
+`/api/admin/cloudinary/sign`.
+
+**Dois caminhos de login** (ambos setam o mesmo cookie assinado):
+- **A — senha + TOTP** ([`login/page.tsx`](../src/app/admin/login/page.tsx) +
+  [`admin-login.ts`](../src/lib/admin-login.ts)): senha via hash **bcrypt**
+  (`ADMIN_PASSWORD_HASH`) + código **TOTP** (`ADMIN_TOTP_SECRET`, otplib).
+  **Lockout por IP** (model `AdminLoginAttempt`): 5 falhas → 15 min.
+- **B — Login com Google** ([`admin-google.ts`](../src/lib/admin-google.ts) +
+  rotas `/api/admin/oauth/google` e `.../callback`, arctic): OAuth com
+  **allowlist de email** (`ADMIN_ALLOWLIST_EMAILS`). Reutiliza `AUTH_GOOGLE_*`.
+
+**Recuperação pelo suporte de TI:** os dois caminhos se cobrem; o lockout
+auto-expira **e** `scripts/admin-unlock.mjs` zera na hora; `scripts/admin-setup.mjs`
+re-gera hash da senha + segredo TOTP (com QR); `TOKEN_VERSION` revoga todas as
+sessões. **Separado do NextAuth do cliente.**
+
+**Setup inicial:** `node scripts/admin-setup.mjs "<senha>"` → cola
+`ADMIN_PASSWORD_HASH` e `ADMIN_TOTP_SECRET` no `.env`, escaneia o QR. Para o
+Google, preencher `ADMIN_ALLOWLIST_EMAILS` e adicionar o redirect URI
+`/api/admin/oauth/google/callback` no Google Cloud.
+
+---
+
+## 9. Variáveis de ambiente
 
 Ver `.env.example`. Novas para autenticação:
 
 | Variável | Uso |
 | --- | --- |
-| `AUTH_SECRET` | Assina o JWT de sessão. Gere com `npx auth secret`. |
-| `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` | OAuth Google. Vazio = Google desativado. |
+| `AUTH_SECRET` | Assina o JWT de sessão do cliente. Gere com `npx auth secret`. |
+| `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` | OAuth Google (cliente e admin). Vazio = Google desativado. |
+| `ADMIN_SECRET` | Chave de assinatura do cookie de sessão admin (não é mais o cookie). |
+| `ADMIN_PASSWORD_HASH` | Hash bcrypt da senha admin (gerado por `admin-setup.mjs`). |
+| `ADMIN_TOTP_SECRET` | Segredo TOTP do admin (vazio = não exige código ainda). |
+| `ADMIN_ALLOWLIST_EMAILS` | Emails Google autorizados no admin (vazio = nega). |
 
 ---
 
-## 9. Testes e verificação
+## 10. Testes e verificação
 
 - **Vitest:** stores (carrinho/wishlist/seleção), componentes (cart-sheet,
   checkout-client, wishlist-button, product-card), filtros e auth.
@@ -186,10 +222,13 @@ Ver `.env.example`. Novas para autenticação:
 - **Verificações de runtime no banco** feitas durante o desenvolvimento:
   isolamento por usuário (um usuário não vê dados do outro), cascade no delete,
   login de credenciais (hash/compare/unicidade), filtro combinado e fix de SSL.
+- **Admin:** ciclo TOTP validado (gera código → `verifySync` aprova; errado
+  reprova); `admin-setup.mjs` gera hash/segredo/QR; teste do cloudinary-sign
+  ajustado para token assinado.
 
 ---
 
-## 10. Pontos de atenção
+## 11. Pontos de atenção
 
 - Após mudanças de schema/deps, **reiniciar o `next dev`** (client Prisma e
   módulos são recarregados só no restart).

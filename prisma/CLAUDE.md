@@ -17,6 +17,8 @@
     credenciais (null em contas só-OAuth).
   - **Dados privados por usuário:** WishlistItem e CartItem, ambos com
     `userId` (FK `onDelete: Cascade`) e `@@unique([userId, productId])`.
+  - **Segurança do admin:** AdminLoginAttempt (`key` @unique = IP, `attempts`,
+    `lockedUntil`) — lockout do login admin via senha+TOTP.
 - `seed.ts` — popula banco de dev (produtos já recebem `gender`). Script
   registrado em `package.json` (`"prisma": { "seed": "tsx prisma/seed.ts" }`).
 - `sql/` — SQL manual (extensões, RLS, índices que o Prisma não cobre).
