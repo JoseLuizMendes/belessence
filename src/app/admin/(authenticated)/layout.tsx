@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { MariLogo } from "@/components/mari-logo";
 import { AdminMobileNav } from "@/components/admin/admin-mobile-nav";
+import { ADMIN_COOKIE } from "@/lib/admin-auth";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -33,7 +34,7 @@ const NAV = [
 async function logout() {
   "use server";
   const cookieStore = await cookies();
-  cookieStore.delete("admin_session");
+  cookieStore.delete(ADMIN_COOKIE);
   redirect("/admin/login");
 }
 
@@ -45,7 +46,7 @@ function SidebarContent() {
   return (
     <div className="flex flex-col gap-6 p-6 md:p-8 h-full">
       {/* Logo + label */}
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <Link
           href="/admin"
           className="flex items-center gap-2 mb-1 whitespace-nowrap"
@@ -66,7 +67,7 @@ function SidebarContent() {
             href={href}
             className="flex items-center gap-3 px-4 py-2.5 rounded-token-sm text-xs tracking-[0.18em] uppercase text-brand-pink/70 hover:text-brand-pink hover:bg-brand-pink/10 transition-all whitespace-nowrap"
           >
-            <Icon className="h-4 w-4 flex-shrink-0" />
+            <Icon className="h-4 w-4 shrink-0" />
             <span>{label}</span>
           </Link>
         ))}
