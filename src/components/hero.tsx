@@ -269,18 +269,20 @@ export default function Hero() {
               Frete grátis acima de R$199
             </span>
             <span className="opacity-40 text-[10px] sm:text-[11px] text-accent">·</span>
-            <button
+            <Button
+              type="button"
+              variant="ghost"
               onClick={handleCopy}
-              className="text-accent flex items-center gap-1.5 text-[10px] sm:text-[11px] font-medium tracking-[0.22em] uppercase hover:opacity-75 transition-opacity duration-200 cursor-pointer"
               aria-label="Copiar cupom"
+              className="h-auto p-0 gap-1.5 text-accent text-[10px] sm:text-[11px] font-medium tracking-[0.22em] uppercase hover:bg-transparent hover:opacity-75"
             >
               <span>{COUPON}</span>
               {copied ? (
-                <Check className="h-3 w-3" />
+                <Check className="size-3" />
               ) : (
-                <Copy className="h-3 w-3 opacity-55" />
+                <Copy className="size-3 opacity-55" />
               )}
-            </button>
+            </Button>
           </div>
           <span className="hidden sm:inline opacity-40 text-[10px] sm:text-[11px] text-accent">·</span>
           <span className="text-accent text-[9.5px] sm:text-[10.5px] font-light tracking-[0.16em] uppercase opacity-55 whitespace-nowrap">

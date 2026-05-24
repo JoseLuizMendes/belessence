@@ -12,8 +12,17 @@ import { useEffect, useState } from "react";
 import { useWishlistStore } from "@/lib/wishlist-store";
 import { useHasMounted } from "@/lib/hooks/use-has-mounted";
 import { Button } from "./ui/button";
+import { Spinner } from "./ui/spinner";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "./ui/empty";
 import { ProductCard } from "./product-card";
-import { Heart, ArrowRight, Trash2, Loader2 } from "lucide-react";
+import { Heart, ArrowRight, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { Product } from "@/lib/products-db";
@@ -65,7 +74,7 @@ export function FavoritosClient() {
   if (!mounted) {
     return (
       <div className="text-center py-24">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-wine mx-auto" />
+        <Spinner className="size-8 text-brand-wine mx-auto" />
       </div>
     );
   }
@@ -91,23 +100,30 @@ export function FavoritosClient() {
     return (
       <div>
         {Header}
-        <div className="max-w-md mx-auto text-center py-12 bg-surface-panel rounded-token-md">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-section flex items-center justify-center">
-            <Heart className="h-7 w-7 text-brand-wine/60" strokeWidth={1.2} />
-          </div>
-          <p className="text-base text-ink-strong font-medium mb-2">
-            Nenhum favorito ainda
-          </p>
-          <p className="text-sm text-ink-soft mb-6">
-            Clique no coração dos produtos para adicioná-los aqui.
-          </p>
-          <Link href="/allProducts">
-            <Button className="loreal-btn-pill h-11 px-6 bg-brand-wine text-brand-pink text-[11px] font-medium tracking-[0.18em] uppercase hover:bg-brand-wine/90">
-              Explorar coleção
-              <ArrowRight className="ml-2 h-3.5 w-3.5" />
-            </Button>
-          </Link>
-        </div>
+        <Empty className="max-w-md mx-auto bg-surface-panel rounded-token-md py-12">
+          <EmptyHeader>
+            <EmptyMedia
+              variant="icon"
+              className="size-16 rounded-full bg-surface-section"
+            >
+              <Heart className="size-7 text-brand-wine/60" strokeWidth={1.2} />
+            </EmptyMedia>
+            <EmptyTitle className="text-base text-ink-strong font-medium">
+              Nenhum favorito ainda
+            </EmptyTitle>
+            <EmptyDescription className="text-sm text-ink-soft">
+              Clique no coração dos produtos para adicioná-los aqui.
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Link href="/allProducts">
+              <Button className="loreal-btn-pill h-11 px-6 bg-brand-wine text-brand-pink text-[11px] font-medium tracking-[0.18em] uppercase hover:bg-brand-wine/90">
+                Explorar coleção
+                <ArrowRight className="ml-2 h-3.5 w-3.5" />
+              </Button>
+            </Link>
+          </EmptyContent>
+        </Empty>
       </div>
     );
   }
@@ -117,7 +133,7 @@ export function FavoritosClient() {
       <div>
         {Header}
         <div className="text-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-wine mx-auto" />
+          <Spinner className="size-8 text-brand-wine mx-auto" />
         </div>
       </div>
     );
@@ -135,14 +151,15 @@ export function FavoritosClient() {
         <p className="text-xs text-ink-soft">
           {hasMore ? `Mostrando ${SOFT_LIMIT} de ${total}` : `${total} ${total === 1 ? "item" : "itens"}`}
         </p>
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={handleClearAll}
-          className="inline-flex items-center gap-2 text-xs text-ink-soft hover:text-destructive transition-colors"
+          className="h-auto p-0 gap-2 text-xs text-ink-soft hover:bg-transparent hover:text-destructive"
         >
           <Trash2 className="h-3.5 w-3.5" />
           Limpar tudo
-        </button>
+        </Button>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
@@ -153,13 +170,13 @@ export function FavoritosClient() {
 
       {hasMore && (
         <div className="mt-10 flex justify-center">
-          <button
+          <Button
             type="button"
             onClick={() => setShowAll(true)}
-            className="loreal-btn-pill px-6 h-11 bg-brand-wine text-brand-pink text-[11px] font-medium tracking-[0.18em] uppercase hover:bg-brand-wine/90 transition-colors"
+            className="loreal-btn-pill px-6 h-11 bg-brand-wine text-brand-pink text-[11px] font-medium tracking-[0.18em] uppercase hover:bg-brand-wine/90"
           >
             Mostrar todos ({total})
-          </button>
+          </Button>
         </div>
       )}
     </div>

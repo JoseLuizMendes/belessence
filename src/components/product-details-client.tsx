@@ -247,22 +247,26 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
             {/* Linha 1 em mobile: quantity + wishlist (lado a lado) */}
             <div className="flex items-stretch gap-3">
               <div className="flex items-center border border-border-subtle rounded-full bg-surface-panel shrink-0">
-                <button
+                <Button
+                  type="button"
+                  variant="ghost"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   disabled={quantity <= 1}
                   aria-label="Diminuir quantidade"
-                  className="flex h-12 w-11 items-center justify-center rounded-l-full text-ink-soft hover:text-brand-wine disabled:opacity-30 transition-colors"
+                  className="h-12 w-11 rounded-l-full rounded-r-none text-ink-soft hover:bg-transparent hover:text-brand-wine disabled:opacity-30"
                 >
-                  <Minus className="h-4 w-4" />
-                </button>
+                  <Minus className="size-4" />
+                </Button>
                 <span className="w-10 text-center text-sm font-medium text-ink-strong tabular-nums">{quantity}</span>
-                <button
+                <Button
+                  type="button"
+                  variant="ghost"
                   onClick={() => setQuantity(quantity + 1)}
                   aria-label="Aumentar quantidade"
-                  className="flex h-12 w-11 items-center justify-center rounded-r-full text-ink-soft hover:text-brand-wine transition-colors"
+                  className="h-12 w-11 rounded-r-full rounded-l-none text-ink-soft hover:bg-transparent hover:text-brand-wine"
                 >
-                  <Plus className="h-4 w-4" />
-                </button>
+                  <Plus className="size-4" />
+                </Button>
               </div>
 
               {/* Wishlist em mobile fica aqui (à direita do quantity) */}

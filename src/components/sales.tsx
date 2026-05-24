@@ -137,15 +137,16 @@ export default function Sales({ products }: SalesProps) {
       </Carousel>
 
       <div className="flex justify-center px-4 pb-5 pt-2 md:hidden">
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => scrollToSection("destaques")}
-          className="group pointer-events-auto inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[11px] uppercase tracking-[0.18em] text-white/80 backdrop-blur-md transition hover:bg-white/15 hover:text-white"
           aria-label="Ver destaques"
+          className="group pointer-events-auto h-auto gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[11px] uppercase tracking-[0.18em] text-white/80 backdrop-blur-md transition hover:bg-white/15 hover:text-white"
         >
           <span>Ver mais</span>
           <ChevronDown className="h-4 w-4 transition-transform group-hover:translate-y-0.5" />
-        </button>
+        </Button>
       </div>
     </section>
   );

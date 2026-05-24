@@ -11,8 +11,13 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Star, Loader2 } from "lucide-react";
+import { Star } from "lucide-react";
 import { Button } from "./ui/button";
+import { Spinner } from "./ui/spinner";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
+import { Empty, EmptyDescription, EmptyHeader } from "./ui/empty";
 import { reviewSchema, type ReviewInput } from "@/lib/validations";
 
 interface Review {
@@ -144,18 +149,19 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
           {/* Nome + email */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label
+              <Label
                 htmlFor="authorName"
                 className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2"
               >
                 Seu nome
-              </label>
-              <input
+              </Label>
+              <Input
                 id="authorName"
                 type="text"
                 placeholder="Maria"
+                aria-invalid={!!errors.authorName}
                 {...register("authorName")}
-                className={`h-11 w-full px-4 text-sm bg-surface-base border rounded-token-sm outline-none transition-colors focus:border-brand-wine ${
+                className={`h-11 bg-surface-base rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0 ${
                   errors.authorName ? "border-destructive" : "border-border-subtle"
                 }`}
               />
@@ -167,18 +173,19 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
             </div>
 
             <div>
-              <label
+              <Label
                 htmlFor="authorEmail"
                 className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2"
               >
                 Seu e-mail
-              </label>
-              <input
+              </Label>
+              <Input
                 id="authorEmail"
                 type="email"
                 placeholder="voce@email.com"
+                aria-invalid={!!errors.authorEmail}
                 {...register("authorEmail")}
-                className={`h-11 w-full px-4 text-sm bg-surface-base border rounded-token-sm outline-none transition-colors focus:border-brand-wine ${
+                className={`h-11 bg-surface-base rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0 ${
                   errors.authorEmail ? "border-destructive" : "border-border-subtle"
                 }`}
               />
@@ -192,19 +199,20 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
 
           {/* Texto */}
           <div>
-            <label
+            <Label
               htmlFor="text"
               className="block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2"
             >
               Sua opinião (opcional, max 250)
-            </label>
-            <textarea
+            </Label>
+            <Textarea
               id="text"
               rows={4}
               maxLength={250}
               placeholder="Conte sua experiência com o produto..."
+              aria-invalid={!!errors.text}
               {...register("text")}
-              className={`w-full px-4 py-3 text-sm bg-surface-base border rounded-token-sm outline-none transition-colors focus:border-brand-wine resize-none ${
+              className={`bg-surface-base rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0 resize-none ${
                 errors.text ? "border-destructive" : "border-border-subtle"
               }`}
             />
@@ -222,7 +230,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Spinner className="mr-2" />
                 Publicando...
               </>
             ) : (
@@ -241,12 +249,16 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
 
         {reviews === null ? (
           <div className="text-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-brand-wine mx-auto" />
+            <Spinner className="size-6 text-brand-wine mx-auto" />
           </div>
         ) : reviews.length === 0 ? (
-          <p className="text-center text-sm text-ink-soft italic py-8">
-            Ainda não há avaliações. Seja a primeira a avaliar!
-          </p>
+          <Empty className="py-8">
+            <EmptyHeader>
+              <EmptyDescription className="text-sm text-ink-soft italic">
+                Ainda não há avaliações. Seja a primeira a avaliar!
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
         ) : (
           <ul className="space-y-6">
             {reviews.map((r) => (

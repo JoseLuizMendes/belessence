@@ -24,6 +24,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useCart } from "./cart";
 import { Button } from "./ui/button";
+import { Spinner } from "./ui/spinner";
 import {
   Minus,
   Plus,
@@ -32,7 +33,6 @@ import {
   ShoppingBag,
   Tag,
   CheckCircle2,
-  Loader2,
 } from "lucide-react";
 import { formatPrice } from "@/api/utils";
 import Image from "next/image";
@@ -382,7 +382,7 @@ export default function CheckoutClient() {
                   mask={maskCep}
                 />
                 {cepLoading && (
-                  <Loader2 className="absolute right-3 top-9 h-4 w-4 animate-spin text-brand-wine" />
+                  <Spinner className="absolute right-3 top-9 text-brand-wine" />
                 )}
               </div>
 
@@ -456,13 +456,14 @@ export default function CheckoutClient() {
                     </p>
                   </div>
                 </div>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={handleRemoveCoupon}
-                  className="text-xs text-ink-soft hover:text-destructive transition-colors"
+                  className="h-auto p-0 text-xs text-ink-soft hover:bg-transparent hover:text-destructive"
                 >
                   Remover
-                </button>
+                </Button>
               </div>
             ) : (
               <div className="flex gap-3">
@@ -482,7 +483,7 @@ export default function CheckoutClient() {
                   disabled={couponLoading || !couponInput.trim()}
                   className="loreal-btn-pill h-12 px-6 bg-brand-wine text-brand-pink text-[11px] font-medium tracking-[0.18em] uppercase hover:bg-brand-wine/90 disabled:opacity-50"
                 >
-                  {couponLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Aplicar"}
+                  {couponLoading ? <Spinner /> : "Aplicar"}
                 </Button>
               </div>
             )}
@@ -522,23 +523,27 @@ export default function CheckoutClient() {
 
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-1 text-xs">
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="icon"
                           onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
                           aria-label="Diminuir"
-                          className="w-6 h-6 flex items-center justify-center rounded-full border border-brand-pink/30 text-brand-pink/80 hover:bg-brand-pink/10 transition-colors"
+                          className="size-6 rounded-full border border-brand-pink/30 text-brand-pink/80 hover:bg-brand-pink/10 hover:text-brand-pink"
                         >
-                          <Minus className="h-3 w-3" />
-                        </button>
+                          <Minus className="size-3" />
+                        </Button>
                         <span className="w-6 text-center">{item.quantity}</span>
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="icon"
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           aria-label="Aumentar"
-                          className="w-6 h-6 flex items-center justify-center rounded-full border border-brand-pink/30 text-brand-pink/80 hover:bg-brand-pink/10 transition-colors"
+                          className="size-6 rounded-full border border-brand-pink/30 text-brand-pink/80 hover:bg-brand-pink/10 hover:text-brand-pink"
                         >
-                          <Plus className="h-3 w-3" />
-                        </button>
+                          <Plus className="size-3" />
+                        </Button>
                       </div>
 
                       <span className="text-sm font-medium">
@@ -547,14 +552,15 @@ export default function CheckoutClient() {
                     </div>
                   </div>
 
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={() => removeFromCart(item.id)}
                     aria-label="Remover"
-                    className="text-brand-pink/50 hover:text-brand-pink transition-colors"
+                    className="h-auto w-auto p-0 text-brand-pink/50 hover:bg-transparent hover:text-brand-pink"
                   >
-                    <X className="h-4 w-4" />
-                  </button>
+                    <X className="size-4" />
+                  </Button>
                 </div>
               ))}
             </div>
@@ -618,7 +624,7 @@ export default function CheckoutClient() {
             >
               {submitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Spinner className="mr-2" />
                   Processando...
                 </>
               ) : (
