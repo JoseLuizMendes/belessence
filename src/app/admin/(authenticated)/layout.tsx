@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { MariLogo } from "@/components/mari-logo";
 import { AdminMobileNav } from "@/components/admin/admin-mobile-nav";
+import { Button } from "@/components/ui/button";
 import { ADMIN_COOKIE } from "@/lib/admin-auth";
 
 const NAV = [
@@ -84,13 +85,14 @@ function SidebarContent() {
           Ver loja
         </Link>
         <form action={logout}>
-          <button
+          <Button
             type="submit"
-            className="w-full flex items-center gap-2 px-4 py-2.5 text-[10px] tracking-[0.18em] uppercase text-brand-pink/60 hover:text-brand-pink transition-colors whitespace-nowrap"
+            variant="ghost"
+            className="w-full justify-start gap-2 h-auto px-4 py-2.5 text-[10px] tracking-[0.18em] uppercase text-brand-pink/60 hover:bg-transparent hover:text-brand-pink whitespace-nowrap"
           >
             <LogOut className="h-3.5 w-3.5" />
             Sair
-          </button>
+          </Button>
         </form>
       </div>
     </div>
