@@ -84,6 +84,37 @@ export const couponValidateSchema = z.object({
 
 export type CouponValidateInput = z.infer<typeof couponValidateSchema>;
 
+// ─── ADMIN — CUPOM (CRUD) ─────────────────────────────────────────────────────
+// Schema do formulário admin de cupons. As actions montam um objeto já com
+// tipos JS corretos (number | null, Date | null, boolean) antes do safeParse —
+// por isso aqui NÃO usamos z.coerce (evita armadilhas de null → 0/epoch).
+
+export const adminCouponSchema = z
+  .object({
+    code: z
+      .string()
+      .min(1, "Código obrigatório")
+      .max(40, "Código muito longo")
+      .regex(/^[A-Za-z0-9-]+$/, "Use apenas letras, números e hífens")
+      .transform((s) => s.trim().toUpperCase()),
+    type: z.enum(["PERCENTAGE", "FIXED"]),
+    value: z.number().positive("Valor deve ser positivo"),
+    minOrder: z.number().min(0, "Pedido mínimo inválido").nullable(),
+    maxUses: z
+      .number()
+      .int("Deve ser um número inteiro")
+      .min(1, "Mínimo de 1 uso")
+      .nullable(),
+    expiresAt: z.date().nullable(),
+    active: z.boolean(),
+  })
+  .refine((d) => d.type !== "PERCENTAGE" || d.value <= 100, {
+    message: "Percentual não pode passar de 100%",
+    path: ["value"],
+  });
+
+export type AdminCouponInput = z.infer<typeof adminCouponSchema>;
+
 // ─── ADMIN — ATUALIZAÇÃO DE STATUS ────────────────────────────────────────────
 
 export const orderStatusSchema = z.object({
