@@ -20,6 +20,13 @@ vi.mock("cloudinary", () => ({
   v2: { utils: { api_sign_request: apiSignRequest } },
 }));
 
+// Auth admin agora é via token assinado. Mockamos a verificação: só o token
+// "valid-token" é aceito (a correção do jose é coberta por admin-auth).
+vi.mock("@/lib/admin-auth", () => ({
+  ADMIN_COOKIE: "admin_session",
+  verifyAdminSession: vi.fn(async (token?: string) => token === "valid-token"),
+}));
+
 import { POST } from "@/app/api/admin/cloudinary/sign/route";
 
 function makeReq(body?: unknown): NextRequest {
@@ -57,7 +64,7 @@ describe("POST /api/admin/cloudinary/sign", () => {
   });
 
   it("retorna 500 quando faltam env vars do Cloudinary", async () => {
-    cookieGet.mockReturnValueOnce({ value: "secret-123" });
+    cookieGet.mockReturnValueOnce({ value: "valid-token" });
     vi.stubEnv("CLOUDINARY_API_SECRET", ""); // remove o secret
     const res = await POST(makeReq());
     expect(res.status).toBe(500);
@@ -66,7 +73,7 @@ describe("POST /api/admin/cloudinary/sign", () => {
   });
 
   it("caminho feliz: retorna assinatura + metadados", async () => {
-    cookieGet.mockReturnValueOnce({ value: "secret-123" });
+    cookieGet.mockReturnValueOnce({ value: "valid-token" });
     const res = await POST(makeReq({ folder: "belessence/custom" }));
     expect(res.status).toBe(200);
     const json = await res.json();
@@ -87,14 +94,14 @@ describe("POST /api/admin/cloudinary/sign", () => {
   });
 
   it("usa folder default quando body não informa", async () => {
-    cookieGet.mockReturnValueOnce({ value: "secret-123" });
+    cookieGet.mockReturnValueOnce({ value: "valid-token" });
     const res = await POST(makeReq({}));
     const json = await res.json();
     expect(json.folder).toBe("belessence/products");
   });
 
   it("body ausente/inválido não quebra (folder default)", async () => {
-    cookieGet.mockReturnValueOnce({ value: "secret-123" });
+    cookieGet.mockReturnValueOnce({ value: "valid-token" });
     const res = await POST(makeReq()); // sem body
     expect(res.status).toBe(200);
   });
