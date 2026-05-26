@@ -276,13 +276,31 @@ const COUPONS = [
   },
 ]
 
+// Pool de imagens dos produtos: imagens do carrossel (hero1–6) + as novas
+// (inspiração). Ciclado por índice; remove as antigas (Perf*/sale*).
+const PRODUCT_IMAGE_POOL = [
+  '/assets/hero1.png',
+  '/assets/hero2.png',
+  '/assets/hero3.png',
+  '/assets/hero4.png',
+  '/assets/hero5.png',
+  '/assets/hero6.png',
+  '/assets/inspiration/amber-dropper-bottles.png',
+  '/assets/inspiration/serum-bottles-1.png',
+  '/assets/inspiration/spray-bottles.png',
+  '/assets/inspiration/cream-jars-colored.png',
+  '/assets/inspiration/tube-bottles.png',
+  '/assets/inspiration/jars-wooden-lid.png',
+]
+
 async function main() {
   console.log('🌱 Iniciando o seed...')
 
   // Limpa o banco antes de popular (opcional, mas bom para testes)
   // await prisma.product.deleteMany()
 
-  for (const product of PRODUCTS) {
+  for (const [index, product] of PRODUCTS.entries()) {
+    const productImages = [PRODUCT_IMAGE_POOL[index % PRODUCT_IMAGE_POOL.length]]
     // Upsert: Se existir (pelo slug), atualiza. Se não, cria.
     const result = await prisma.product.upsert({
       where: { slug: product.slug },
@@ -297,7 +315,7 @@ async function main() {
         badgeVariant: product.badgeVariant,
         rating: product.rating,
         reviews: product.reviews,
-        images: product.images,
+        images: productImages,
         collection: product.collection,
         features: product.features,
         category: product.category,
@@ -323,7 +341,7 @@ async function main() {
         badgeVariant: product.badgeVariant,
         rating: product.rating,
         reviews: product.reviews,
-        images: product.images,
+        images: productImages,
         collection: product.collection,
         features: product.features,
         category: product.category,
