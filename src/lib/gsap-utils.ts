@@ -116,6 +116,198 @@ export function staggerIn(
   );
 }
 
+// ─── SCROLL REVEAL (bidirecional) ─────────────────────────────────────────────
+
+/**
+ * Reveal disparado por scroll que **reverte ao subir** (play/reverse).
+ * Mobile-first: nada de hover. Não usa clearProps (precisa manter o estado
+ * inline para o reverse funcionar). Fallback reduced-motion = estado final.
+ */
+export function scrollReveal(
+  targets: gsap.TweenTarget,
+  options: {
+    trigger?: Element | null;
+    y?: number;
+    duration?: number;
+    stagger?: number;
+    start?: string;
+    ease?: string;
+  } = {}
+): gsap.core.Tween | null {
+  if (prefersReducedMotion()) {
+    gsap.set(targets, { opacity: 1, y: 0, filter: 'blur(0px)' });
+    return null;
+  }
+
+  return gsap.fromTo(
+    targets,
+    { opacity: 0, y: options.y ?? 28, filter: 'blur(8px)' },
+    {
+      opacity: 1,
+      y: 0,
+      filter: 'blur(0px)',
+      duration: options.duration ?? motion.duration.slow,
+      stagger: options.stagger ?? 0,
+      ease: options.ease ?? motion.ease.luxury,
+      immediateRender: false,
+      scrollTrigger: {
+        trigger: options.trigger ?? undefined,
+        start: options.start ?? 'top 85%',
+        toggleActions: 'play none none reverse',
+      },
+    }
+  );
+}
+
+// ─── BLUR REVEAL (texto estilo Boty: blur + sobe) ─────────────────────────────
+
+/**
+ * Revelação de texto "blur fade-up" — assinatura do site de inspiração (Boty).
+ * O texto entra levemente desfocado e subindo, foca ao entrar na viewport.
+ * Roda uma vez (não reverte) para um acabamento premium, sem flicker.
+ * Fallback reduced-motion = estado final. **Não usar em elementos que contêm
+ * `next/image`** (transform+blur faz a imagem sumir sob Lenis).
+ */
+export function blurReveal(
+  targets: gsap.TweenTarget,
+  options: {
+    trigger?: Element | null;
+    y?: number;
+    blur?: number;
+    duration?: number;
+    stagger?: number;
+    start?: string;
+    ease?: string;
+  } = {}
+): gsap.core.Tween | null {
+  if (prefersReducedMotion()) {
+    gsap.set(targets, { opacity: 1, y: 0, filter: 'blur(0px)' });
+    return null;
+  }
+
+  return gsap.fromTo(
+    targets,
+    { opacity: 0, y: options.y ?? 18, filter: `blur(${options.blur ?? 10}px)` },
+    {
+      opacity: 1,
+      y: 0,
+      filter: 'blur(0px)',
+      duration: options.duration ?? motion.duration.slow,
+      stagger: options.stagger ?? 0,
+      ease: options.ease ?? motion.ease.luxury,
+      immediateRender: false,
+      scrollTrigger: {
+        trigger: options.trigger ?? (targets as Element),
+        start: options.start ?? 'top 85%',
+        toggleActions: 'play none none none',
+      },
+    }
+  );
+}
+
+// ─── PARALLAX (scrub via Lenis) ───────────────────────────────────────────────
+
+/**
+ * Parallax vertical contínuo (scrub) — efeito high-ticket característico.
+ * O alvo deve ser um wrapper com folga (ex.: `top-[-8%] h-[116%]`) dentro de
+ * um container `overflow-hidden`, para o movimento não revelar bordas.
+ */
+export function parallaxY(
+  target: gsap.TweenTarget,
+  options: {
+    trigger?: Element | null;
+    from?: number;
+    to?: number;
+  } = {}
+): gsap.core.Tween | null {
+  if (prefersReducedMotion()) return null;
+
+  return gsap.fromTo(
+    target,
+    { yPercent: options.from ?? -8 },
+    {
+      yPercent: options.to ?? 8,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: (options.trigger as Element) ?? (target as Element),
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: true,
+      },
+    }
+  );
+}
+
+// ─── IMAGE CURTAIN REVEAL (clip-path, uma vez) ────────────────────────────────
+
+/**
+ * Reveal de imagem por "cortina" via clip-path (não transform).
+ * Usar em <Image> sob Lenis: parallax/transform contínuo faz a camada do
+ * Next/Image não pintar durante o scroll ("imagem some"). clip-path é paint,
+ * não composite-transform — pinta normal. Reveal único (não reverte), então a
+ * imagem nunca desaparece ao subir.
+ */
+export function imageCurtainReveal(
+  target: Element | null,
+  options: { trigger?: Element | null; start?: string; delay?: number; duration?: number } = {}
+): gsap.core.Tween | null {
+  if (!target) return null;
+  if (prefersReducedMotion()) {
+    gsap.set(target, { clipPath: 'inset(0% 0 0 0)' });
+    return null;
+  }
+  return gsap.fromTo(
+    target,
+    { clipPath: 'inset(100% 0 0 0)' },
+    {
+      clipPath: 'inset(0% 0 0 0)',
+      duration: options.duration ?? motion.duration.slow,
+      delay: options.delay ?? 0,
+      ease: motion.ease.luxury,
+      immediateRender: false,
+      scrollTrigger: {
+        trigger: options.trigger ?? target,
+        start: options.start ?? 'top 82%',
+        toggleActions: 'play none none none',
+      },
+    }
+  );
+}
+
+// ─── MASK REVEAL (título por linha/máscara) ───────────────────────────────────
+
+/**
+ * Reveal de título estilo editorial: o texto sobe de baixo de uma máscara.
+ * Requer que o alvo esteja dentro de um wrapper com `overflow-hidden`.
+ * Bidirecional (reverte ao subir).
+ */
+export function maskRevealTitle(
+  target: gsap.TweenTarget,
+  options: { trigger?: Element | null; start?: string; duration?: number } = {}
+): gsap.core.Tween | null {
+  if (prefersReducedMotion()) {
+    gsap.set(target, { yPercent: 0, opacity: 1 });
+    return null;
+  }
+
+  return gsap.fromTo(
+    target,
+    { yPercent: 115, opacity: 0 },
+    {
+      yPercent: 0,
+      opacity: 1,
+      duration: options.duration ?? motion.duration.slow,
+      ease: motion.ease.luxury,
+      immediateRender: false,
+      scrollTrigger: {
+        trigger: options.trigger ?? (target as Element),
+        start: options.start ?? 'top 88%',
+        toggleActions: 'play none none reverse',
+      },
+    }
+  );
+}
+
 // ─── REVEAL ON SCROLL ─────────────────────────────────────────────────────────
 
 /**
@@ -172,7 +364,7 @@ export function revealOnScroll(
 export function revealSection(container: Element): void {
   if (prefersReducedMotion()) {
     const all = container.querySelectorAll('[data-reveal]');
-    all.forEach((el) => gsap.set(el, { opacity: 1, y: 0, scale: 1, clearProps: 'transform' }));
+    all.forEach((el) => gsap.set(el, { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', clearProps: 'transform,filter' }));
     return;
   }
 
@@ -183,10 +375,10 @@ export function revealSection(container: Element): void {
 
     const from =
       variant === 'fade-up'
-        ? { opacity: 0, y: 30 }
+        ? { opacity: 0, y: 24, filter: 'blur(8px)' }
         : variant === 'fade-in'
-          ? { opacity: 0 }
-          : { opacity: 0, scale: 0.95 };
+          ? { opacity: 0, filter: 'blur(8px)' }
+          : { opacity: 0, scale: 0.95, filter: 'blur(8px)' };
 
     gsap.fromTo(
       els,
@@ -195,11 +387,12 @@ export function revealSection(container: Element): void {
         opacity: 1,
         y: 0,
         scale: 1,
+        filter: 'blur(0px)',
         duration: motion.duration.slow,
         ease: motion.ease.luxury,
-        stagger: 0.08,
+        stagger: 0.1,
         immediateRender: false,
-        clearProps: 'opacity,transform',
+        clearProps: 'opacity,transform,filter',
         scrollTrigger: {
           trigger: container,
           start: 'top 85%',

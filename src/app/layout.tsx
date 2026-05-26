@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Marcellus, Geist, Geist_Mono, DM_Sans } from "next/font/google";
 import { CartProvider } from "@/components/cart";
 import { Toaster } from "@/components/ui/sonner";
 import { LenisProvider } from "@/components/providers/lenis-provider";
@@ -9,11 +9,33 @@ import { AuthDataSync } from "@/components/auth/auth-data-sync";
 import "./globals.css";
 
 // ─── FONTES ──────────────────────────────────────────────────────────────────
+// Display humanista (Marcellus, primo gratuito do Optima) nos títulos +
+// DM Sans no corpo/UI (inspiração Boty) + mono tabular (Geist Mono) nos
+// números/dados. Geist mantido como fallback do sistema. Todas self-hosted via
+// next/font — sem @import externo.
 
-const poppins = Poppins({
-  variable: "--font-poppins",
+const geist = Geist({
+  variable: "--font-geist",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+});
+
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const marcellus = Marcellus({
+  variable: "--font-marcellus",
+  subsets: ["latin"],
+  weight: "400",
   display: "swap",
 });
 
@@ -43,7 +65,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body className={`${poppins.variable} antialiased font-sans`}>
+      <body
+        className={`${geist.variable} ${dmSans.variable} ${geistMono.variable} ${marcellus.variable} antialiased font-sans`}
+      >
         <AuthSessionProvider>
           {/* Hidrata carrinho/favoritos no login e limpa no logout */}
           <AuthDataSync />
@@ -60,7 +84,7 @@ export default function RootLayout({
           position="bottom-right"
           toastOptions={{
             style: {
-              fontFamily: "var(--font-poppins)",
+              fontFamily: "var(--font-geist)",
             },
           }}
         />

@@ -51,11 +51,13 @@ export const colors = {
 } as const;
 
 // ─── TIPOGRAFIA ───────────────────────────────────────────────────────────────
-// Hierarquia: Display (Playfair) > Heading > Subheading > Body (Inter) > Caption
+// Hierarquia: Display (Marcellus, Optima-like) > Heading > Subheading >
+//             Body/UI (Geist) > Caption · Dados/números (Geist Mono)
 
 export const typography = {
-  fontSerif:  'var(--font-playfair), "Playfair Display", Georgia, serif',
-  fontSans:   'var(--font-inter), "Inter", system-ui, sans-serif',
+  fontSerif:  'var(--font-marcellus), "Optima", Georgia, serif',
+  fontSans:   'var(--font-geist), system-ui, sans-serif',
+  fontMono:   'var(--font-geist-mono), ui-monospace, monospace',
 
   // Pesos — MFK usa muito thin/light para serifs em destaque
   weights: {
@@ -105,15 +107,18 @@ export const typography = {
     loose:    '2',
   },
 
-  // Presets compostos — prontos para usar nos componentes
+  // Presets compostos — prontos para usar nos componentes.
+  // Marcellus (font-serif) é peso único 400 e sem itálico — não usar font-light
+  // nem italic nos presets de display/heading.
   presets: {
     eyebrow:  'text-xs tracking-[0.18em] uppercase font-sans font-medium',
-    display:  'font-playfair font-light leading-[1.05] tracking-[-0.02em]',
-    heading:  'font-playfair font-semibold leading-snug',
+    display:  'font-serif leading-[1.05] tracking-[-0.01em]',
+    heading:  'font-serif leading-snug',
     subhead:  'font-sans font-medium tracking-[0.05em] uppercase text-sm',
     body:     'font-sans font-regular leading-relaxed',
     caption:  'font-sans text-xs tracking-[0.05em] text-muted-foreground',
     price:    'font-sans font-semibold tracking-tight tabular-nums',
+    data:     'font-mono tabular-nums tracking-tight',
   },
 } as const;
 

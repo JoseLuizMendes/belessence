@@ -26,12 +26,16 @@ export function LenisProvider({ children }: LenisProviderProps) {
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) return;
 
+    // Smooth scroll mais suave/curto: reduz a velocidade de pico do scroll,
+    // dando tempo do Next/Image rasterizar (evita o "sumiço" da imagem em
+    // flicks rápidos). duration menor = assenta antes; multipliers menores =
+    // menos distância por gesto = menor velocidade.
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 0.9,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 2,
+      wheelMultiplier: 0.8,
+      touchMultiplier: 1.5,
     });
 
     // Integrar Lenis ao GSAP ticker (padrão oficial).
