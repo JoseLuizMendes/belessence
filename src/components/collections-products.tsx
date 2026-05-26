@@ -8,13 +8,10 @@
 
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-
-gsap.registerPlugin(ScrollTrigger);
+import { scrollReveal } from "@/lib/gsap-utils";
 
 // accentClass referencia classes definidas em globals.css (.bg-accent-*)
 const COLLECTIONS = [
@@ -53,24 +50,10 @@ export default function CollectionsProducts() {
   const gridRef    = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) return;
-
+    // Só o heading anima (texto). Os cards contêm <Image>: qualquer reveal que
+    // os esconda/transforme faz a imagem "sumir" no scroll rápido sob Lenis.
     if (headingRef.current) {
-      gsap.from(headingRef.current, {
-        opacity: 0, y: 30, duration: 0.9, ease: "power4.out",
-        scrollTrigger: { trigger: headingRef.current, start: "top 85%" },
-      });
-    }
-
-    if (gridRef.current) {
-      const cards = gridRef.current.querySelectorAll("[data-card]");
-      if (cards.length) {
-        gsap.from(cards, {
-          opacity: 0, y: 50, duration: 0.9, stagger: 0.15, ease: "power4.out",
-          scrollTrigger: { trigger: gridRef.current, start: "top 80%" },
-        });
-      }
+      scrollReveal(headingRef.current, { trigger: headingRef.current, y: 24 });
     }
   }, { scope: sectionRef });
 
@@ -101,7 +84,7 @@ export default function CollectionsProducts() {
                   src={col.image}
                   alt={col.name}
                   fill
-                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  className="object-cover gpu-layer"
                   sizes="(max-width: 768px) 100vw, 33vw"
                 />
 

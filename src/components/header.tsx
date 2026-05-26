@@ -36,7 +36,6 @@ import { AccountMenu } from "./auth/account-menu";
 gsap.registerPlugin(ScrollTrigger);
 
 const NAV_LINKS = [
-  { label: "Início",   id: "inicio" },
   { label: "Coleções", id: "colecoes" },
   { label: "Sobre",    id: "sobre" },
 ];
@@ -124,7 +123,7 @@ export default function Header() {
   return (
     <header
       ref={headerRef}
-      className="fixed left-0 right-0 top-0 z-50 border-b bg-brand-pink"
+      className="fixed left-0 right-0 top-0 z-50 border-b header-glass-pink"
     >
       <div className="container-belessence py-4 sm:py-5">
         <div className="flex items-center justify-between">
@@ -200,16 +199,28 @@ export default function Header() {
           <div className="flex items-center gap-2 sm:gap-3">
 
             {/* Busca — desktop */}
-            <form onSubmit={handleSearch} className="relative hidden md:block">
-              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-muted pointer-events-none" />
-              <Input
+            <form onSubmit={handleSearch} className="search-pill-form relative hidden md:flex items-center">
+              <Search className="search-pill-icon absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-muted pointer-events-none transition-[color,transform] duration-[250ms] ease-out" />
+              <input
                 type="search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="buscar fragrâncias"
                 aria-label="Buscar produtos"
-                className="h-9 w-40 lg:w-56 xl:w-72 rounded-none border-0 bg-transparent pl-9 text-xs text-ink-strong placeholder:text-ink-muted placeholder:tracking-[0.02em] focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
+                className="search-pill h-8 w-36 lg:w-52 xl:w-64 rounded-full border border-[rgba(71,19,28,0.14)] bg-[rgba(255,243,232,0.72)] pl-8.5 pr-7 text-[11px] tracking-[0.03em] text-ink-strong placeholder:text-ink-muted placeholder:tracking-[0.06em] outline-none transition-[width,box-shadow,border-color,background-color] duration-[300ms] ease-out backdrop-blur-sm focus:w-44 lg:focus:w-60 xl:focus:w-72 focus:border-[rgba(71,19,28,0.38)] focus:bg-[rgba(255,232,240,0.88)] focus:shadow-[0_0_0_3px_rgba(71,19,28,0.08)]"
               />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm("")}
+                  aria-label="Limpar busca"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[rgba(71,19,28,0.12)] text-ink-muted transition-[background-color,opacity] duration-[200ms] ease-out hover:bg-[rgba(71,19,28,0.22)] hover:text-ink-strong"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                  </svg>
+                </button>
+              )}
             </form>
 
             {/* Conta */}
@@ -265,14 +276,26 @@ export default function Header() {
                   {/* Search mobile */}
                   <form onSubmit={handleSearch} className="relative mb-6 px-4">
                     <Search className="absolute left-7 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-muted pointer-events-none" />
-                    <Input
+                    <input
                       type="search"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       placeholder="buscar fragrâncias"
                       aria-label="Buscar produtos"
-                      className="h-9 w-full rounded-none border-0 bg-transparent pl-9 text-xs text-ink-strong placeholder:text-ink-muted placeholder:tracking-[0.02em] focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
+                      className="h-10 w-full rounded-full border border-[rgba(71,19,28,0.14)] bg-[rgba(255,243,232,0.72)] pl-9 pr-8 text-[12px] tracking-[0.04em] text-ink-strong placeholder:text-ink-muted placeholder:tracking-[0.06em] outline-none transition-[box-shadow,border-color,background-color] duration-[250ms] ease-out backdrop-blur-sm focus:border-[rgba(71,19,28,0.38)] focus:bg-[rgba(255,232,240,0.88)] focus:shadow-[0_0_0_3px_rgba(71,19,28,0.08)]"
                     />
+                    {searchTerm && (
+                      <button
+                        type="button"
+                        onClick={() => setSearchTerm("")}
+                        aria-label="Limpar busca"
+                        className="absolute right-6 top-1/2 -translate-y-1/2 flex h-4 w-4 items-center justify-center rounded-full bg-[rgba(71,19,28,0.12)] text-ink-muted transition-[background-color] duration-[200ms] ease-out hover:bg-[rgba(71,19,28,0.22)] hover:text-ink-strong"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                        </svg>
+                      </button>
+                    )}
                   </form>
 
                   <Separator className="bg-border-subtle" />

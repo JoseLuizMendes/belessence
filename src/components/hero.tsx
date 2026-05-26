@@ -1,24 +1,20 @@
 "use client";
 
 /**
- * Hero — Belessence
+ * Hero — Belessence (inspiração Boty, paleta Mari Beauty)
  * ─────────────────────────────────────────────────────────────────────
- * Layout (de cima para baixo, inspirado em lógica O'Boticário):
+ * Layout (de cima para baixo):
  *
- *   [1] Promo strip       — fundo escuro, frete grátis + cupom copyable
+ *   [1] Promo strip       — fundo wine, frete grátis + cupom copyable
  *   [2] Section context   — breadcrumb + heading + pills de categoria
- *   [3] Carousel          — max-w-[1440px] mx-auto, h = clamp(240px, 41.67vw, 600px)
- *                           imagens full-bleed dentro do box, cross-fade CSS
- *                           overlay gradiente + copy por slide + GSAP scroll exit
+ *   [3] Carousel          — max-w-[1440px], h = clamp(240px, 41.67vw, 600px)
+ *                           mídia full-bleed (MediaBackground: imagem/vídeo),
+ *                           overlay wine coeso + copy por slide + indicador
+ *                           de scroll. GSAP: copy stagger + scroll exit.
  *
- * Técnica de altura:
- *   41.67vw = 1/2.4 × 100vw → manten relação 1440:600 (= 12:5) para vp ≤ 1440px
- *   clamp(240px, ..., 600px) → nunca acima de 600px (natural da arte) nem abaixo de 240px
- *
- * GSAP:
- *   - Copy entry: stagger y+opacity per slide change
- *   - Scroll exit: carouselRef sobe + fade via ScrollTrigger scrub
- *   - prefers-reduced-motion: respeitado
+ * Paleta: acentos por slide unificados em wine/pink (sem cores avulsas) para
+ * cohesão com o restante da home. Mídia agnóstica: cada slide pode declarar
+ * `type: "video"` + `poster` quando os arquivos existirem.
  */
 
 import {
@@ -28,20 +24,20 @@ import {
   useState,
   useCallback,
 } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Button } from "./ui/button";
 import { Typewriter } from "./ui/typewriter";
+import { MediaBackground, type MediaType } from "./ui/media-background";
 import {
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Gift,
   Copy,
   Check,
-  ChevronRight as Chevron,
 } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -50,16 +46,13 @@ gsap.registerPlugin(ScrollTrigger);
 
 interface Slide {
   src: string;
-  overlay: string;
+  /** "image" (default) ou "video". Vídeo usa `poster` como fallback. */
+  type?: MediaType;
+  poster?: string;
   eyebrow: string;
-  eyebrowColor: string;
   title: string;
-  titleColor: string;
   subtitle: string;
-  subtitleColor: string;
   cta: string;
-  ctaBg: string;
-  ctaText: string;
 }
 
 interface CategoryPill {
@@ -72,81 +65,45 @@ interface CategoryPill {
 const SLIDES: Slide[] = [
   {
     src: "/assets/hero1.png",
-    overlay: "overlay-hero-teal",
     eyebrow: "Novo Lançamento",
-    eyebrowColor: "#D4FFFF",
     title: "Essência do Amanhecer",
-    titleColor: "#ffffff",
     subtitle: "Notas frescas de bergamota e cedro branco",
-    subtitleColor: "#ffffff",
     cta: "Descobrir Agora",
-    ctaBg: "#0d3333",
-    ctaText: "#e8f5f5",
   },
   {
     src: "/assets/hero2.png",
-    overlay: "overlay-hero-dark",
     eyebrow: "Coleção Exclusiva",
-    eyebrowColor: "#e87070",
     title: "Âmbar Noturno",
-    titleColor: "#ffffff",
     subtitle: "A intensidade do âmbar com fundo de baunilha",
-    subtitleColor: "rgba(255,255,255,0.72)",
     cta: "Ver Coleção",
-    ctaBg: "#e87070",
-    ctaText: "#1a0000",
   },
   {
     src: "/assets/hero3.png",
-    overlay: "overlay-hero-gold",
     eyebrow: "Edição Limitada",
-    eyebrowColor: "#c4a45a",
     title: "Silagem Prolongada",
-    titleColor: "#ffffff",
     subtitle: "Alta fixação — permanece por até 12 horas",
-    subtitleColor: "rgba(255,255,255,0.72)",
     cta: "Garantir o Meu",
-    ctaBg: "#c4a45a",
-    ctaText: "#0a0600",
   },
   {
     src: "/assets/hero4.png",
-    overlay: "overlay-hero-amber",
     eyebrow: "Best Seller",
-    eyebrowColor: "#d4843a",
     title: "Coração de Rosa",
-    titleColor: "#ffffff",
     subtitle: "Floral sofisticado com acorde de rosa turca",
-    subtitleColor: "rgba(255,255,255,0.72)",
     cta: "Explorar",
-    ctaBg: "#d4843a",
-    ctaText: "#1a0800",
   },
   {
     src: "/assets/hero5.png",
-    overlay: "overlay-hero-mystic",
     eyebrow: "Tendência 2026",
-    eyebrowColor: "#5ec4c4",
     title: "Acorde Boisé",
-    titleColor: "#ffffff",
     subtitle: "Madeiras raras e musgo branco em harmonia",
-    subtitleColor: "rgba(255,255,255,0.72)",
     cta: "Conhecer",
-    ctaBg: "#5ec4c4",
-    ctaText: "#04161c",
   },
   {
     src: "/assets/hero6.png",
-    overlay: "overlay-hero-orange",
     eyebrow: "Mari Beauty",
-    eyebrowColor: "#7a2e00",
     title: "Accord Ultime",
-    titleColor: "#1a0800",
     subtitle: "A fragrância mais icônica da Maison",
-    subtitleColor: "#3d1500",
     cta: "Descobrir",
-    ctaBg: "#1a0800",
-    ctaText: "#fdf0e8",
   },
 ];
 
@@ -217,10 +174,11 @@ export default function Hero() {
       if (reduced || !copyRef.current) return;
       gsap.fromTo(
         Array.from(copyRef.current.children),
-        { opacity: 0, y: 24 },
+        { opacity: 0, y: 24, filter: "blur(8px)" },
         {
           opacity: 1,
           y: 0,
+          filter: "blur(0px)",
           duration: 0.72,
           stagger: 0.1,
           ease: "power3.out",
@@ -264,17 +222,17 @@ export default function Hero() {
       <div className="w-full bg-brand-wine text-surface-base py-2 px-4">
         <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-center gap-y-1 sm:gap-x-5">
           <div className="flex items-center gap-2.5">
-            <Gift className="h-3 w-3 shrink-0 opacity-70 hidden sm:inline text-accent" />
-            <span className="text-accent text-[10px] sm:text-[11px] font-light tracking-[0.16em] uppercase whitespace-nowrap">
+            <Gift className="h-3 w-3 shrink-0 opacity-70 hidden sm:inline text-brand-pink" />
+            <span className="text-brand-pink text-[10px] sm:text-[11px] font-light tracking-[0.16em] uppercase whitespace-nowrap">
               Frete grátis acima de R$199
             </span>
-            <span className="opacity-40 text-[10px] sm:text-[11px] text-accent">·</span>
+            <span className="opacity-40 text-[10px] sm:text-[11px] text-brand-pink">·</span>
             <Button
               type="button"
               variant="ghost"
               onClick={handleCopy}
               aria-label="Copiar cupom"
-              className="h-auto p-0 gap-1.5 text-accent text-[10px] sm:text-[11px] font-medium tracking-[0.22em] uppercase hover:bg-transparent hover:opacity-75"
+              className="h-auto p-0 gap-1.5 text-brand-pink text-[10px] sm:text-[11px] font-medium tracking-[0.22em] uppercase hover:bg-transparent hover:opacity-75"
             >
               <span>{COUPON}</span>
               {copied ? (
@@ -284,8 +242,8 @@ export default function Hero() {
               )}
             </Button>
           </div>
-          <span className="hidden sm:inline opacity-40 text-[10px] sm:text-[11px] text-accent">·</span>
-          <span className="text-accent text-[9.5px] sm:text-[10.5px] font-light tracking-[0.16em] uppercase opacity-55 whitespace-nowrap">
+          <span className="hidden sm:inline opacity-40 text-[10px] sm:text-[11px] text-brand-pink">·</span>
+          <span className="text-brand-pink text-[9.5px] sm:text-[10.5px] font-light tracking-[0.16em] uppercase opacity-55 whitespace-nowrap">
             Válido até 30/04/26
           </span>
         </div>
@@ -294,23 +252,8 @@ export default function Hero() {
       {/* ══ 2. SECTION CONTEXT ═══════════════════════════════════════════════ */}
       <div className="w-full bg-brand-pink">
         <div className="max-w-[1440px] mx-auto px-5 sm:px-8 py-5 sm:py-4 flex flex-col gap-4 sm:gap-3 sm:flex-row sm:items-center sm:justify-between">
-          {/* Breadcrumb + heading */}
+          {/* Heading */}
           <div className="flex flex-col gap-1.5">
-            {/* Breadcrumb */}
-            <nav
-              aria-label="breadcrumb"
-              className="flex items-center gap-1 text-[10px] tracking-widest uppercase text-foreground/35"
-            >
-              <Link
-                href="/"
-                className="hover:text-foreground/60 transition-colors"
-              >
-                Início
-              </Link>
-              <Chevron className="h-2.5 w-2.5" />
-              <span className="text-foreground/55">Coleções em Destaque</span>
-            </nav>
-            {/* Heading */}
             <div className="flex items-baseline gap-3">
               <h2 className="text-[15px] sm:text-base font-semibold tracking-[0.18em] sm:tracking-widest uppercase text-foreground">
                 Beauty Essentials
@@ -321,7 +264,7 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Category pills — wrap com fade no edge direito (mobile scroll hint) */}
+          {/* Category pills */}
           <div className="relative -mx-5 sm:mx-0">
             <div
               role="tablist"
@@ -351,10 +294,10 @@ export default function Hero() {
       </div>
 
       {/* ══ 3. CAROUSEL ══════════════════════════════════════════════════════ */}
-      <div className="w-full bg-brand-pink">
+      <div className="w-full bg-brand-pink pb-8">
         <div
           ref={carouselRef}
-          className="relative max-w-[1440px] mx-auto hero-banner-height overflow-hidden"
+          className="relative max-w-[1440px] mx-auto hero-banner-height overflow-hidden rounded-token-xl"
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
           aria-label="Carrossel de coleções"
@@ -364,22 +307,22 @@ export default function Hero() {
             <div
               key={s.src}
               aria-hidden={i !== active}
-              className="absolute inset-0 transition-opacity duration-880ms ease-in-out"
+              className="absolute inset-0 transition-opacity duration-700 ease-in-out"
               style={{
                 opacity: i === active ? 1 : 0,
                 zIndex: i === active ? 1 : 0,
               }}
             >
-              <Image
+              <MediaBackground
                 src={s.src}
+                type={s.type}
+                poster={s.poster}
                 alt=""
-                fill
                 priority={i === 0}
-                className="object-cover object-center"
                 sizes="(max-width: 1440px) 100vw, 1440px"
-                quality={90}
+                className="object-center"
+                overlayClassName="overlay-hero-gold"
               />
-              <div className={`absolute inset-0 ${s.overlay}`} />
             </div>
           ))}
 
@@ -392,15 +335,10 @@ export default function Hero() {
               ref={copyRef}
               className="w-full max-w-[560px] px-8 md:px-14 lg:px-20 space-y-3.5"
             >
-              {/* Eyebrow */}
-              <p
-                className="text-[10px] uppercase font-semibold tracking-[0.26em]"
-                style={{ color: slide.eyebrowColor }}
-              >
+              <p className="text-[10px] uppercase font-semibold tracking-[0.26em] text-brand-pink">
                 {slide.eyebrow}
               </p>
 
-              {/* Título — re-monta a cada troca de slide (key={active}) */}
               <Typewriter
                 key={`hero-title-${active}`}
                 as="h1"
@@ -408,35 +346,22 @@ export default function Hero() {
                 speed={45}
                 delay={150}
                 immediate
-                className="text-[clamp(1.7rem,4.4vw,3.5rem)] leading-[1.06] tracking-[-0.025em] font-bold block"
-                style={{ color: slide.titleColor }}
+                className="font-playfair text-[clamp(1.7rem,4.4vw,3.5rem)] leading-[1.06] tracking-[-0.02em] text-surface-contrast block"
                 ariaLabel={slide.title}
               />
 
-              {/* Divisor */}
-              <div
-                className="w-9 h-px"
-                style={{ background: slide.eyebrowColor }}
-              />
+              <div className="w-9 h-px bg-brand-pink" />
 
-              {/* Subtítulo */}
-              <p
-                className="text-[clamp(0.75rem,1.1vw,0.875rem)] font-light leading-relaxed max-w-[280px]"
-                style={{ color: slide.subtitleColor }}
-              >
+              <p className="text-[clamp(0.75rem,1.1vw,0.875rem)] font-light leading-relaxed max-w-[280px] text-dark-warm">
                 {slide.subtitle}
               </p>
 
-              {/* CTA */}
               <div className="pt-0.5">
-                <Link href="/allProducts">
-                  <Button
-                    size="sm"
-                    className="border-none px-8 py-2.5 text-[11px] font-medium tracking-[0.14em] uppercase transition-opacity hover:opacity-80"
-                    style={{ background: slide.ctaBg, color: slide.ctaText }}
-                  >
-                    {slide.cta}
-                  </Button>
+                <Link
+                  href="/allProducts"
+                  className="btn-wine inline-flex items-center rounded-full px-8 py-3 text-[11px] font-medium tracking-[0.14em] uppercase"
+                >
+                  {slide.cta}
                 </Link>
               </div>
             </div>
@@ -449,9 +374,9 @@ export default function Hero() {
               setPaused(true);
             }}
             aria-label="Slide anterior"
-            className="absolute left-3 md:left-5 top-1/2 z-20 -translate-y-1/2 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-black/25 text-white/65 backdrop-blur-sm transition-all hover:border-white/45 hover:text-white"
+            className="absolute left-3 md:left-5 top-1/2 z-20 -translate-y-1/2 hidden sm:flex h-9 w-9 cursor-pointer items-center justify-center rounded-full glass-dark text-white transition-all hover:bg-brand-wine"
           >
-            <ChevronLeft className="h-3.5 w-3.5" />
+            <ChevronLeft className="h-3.5 w-3.5 text-accent" />
           </button>
           <button
             onClick={() => {
@@ -459,9 +384,9 @@ export default function Hero() {
               setPaused(true);
             }}
             aria-label="Próximo slide"
-            className="absolute right-3 md:right-5 top-1/2 z-20 -translate-y-1/2 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-black/25 text-white/65 backdrop-blur-sm transition-all hover:border-white/45 hover:text-white"
+            className="absolute right-3 md:right-5 top-1/2 z-20 -translate-y-1/2 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full glass-dark text-surface-base/70 transition-all hover:text-surface-base"
           >
-            <ChevronRight className="h-3.5 w-3.5" />
+            <ChevronRight className="h-3.5 w-3.5 text-accent" />
           </button>
 
           {/* Progress indicators ─────────────────────────────────────────── */}
@@ -477,12 +402,11 @@ export default function Hero() {
                 className="relative h-[2px] cursor-pointer overflow-hidden rounded-full transition-all duration-300 focus-visible:outline-none"
                 style={{ width: i === active ? 30 : 14 }}
               >
-                <span className="absolute inset-0 bg-white/20" />
+                <span className="absolute inset-0 bg-surface-base/25" />
                 {i === active && (
                   <span
-                    className="absolute inset-y-0 left-0"
+                    className="absolute inset-y-0 left-0 bg-brand-pink"
                     style={{
-                      background: slide.eyebrowColor,
                       animation: `progress-fill ${INTERVAL}ms linear forwards`,
                       animationPlayState: paused ? "paused" : "running",
                     }}
@@ -490,13 +414,20 @@ export default function Hero() {
                 )}
                 {i !== active && (
                   <span
-                    className={`absolute inset-0 ${i < active ? "bg-white/45" : "bg-white/18"}`}
+                    className={`absolute inset-0 ${i < active ? "bg-surface-base/45" : "bg-surface-base/20"}`}
                   />
                 )}
               </button>
             ))}
           </div>
 
+          {/* Indicador de scroll (estilo Boty) ───────────────────────────── */}
+          <div className="absolute bottom-4 right-6 z-20 hidden flex-col items-center gap-1.5 sm:flex">
+            <span className="text-[9px] uppercase tracking-[0.3em] text-surface-base/70">
+              Role
+            </span>
+            <ChevronDown className="size-4 text-surface-base/70 animate-pulse-slow" />
+          </div>
         </div>
       </div>
     </div>

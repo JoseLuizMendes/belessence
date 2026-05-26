@@ -9,11 +9,10 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { formatPrice } from "@/api/utils";
 import {
-  ShoppingBag,
-  TrendingUp,
-  Package,
   AlertTriangle,
   ArrowRight,
+  ArrowUpRight,
+  ArrowDownRight,
 } from "lucide-react";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { AnimatedPrice } from "@/components/ui/animated-price";
@@ -28,15 +27,29 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 export default async function AdminDashboard() {
-  const today = new Date();
+  const now = new Date();
+
+  const today = new Date(now);
   today.setHours(0, 0, 0, 0);
+
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
 
   const monthStart = new Date(today);
   monthStart.setDate(1);
 
+  // Mês anterior, até o mesmo ponto decorrido (month-to-date comparável)
+  const prevMonthStart = new Date(monthStart);
+  prevMonthStart.setMonth(prevMonthStart.getMonth() - 1);
+  const prevMonthCutoff = new Date(
+    prevMonthStart.getTime() + (now.getTime() - monthStart.getTime()),
+  );
+
   const [
     ordersToday,
+    ordersYesterday,
     ordersMonth,
+    ordersPrevMonth,
     totalRevenue,
     lowStockProducts,
     recentOrders,
@@ -44,7 +57,11 @@ export default async function AdminDashboard() {
     pendingMessages,
   ] = await Promise.all([
     prisma.order.count({ where: { createdAt: { gte: today } } }),
+    prisma.order.count({ where: { createdAt: { gte: yesterday, lt: today } } }),
     prisma.order.count({ where: { createdAt: { gte: monthStart } } }),
+    prisma.order.count({
+      where: { createdAt: { gte: prevMonthStart, lt: prevMonthCutoff } },
+    }),
     prisma.order.aggregate({
       where: {
         status: { in: ["PAYMENT_CONFIRMED", "PREPARING", "SHIPPED", "DELIVERED"] },
@@ -66,6 +83,8 @@ export default async function AdminDashboard() {
   ]);
 
   const revenue = Number(totalRevenue._sum.total ?? 0);
+  const ordersTodayDelta = pctDelta(ordersToday, ordersYesterday);
+  const ordersMonthDelta = pctDelta(ordersMonth, ordersPrevMonth);
 
   return (
     <div>
@@ -73,37 +92,25 @@ export default async function AdminDashboard() {
         <p className="text-[11px] font-medium tracking-[0.32em] uppercase text-brand-wine mb-2">
           Painel
         </p>
-        <h1 className="font-playfair italic text-3xl sm:text-4xl text-ink-strong">
+        <h1 className="font-playfair text-3xl sm:text-4xl text-ink-strong">
           Dashboard
         </h1>
       </header>
 
-      {/* Cards de métricas */}
+      {/* Cards de métricas — flat + hairline (Vercel), delta real (Stripe) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
         <Card
-          icon={ShoppingBag}
           label="Pedidos hoje"
           value={ordersToday}
-          accent="bg-emerald-50 text-emerald-700"
+          delta={{ pct: ordersTodayDelta, period: "vs ontem" }}
         />
         <Card
-          icon={TrendingUp}
           label="Pedidos do mês"
           value={ordersMonth}
-          accent="bg-blue-50 text-blue-700"
+          delta={{ pct: ordersMonthDelta, period: "vs mês passado" }}
         />
-        <Card
-          icon={Package}
-          label="Produtos cadastrados"
-          value={totalProducts}
-          accent="bg-purple-50 text-purple-700"
-        />
-        <Card
-          icon={AlertTriangle}
-          label="Mensagens novas"
-          value={pendingMessages}
-          accent="bg-amber-50 text-amber-700"
-        />
+        <Card label="Produtos cadastrados" value={totalProducts} />
+        <Card label="Mensagens novas" value={pendingMessages} />
       </div>
 
       {/* Receita destacada */}
@@ -114,7 +121,7 @@ export default async function AdminDashboard() {
         <AnimatedPrice
           value={revenue}
           immediate
-          className="font-playfair italic text-4xl sm:text-5xl block"
+          className="font-data text-4xl sm:text-5xl block"
         />
         <p className="text-xs text-brand-pink/60 mt-2">
           Considera pedidos com status confirmado, em preparação, enviados ou entregues
@@ -125,7 +132,7 @@ export default async function AdminDashboard() {
         {/* Pedidos recentes */}
         <section className="lg:col-span-2 bg-surface-panel rounded-token-md p-6">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="font-playfair italic text-xl text-ink-strong">
+            <h2 className="font-playfair text-xl text-ink-strong">
               Pedidos recentes
             </h2>
             <Link
@@ -178,7 +185,7 @@ export default async function AdminDashboard() {
         {/* Estoque baixo */}
         <section className="bg-surface-panel rounded-token-md p-6">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="font-playfair italic text-xl text-ink-strong">
+            <h2 className="font-playfair text-xl text-ink-strong">
               Estoque baixo
             </h2>
             <AlertTriangle className="h-4 w-4 text-amber-600" />
@@ -229,27 +236,42 @@ export default async function AdminDashboard() {
   );
 }
 
-interface CardProps {
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
-  label: string;
-  value: number;
-  accent: string;
+/** Variação percentual honesta entre período atual e anterior. */
+function pctDelta(current: number, previous: number): number {
+  if (previous === 0) return current === 0 ? 0 : 100;
+  return Math.round(((current - previous) / previous) * 100);
 }
 
-function Card({ icon: Icon, label, value, accent }: CardProps) {
+interface CardProps {
+  label: string;
+  value: number;
+  delta?: { pct: number; period: string };
+}
+
+function Card({ label, value, delta }: CardProps) {
+  const up = delta ? delta.pct >= 0 : true;
+  const DeltaIcon = up ? ArrowUpRight : ArrowDownRight;
+  const deltaColor = up ? "text-positive" : "text-negative";
+
   return (
-    <div className="bg-surface-panel rounded-token-md p-5">
-      <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-3 ${accent}`}>
-        <Icon className="h-4 w-4" strokeWidth={1.5} />
-      </div>
-      <p className="text-[10px] font-medium tracking-[0.24em] uppercase text-ink-muted mb-1">
+    <div className="bg-surface-panel border border-subtle rounded-token-sm p-5">
+      <p className="text-[10px] font-medium tracking-[0.24em] uppercase text-ink-muted mb-3">
         {label}
       </p>
       <AnimatedNumber
         value={value}
         immediate
-        className="font-playfair italic text-3xl text-ink-strong tabular-nums block"
+        className="font-data text-3xl sm:text-4xl text-ink-strong block leading-none"
       />
+      {delta && (
+        <p className="mt-3 flex items-center gap-1 text-xs">
+          <DeltaIcon className={`h-3.5 w-3.5 ${deltaColor}`} strokeWidth={2} />
+          <span className={`font-data ${deltaColor}`}>
+            {Math.abs(delta.pct)}%
+          </span>
+          <span className="text-ink-muted ml-1">{delta.period}</span>
+        </p>
+      )}
     </div>
   );
 }

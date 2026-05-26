@@ -127,7 +127,7 @@ export function ProductCard({
   return (
     <article
       {...animProps}
-      className="group flex flex-col bg-surface-panel rounded-token-sm overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-card-hover"
+      className="group flex flex-col bg-surface-panel rounded-token-xl overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-card-hover"
     >
       {/* Imagem + overlays */}
       <Link

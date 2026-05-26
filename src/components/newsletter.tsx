@@ -13,10 +13,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
-import Image from "next/image";
+import { scrollReveal } from "@/lib/gsap-utils";
+import { MediaBackground } from "@/components/ui/media-background";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,8 +25,6 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const newsletterSchema = z.object({
   email: z.string().min(1, "E-mail obrigatório").email("Informe um e-mail válido"),
@@ -46,21 +43,15 @@ export default function Newsletter() {
   const { handleSubmit, reset, formState: { isSubmitting } } = form;
 
   useGSAP(() => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced || !contentRef.current) return;
-
-    const children = contentRef.current.children;
-    gsap.from(Array.from(children), {
-      opacity: 0,
-      y: 30,
-      duration: 0.9,
-      stagger: 0.12,
-      ease: "power4.out",
-      scrollTrigger: {
+    // Só o conteúdo (texto/form) anima. A imagem fica estática + .gpu-layer.
+    if (contentRef.current) {
+      scrollReveal(Array.from(contentRef.current.children), {
         trigger: contentRef.current,
-        start: "top 80%",
-      },
-    });
+        y: 26,
+        stagger: 0.1,
+        start: "top 82%",
+      });
+    }
   }, { scope: sectionRef });
 
   const onSubmit = async (data: NewsletterForm) => {
@@ -96,20 +87,17 @@ export default function Newsletter() {
       className="relative py-16 sm:py-24 md:py-32 bg-surface-section overflow-hidden"
     >
       <div className="container-belessence">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 lg:gap-20 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center rounded-token-2xl bg-surface-panel p-6 shadow-card sm:p-10 lg:p-14">
 
-          {/* Imagem editorial à esquerda — Stitch Lifestyle (tamanho reduzido) */}
-          <div className="relative w-full max-w-xs sm:max-w-sm mx-auto md:mx-0 aspect-square overflow-hidden rounded-token-sm">
-            <Image
-              src="/assets/stitch/lifestyle.jpg"
-              alt="Beauty is a Lifestyle"
-              width={400}
-              height={400}
-              quality={90}
-              className="w-full h-full object-cover"
-              sizes="(max-width: 768px) 80vw, 400px"
+          {/* Vídeo editorial à esquerda (upload "news-letter") */}
+          <div className="relative w-full max-w-xs sm:max-w-sm mx-auto md:mx-0 aspect-square overflow-hidden rounded-token-2xl">
+            <MediaBackground
+              src="/assets/inspiration/news-letter.mp4"
+              type="video"
+              alt=""
+              className="gpu-layer"
+              overlayClassName="bg-gradient-to-tr from-brand-wine/15 to-transparent"
             />
-            <div className="absolute inset-0 bg-gradient-to-tr from-brand-wine/15 to-transparent pointer-events-none" />
           </div>
 
           {/* Conteúdo à direita */}
@@ -149,7 +137,7 @@ export default function Newsletter() {
                             placeholder="Seu melhor e-mail"
                             aria-label="E-mail para newsletter"
                             {...field}
-                            className={`h-12 bg-surface-base text-sm text-ink-strong placeholder:text-ink-muted border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0 transition-colors${fieldState.error ? " border-destructive" : ""}`}
+                            className={`h-12 bg-surface-base text-sm text-ink-strong placeholder:text-ink-muted border-border-subtle rounded-full px-5 focus-visible:border-brand-wine focus-visible:ring-0 transition-colors${fieldState.error ? " border-destructive" : ""}`}
                           />
                         </FormControl>
                         <FormMessage className="text-left text-xs" />

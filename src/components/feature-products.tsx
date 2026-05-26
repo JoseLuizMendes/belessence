@@ -8,14 +8,11 @@
 
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { ProductCard } from "./product-card";
 import type { Product } from "@/lib/products-db";
-
-gsap.registerPlugin(ScrollTrigger);
+import { blurReveal } from "@/lib/gsap-utils";
 
 interface FeatureProductsProps {
   products: Product[];
@@ -23,40 +20,17 @@ interface FeatureProductsProps {
 
 export default function FeatureProducts({ products }: FeatureProductsProps) {
   const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 
-  // ── Animação de entrada idempotente ─────────────────────────────────────────
   useGSAP(
     () => {
-      const reduced = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
-      if (reduced || !gridRef.current) return;
-
-      const cards = gridRef.current.querySelectorAll("[data-product-card]");
-      if (cards.length > 0) {
-        // fromTo + immediateRender:false + once:true = nunca deixa cards
-        // permanentemente invisíveis se o ScrollTrigger não disparar.
-        gsap.fromTo(
-          cards,
-          { opacity: 0, y: 30 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.7,
-            stagger: 0.12,
-            ease: "power3.out",
-            immediateRender: false,
-            scrollTrigger: {
-              trigger: gridRef.current,
-              start: "top 90%",
-              once: true,
-              toggleActions: "play none none none",
-            },
-          },
-        );
-        ScrollTrigger.refresh();
+      if (titleRef.current) {
+        blurReveal(titleRef.current, { trigger: headerRef.current });
       }
+      // Cards de produto contêm <Image> e ficam estáticos (sem reveal que os
+      // esconda) para não "sumir" no scroll rápido sob Lenis. Só o título anima.
     },
     { scope: sectionRef },
   );
@@ -70,13 +44,18 @@ export default function FeatureProducts({ products }: FeatureProductsProps) {
       className="py-16 sm:py-24 md:py-28 bg-surface-base"
     >
       <div className="container-belessence">
-        <div className="text-center mb-12 sm:mb-16">
+        <div ref={headerRef} className="text-center mb-12 sm:mb-16">
           <p className="text-[11px] font-medium tracking-[0.32em] uppercase text-brand-wine mb-4">
             Seleção da semana
           </p>
-          <h2 className="font-playfair italic text-[clamp(2rem,4.5vw,3.4rem)] leading-tight tracking-[-0.02em] text-ink-strong">
-            Destaques
-          </h2>
+          <div className="overflow-hidden pb-[0.12em]">
+            <h2
+              ref={titleRef}
+              className="font-playfair text-[clamp(2rem,4.5vw,3.4rem)] leading-tight tracking-[-0.01em] text-ink-strong"
+            >
+              Destaques
+            </h2>
+          </div>
           <div className="mx-auto mt-5 h-px w-12 bg-brand-wine/60" />
         </div>
 

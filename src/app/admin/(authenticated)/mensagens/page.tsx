@@ -43,7 +43,7 @@ export default async function AdminMessagesPage({ searchParams }: PageProps) {
   const total = dto.length;
   const unreplied = dto.filter((m) => !m.replied).length;
   const replied = total - unreplied;
-  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const weekAgo = new Date().getTime() - 7 * 24 * 60 * 60 * 1000;
   const last7 = dto.filter((m) => new Date(m.createdAt).getTime() >= weekAgo).length;
 
   const visible =
