@@ -5,25 +5,26 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { formatPrice } from "@/api/utils";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import { TableBody, TableCell } from "@/components/ui/table";
+import { ShoppingBag } from "lucide-react";
 import { OrderStatusFilter } from "@/components/admin/order-status-filter";
+import { PageHeader } from "@/components/admin/page-header";
+import { EmptyState } from "@/components/admin/empty-state";
+import { StatusPill, type StatusTone } from "@/components/admin/status-pill";
+import {
+  DataTable,
+  DataTableHeader,
+  DataTableRow,
+} from "@/components/admin/data-table";
 import type { OrderStatus } from "@prisma/client";
 
-const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  PENDING: { label: "Aguardando", color: "bg-yellow-100 text-yellow-800" },
-  PAYMENT_CONFIRMED: { label: "Confirmado", color: "bg-emerald-100 text-emerald-800" },
-  PREPARING: { label: "Preparando", color: "bg-blue-100 text-blue-800" },
-  SHIPPED: { label: "Enviado", color: "bg-indigo-100 text-indigo-800" },
-  DELIVERED: { label: "Entregue", color: "bg-green-100 text-green-800" },
-  CANCELLED: { label: "Cancelado", color: "bg-red-100 text-red-800" },
+const STATUS_INFO: Record<string, { label: string; tone: StatusTone }> = {
+  PENDING: { label: "Aguardando", tone: "pending" },
+  PAYMENT_CONFIRMED: { label: "Confirmado", tone: "active" },
+  PREPARING: { label: "Preparando", tone: "progress" },
+  SHIPPED: { label: "Enviado", tone: "shipped" },
+  DELIVERED: { label: "Entregue", tone: "done" },
+  CANCELLED: { label: "Cancelado", tone: "danger" },
 };
 
 const VALID_STATUSES: OrderStatus[] = [
@@ -62,61 +63,72 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
     include: { items: true },
   });
 
+  const description = statusFilter
+    ? `${orders.length} ${orders.length === 1 ? "pedido" : "pedidos"} com status ${STATUS_INFO[statusFilter]?.label}`
+    : `${orders.length} ${orders.length === 1 ? "pedido" : "pedidos"} no histórico`;
+
   return (
     <div>
-      <header className="mb-8">
-        <p className="text-[11px] font-medium tracking-[0.32em] uppercase text-brand-wine mb-2">
-          Operação
-        </p>
-        <h1 className="font-playfair italic text-3xl sm:text-4xl text-ink-strong">
-          Pedidos
-        </h1>
-        <p className="text-sm text-ink-soft mt-1">
-          {orders.length} {orders.length === 1 ? "pedido" : "pedidos"}
-          {statusFilter && ` com status ${STATUS_LABELS[statusFilter]?.label}`}
-        </p>
-      </header>
-
-      {/* Filtros */}
-      <OrderStatusFilter
-        activeStatus={statusFilter}
-        statuses={VALID_STATUSES.map((value) => ({
-          value,
-          label: STATUS_LABELS[value]?.label ?? value,
-        }))}
+      <PageHeader
+        eyebrow="Operação"
+        title="Pedidos"
+        description={description}
       />
 
+      <div className="mb-8">
+        <OrderStatusFilter
+          activeStatus={statusFilter}
+          statuses={VALID_STATUSES.map((value) => ({
+            value,
+            label: STATUS_INFO[value]?.label ?? value,
+          }))}
+        />
+      </div>
+
       {orders.length === 0 ? (
-        <div className="bg-surface-panel rounded-token-md p-12 text-center">
-          <p className="text-sm text-ink-soft italic">
-            Nenhum pedido nesse filtro.
-          </p>
-        </div>
+        <EmptyState
+          icon={<ShoppingBag strokeWidth={1.2} />}
+          title={statusFilter ? "Nenhum pedido nesse filtro" : "Nenhum pedido por aqui"}
+          description={
+            statusFilter
+              ? "Tente outro status ou volte para a lista completa."
+              : "Quando os pedidos começarem a chegar, eles aparecem aqui."
+          }
+          action={
+            statusFilter && (
+              <Link
+                href="/admin/pedidos"
+                className="inline-flex items-center gap-2 text-[11px] tracking-[0.18em] uppercase text-brand-wine hover:underline"
+              >
+                Ver todos
+              </Link>
+            )
+          }
+        />
       ) : (
         <>
           {/* Mobile: cards (< md) */}
           <ul className="md:hidden flex flex-col gap-3">
             {orders.map((o) => {
-              const status = STATUS_LABELS[o.status] ?? STATUS_LABELS.PENDING;
+              const info = STATUS_INFO[o.status] ?? STATUS_INFO.PENDING;
               const totalItems = o.items.reduce(
                 (acc, i) => acc + i.quantity,
                 0,
               );
               return (
-                <li key={o.id} className="bg-surface-panel rounded-token-md p-4">
+                <li
+                  key={o.id}
+                  className="bg-admin-panel border border-admin rounded-token-md shadow-petal-1"
+                >
                   <Link
                     href={`/admin/pedidos/${o.id}`}
-                    className="flex flex-col gap-2"
+                    className="flex flex-col gap-2 p-4 focus-ring rounded-token-md"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <span className="text-xs font-medium tracking-[0.18em] uppercase text-brand-wine">
+                      <span className="text-[11px] font-medium tracking-[0.22em] uppercase text-brand-wine">
                         #{o.id.slice(0, 8).toUpperCase()}
                       </span>
-                      <Badge
-                        className={`text-[10px] uppercase tracking-[0.14em] ${status.color}`}
-                      >
-                        {status.label}
-                      </Badge>
+                      <StatusPill tone={info.tone}>{info.label}</StatusPill>
                     </div>
 
                     <div className="min-w-0">
@@ -128,15 +140,15 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
                       </p>
                     </div>
 
-                    <div className="flex items-end justify-between gap-2 pt-1 border-t border-border-subtle/60 mt-1">
-                      <span className="text-[11px] text-ink-soft">
+                    <div className="flex items-end justify-between gap-2 pt-2 border-t border-admin-soft mt-1">
+                      <span className="text-[11px] text-ink-muted">
                         {formatDate(o.createdAt)}
                       </span>
                       <div className="text-right">
-                        <span className="text-[11px] text-ink-soft tabular-nums mr-2">
+                        <span className="text-[11px] text-ink-muted font-data mr-2">
                           {totalItems} {totalItems === 1 ? "item" : "itens"}
                         </span>
-                        <span className="text-sm font-medium text-brand-wine tabular-nums">
+                        <span className="font-data text-sm font-medium text-brand-wine">
                           {formatPrice(Number(o.total))}
                         </span>
                       </div>
@@ -148,81 +160,59 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
           </ul>
 
           {/* Desktop/tablet: tabela (md+) */}
-          <div className="hidden md:block bg-surface-panel rounded-token-md overflow-hidden">
-            <Table>
-              <TableHeader className="bg-surface-section">
-                <TableRow className="hover:bg-transparent border-b border-border-subtle">
-                  <TableHead className="py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                    Pedido
-                  </TableHead>
-                  <TableHead className="py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                    Cliente
-                  </TableHead>
-                  <TableHead className="py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                    Data
-                  </TableHead>
-                  <TableHead className="py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                    Status
-                  </TableHead>
-                  <TableHead className="py-3 px-5 text-right text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                    Itens
-                  </TableHead>
-                  <TableHead className="py-3 px-5 text-right text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                    Total
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {orders.map((o) => {
-                  const status =
-                    STATUS_LABELS[o.status] ?? STATUS_LABELS.PENDING;
-                  const totalItems = o.items.reduce(
-                    (acc, i) => acc + i.quantity,
-                    0,
-                  );
-                  return (
-                    <TableRow
-                      key={o.id}
-                      className="border-b border-border-subtle hover:bg-surface-section/50"
-                    >
-                      <TableCell className="py-4 px-5">
-                        <Link
-                          href={`/admin/pedidos/${o.id}`}
-                          className="text-xs font-medium tracking-[0.18em] uppercase text-brand-wine hover:underline"
-                        >
-                          #{o.id.slice(0, 8).toUpperCase()}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="py-4 px-5">
-                        <p className="text-sm text-ink-strong">
-                          {o.customerName}
-                        </p>
-                        <p className="text-xs text-ink-muted">
-                          {o.customerEmail}
-                        </p>
-                      </TableCell>
-                      <TableCell className="py-4 px-5 text-xs text-ink-soft">
-                        {formatDate(o.createdAt)}
-                      </TableCell>
-                      <TableCell className="py-4 px-5">
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-[0.14em] ${status.color}`}
-                        >
-                          {status.label}
-                        </span>
-                      </TableCell>
-                      <TableCell className="py-4 px-5 text-right text-sm text-ink-soft tabular-nums">
-                        {totalItems}
-                      </TableCell>
-                      <TableCell className="py-4 px-5 text-right text-sm font-medium text-brand-wine">
-                        {formatPrice(Number(o.total))}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
+          <DataTable>
+            <DataTableHeader
+              columns={[
+                { key: "pedido", label: "Pedido" },
+                { key: "cliente", label: "Cliente" },
+                { key: "data", label: "Data" },
+                { key: "status", label: "Status" },
+                { key: "itens", label: "Itens", align: "right" },
+                { key: "total", label: "Total", align: "right" },
+              ]}
+            />
+            <TableBody>
+              {orders.map((o) => {
+                const info = STATUS_INFO[o.status] ?? STATUS_INFO.PENDING;
+                const totalItems = o.items.reduce(
+                  (acc, i) => acc + i.quantity,
+                  0,
+                );
+                return (
+                  <DataTableRow key={o.id}>
+                    <TableCell className="py-4 px-5">
+                      <Link
+                        href={`/admin/pedidos/${o.id}`}
+                        className="text-[11px] font-medium tracking-[0.22em] uppercase text-brand-wine hover:underline focus-ring rounded-sm"
+                      >
+                        #{o.id.slice(0, 8).toUpperCase()}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="py-4 px-5">
+                      <p className="text-sm text-ink-strong">
+                        {o.customerName}
+                      </p>
+                      <p className="text-xs text-ink-muted">
+                        {o.customerEmail}
+                      </p>
+                    </TableCell>
+                    <TableCell className="py-4 px-5 text-xs text-ink-muted font-data">
+                      {formatDate(o.createdAt)}
+                    </TableCell>
+                    <TableCell className="py-4 px-5">
+                      <StatusPill tone={info.tone}>{info.label}</StatusPill>
+                    </TableCell>
+                    <TableCell className="py-4 px-5 text-right font-data text-sm text-ink-soft">
+                      {totalItems}
+                    </TableCell>
+                    <TableCell className="py-4 px-5 text-right font-data text-sm font-medium text-brand-wine">
+                      {formatPrice(Number(o.total))}
+                    </TableCell>
+                  </DataTableRow>
+                );
+              })}
+            </TableBody>
+          </DataTable>
         </>
       )}
     </div>

@@ -7,12 +7,13 @@
 
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { Inbox, MailWarning, MailCheck, CalendarClock } from "lucide-react";
-import { AnimatedNumber } from "@/components/ui/animated-number";
+import { cn } from "@/api/utils";
 import {
   MessagesClient,
   type MessageDTO,
 } from "@/components/admin/messages-client";
+import { PageHeader } from "@/components/admin/page-header";
+import { MetricCard } from "@/components/admin/metric-card";
 
 type Filter = "todas" | "nao" | "sim";
 
@@ -55,69 +56,71 @@ export default async function AdminMessagesPage({ searchParams }: PageProps) {
 
   const filters: { key: Filter; label: string; count: number; href: string }[] = [
     { key: "todas", label: "Todas", count: total, href: "/admin/mensagens" },
-    { key: "nao", label: "Não respondidas", count: unreplied, href: "/admin/mensagens?status=nao" },
-    { key: "sim", label: "Respondidas", count: replied, href: "/admin/mensagens?status=sim" },
+    {
+      key: "nao",
+      label: "Não respondidas",
+      count: unreplied,
+      href: "/admin/mensagens?status=nao",
+    },
+    {
+      key: "sim",
+      label: "Respondidas",
+      count: replied,
+      href: "/admin/mensagens?status=sim",
+    },
   ];
 
   return (
     <div>
-      <header className="mb-8">
-        <p className="text-[11px] font-medium tracking-[0.32em] uppercase text-brand-wine mb-2">
-          Atendimento
-        </p>
-        <h1 className="font-playfair italic text-3xl sm:text-4xl text-ink-strong">
-          Mensagens
-        </h1>
-        <p className="text-sm text-ink-soft mt-1">
-          {total} {total === 1 ? "mensagem recebida" : "mensagens recebidas"}
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="Atendimento"
+        title="Mensagens"
+        description={`${total} ${total === 1 ? "mensagem recebida" : "mensagens recebidas"}`}
+      />
 
-      {/* Cards de resumo */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard icon={Inbox} label="Total" accent="bg-blue-50 text-blue-700">
-          {total}
-        </StatCard>
-        <StatCard
-          icon={MailWarning}
+        <MetricCard label="Total" value={total} />
+        <MetricCard
           label="Não respondidas"
-          accent="bg-amber-50 text-amber-700"
-        >
-          {unreplied}
-        </StatCard>
-        <StatCard
-          icon={MailCheck}
-          label="Respondidas"
-          accent="bg-emerald-50 text-emerald-700"
-        >
-          {replied}
-        </StatCard>
-        <StatCard
-          icon={CalendarClock}
+          value={unreplied}
+          hint={unreplied > 0 ? "Responder hoje" : "Em dia"}
+        />
+        <MetricCard label="Respondidas" value={replied} />
+        <MetricCard
           label="Últimos 7 dias"
-          accent="bg-purple-50 text-purple-700"
-        >
-          {last7}
-        </StatCard>
+          value={last7}
+          hint={last7 > 0 ? "Ritmo de contato" : "Sem volume recente"}
+        />
       </div>
 
-      {/* Filtro */}
-      <div className="flex flex-wrap gap-2 mb-5">
+      {/* Filtro de status */}
+      <div
+        role="tablist"
+        aria-label="Filtrar mensagens"
+        className="flex flex-wrap gap-2 mb-6"
+      >
         {filters.map((f) => {
           const active = f.key === filter;
           return (
             <Link
               key={f.key}
               href={f.href}
-              className={`px-4 py-2 rounded-full text-[11px] tracking-[0.16em] uppercase transition-colors ${
+              role="tab"
+              aria-selected={active}
+              className={cn(
+                "rounded-full px-4 py-2 text-[11px] font-medium tracking-[0.18em] uppercase",
+                "transition-all duration-200 focus-ring",
                 active
-                  ? "bg-brand-wine text-brand-pink"
-                  : "bg-surface-panel text-ink-soft hover:bg-surface-section"
-              }`}
+                  ? "bg-brand-wine text-brand-pink border border-brand-wine shadow-[0_4px_12px_-4px_rgba(46,11,18,0.35)]"
+                  : "bg-admin-panel border border-admin text-ink-soft hover:border-brand-wine/40 hover:text-ink-strong",
+              )}
             >
               {f.label}
               <span
-                className={`ml-2 tabular-nums ${active ? "text-brand-pink/70" : "text-ink-muted"}`}
+                className={cn(
+                  "ml-2 font-data",
+                  active ? "text-brand-pink/75" : "text-ink-muted",
+                )}
               >
                 {f.count}
               </span>
@@ -127,33 +130,6 @@ export default async function AdminMessagesPage({ searchParams }: PageProps) {
       </div>
 
       <MessagesClient messages={visible} />
-    </div>
-  );
-}
-
-interface StatCardProps {
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
-  label: string;
-  accent: string;
-  children: number;
-}
-
-function StatCard({ icon: Icon, label, accent, children }: StatCardProps) {
-  return (
-    <div className="bg-surface-panel rounded-token-md p-5">
-      <div
-        className={`w-10 h-10 rounded-full flex items-center justify-center mb-3 ${accent}`}
-      >
-        <Icon className="h-4 w-4" strokeWidth={1.5} />
-      </div>
-      <p className="text-[10px] font-medium tracking-[0.24em] uppercase text-ink-muted mb-1">
-        {label}
-      </p>
-      <AnimatedNumber
-        value={children}
-        immediate
-        className="font-playfair italic text-3xl text-ink-strong tabular-nums block"
-      />
     </div>
   );
 }

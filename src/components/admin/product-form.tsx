@@ -235,11 +235,8 @@ export function ProductForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-3xl">
       {/* INFORMAÇÕES BÁSICAS */}
-      <section className="bg-surface-panel rounded-token-md p-4 sm:p-6 md:p-8">
-        <h2 className="font-playfair italic text-xl text-ink-strong mb-2">
-          Informações básicas
-        </h2>
-        <div className="h-px w-12 bg-brand-wine/60 mb-6" />
+      <section className="bg-admin-panel border border-admin rounded-token-md p-4 sm:p-6 md:p-8 shadow-petal-1">
+        <SectionHeader eyebrow="Identidade" title="Informações básicas" />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField
@@ -284,18 +281,15 @@ export function ProductForm({
               defaultValue={defaultValues?.description}
               placeholder="História do produto, notas olfativas, ocasiões de uso..."
               required
-              className="bg-surface-base border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0 resize-none"
+              className="bg-admin-canvas border-admin rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0 resize-none"
             />
           </div>
         </div>
       </section>
 
       {/* PREÇOS & ESTOQUE */}
-      <section className="bg-surface-panel rounded-token-md p-4 sm:p-6 md:p-8">
-        <h2 className="font-playfair italic text-xl text-ink-strong mb-2">
-          Preço e estoque
-        </h2>
-        <div className="h-px w-12 bg-brand-wine/60 mb-6" />
+      <section className="bg-admin-panel border border-admin rounded-token-md p-4 sm:p-6 md:p-8 shadow-petal-1">
+        <SectionHeader eyebrow="Comercial" title="Preço e estoque" />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -313,7 +307,7 @@ export function ProductForm({
               required
               value={price}
               onValueChange={setPrice}
-              className="h-11 bg-surface-base border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0"
+              className="h-11 bg-admin-canvas border-admin rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0"
             />
             <p className="mt-1 text-xs text-ink-muted">
               Preço base sem desconto. Em PROMOTION, é usado como
@@ -335,7 +329,7 @@ export function ProductForm({
               min={0}
               defaultValue={defaultValues?.stock?.toString() ?? "0"}
               required
-              className="h-11 bg-surface-base border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0"
+              className="h-11 bg-admin-canvas border-admin rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0"
             />
           </div>
 
@@ -349,11 +343,8 @@ export function ProductForm({
       </section>
 
       {/* ESTADO DO PRODUTO */}
-      <section className="bg-surface-panel rounded-token-md p-4 sm:p-6 md:p-8">
-        <h2 className="font-playfair italic text-xl text-ink-strong mb-2">
-          Estado do produto
-        </h2>
-        <div className="h-px w-12 bg-brand-wine/60 mb-6" />
+      <section className="bg-admin-panel border border-admin rounded-token-md p-4 sm:p-6 md:p-8 shadow-petal-1">
+        <SectionHeader eyebrow="Disponibilidade" title="Estado do produto" />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -365,7 +356,7 @@ export function ProductForm({
               value={status}
               onValueChange={(v) => setStatus(v as ProductStatus)}
             >
-              <SelectTrigger className="data-[size=default]:h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
+              <SelectTrigger className="data-[size=default]:h-11 w-full bg-admin-canvas border-admin rounded-token-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -427,7 +418,7 @@ export function ProductForm({
                     type="button"
                     variant="outline"
                     className={cn(
-                      "h-11 w-full sm:w-auto sm:min-w-[260px] justify-start text-left font-normal text-sm rounded-token-sm border-border-subtle bg-surface-base hover:bg-surface-section",
+                      "h-11 w-full sm:w-auto sm:min-w-[260px] justify-start text-left font-normal text-sm rounded-token-sm border-admin bg-admin-canvas hover:bg-admin-row",
                       !markedAsNewUntil && "text-ink-muted",
                     )}
                   >
@@ -477,10 +468,10 @@ export function ProductForm({
 
         {/* BLOCO PROMOÇÃO */}
         {showPromoFields && (
-          <div className="mt-6 pt-6 border-t border-border-subtle space-y-4">
-            <h3 className="text-sm font-medium tracking-wide uppercase text-brand-wine">
+          <div className="mt-6 pt-6 border-t border-admin space-y-4">
+            <p className="admin-eyebrow text-brand-wine">
               Configurar promoção
-            </h3>
+            </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
@@ -502,7 +493,7 @@ export function ProductForm({
                     setOriginalPriceField(price);
                   }}
                   required={showPromoFields}
-                  className="h-11 bg-surface-base border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0"
+                  className="h-11 bg-admin-canvas border-admin rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0"
                 />
                 {discountPct != null && (
                   <p className="mt-1 text-xs text-emerald-700 font-medium">
@@ -558,11 +549,8 @@ export function ProductForm({
       </section>
 
       {/* CATEGORIZAÇÃO */}
-      <section className="bg-surface-panel rounded-token-md p-4 sm:p-6 md:p-8">
-        <h2 className="font-playfair italic text-xl text-ink-strong mb-2">
-          Categorização
-        </h2>
-        <div className="h-px w-12 bg-brand-wine/60 mb-6" />
+      <section className="bg-admin-panel border border-admin rounded-token-md p-4 sm:p-6 md:p-8 shadow-petal-1">
+        <SectionHeader eyebrow="Taxonomia" title="Categorização" />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -571,7 +559,7 @@ export function ProductForm({
             </Label>
             <input type="hidden" name="collection" value={collection} />
             <Select value={collection} onValueChange={setCollection}>
-              <SelectTrigger className="data-[size=default]:h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
+              <SelectTrigger className="data-[size=default]:h-11 w-full bg-admin-canvas border-admin rounded-token-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -588,7 +576,7 @@ export function ProductForm({
             </Label>
             <input type="hidden" name="category" value={category} />
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="data-[size=default]:h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
+              <SelectTrigger className="data-[size=default]:h-11 w-full bg-admin-canvas border-admin rounded-token-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -606,7 +594,7 @@ export function ProductForm({
             </Label>
             <input type="hidden" name="gender" value={gender} />
             <Select value={gender} onValueChange={setGender}>
-              <SelectTrigger className="data-[size=default]:h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
+              <SelectTrigger className="data-[size=default]:h-11 w-full bg-admin-canvas border-admin rounded-token-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -631,7 +619,7 @@ export function ProductForm({
             </Label>
             <input type="hidden" name="badgeVariant" value={badgeVariant} />
             <Select value={badgeVariant} onValueChange={setBadgeVariant}>
-              <SelectTrigger className="data-[size=default]:h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
+              <SelectTrigger className="data-[size=default]:h-11 w-full bg-admin-canvas border-admin rounded-token-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -646,11 +634,8 @@ export function ProductForm({
       </section>
 
       {/* MÍDIA */}
-      <section className="bg-surface-panel rounded-token-md p-4 sm:p-6 md:p-8">
-        <h2 className="font-playfair italic text-xl text-ink-strong mb-2">
-          Imagens
-        </h2>
-        <div className="h-px w-12 bg-brand-wine/60 mb-6" />
+      <section className="bg-admin-panel border border-admin rounded-token-md p-4 sm:p-6 md:p-8 shadow-petal-1">
+        <SectionHeader eyebrow="Mídia" title="Imagens" />
 
         <CloudinaryUpload
           value={images}
@@ -661,11 +646,8 @@ export function ProductForm({
       </section>
 
       {/* CARACTERÍSTICAS */}
-      <section className="bg-surface-panel rounded-token-md p-4 sm:p-6 md:p-8">
-        <h2 className="font-playfair italic text-xl text-ink-strong mb-2">
-          Características
-        </h2>
-        <div className="h-px w-12 bg-brand-wine/60 mb-6" />
+      <section className="bg-admin-panel border border-admin rounded-token-md p-4 sm:p-6 md:p-8 shadow-petal-1">
+        <SectionHeader eyebrow="Detalhes" title="Características" />
 
         <Label
           htmlFor="features"
@@ -679,7 +661,7 @@ export function ProductForm({
           rows={4}
           defaultValue={defaultValues?.features.join("\n") ?? ""}
           placeholder="Longa duração (8h)&#10;Família olfativa: Oriental&#10;Notas: bergamota, jasmim, baunilha"
-          className="bg-surface-base border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0 resize-none"
+          className="bg-admin-canvas border-admin rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0 resize-none"
         />
       </section>
 
@@ -700,7 +682,7 @@ export function ProductForm({
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle className="font-playfair italic text-2xl text-ink-strong">
+                <AlertDialogTitle className="font-serif text-2xl text-ink-strong">
                   Deletar produto?
                 </AlertDialogTitle>
                 <AlertDialogDescription>
@@ -725,7 +707,7 @@ export function ProductForm({
         <Button
           type="submit"
           disabled={isPending || isDeleting}
-          className="loreal-btn-pill h-12 px-8 bg-brand-wine text-brand-pink text-[12px] font-medium tracking-[0.18em] uppercase hover:bg-brand-wine/90 ml-auto"
+          className="loreal-btn-pill h-12 px-8 btn-wine text-[12px] font-medium tracking-[0.18em] uppercase ml-auto"
         >
           {isPending ? (
             <>
@@ -797,7 +779,7 @@ function DateTimePicker({
             type="button"
             variant="outline"
             className={cn(
-              "h-11 flex-1 justify-start text-left font-normal text-sm rounded-token-sm border-border-subtle bg-surface-base hover:bg-surface-section",
+              "h-11 flex-1 justify-start text-left font-normal text-sm rounded-token-sm border-admin bg-admin-canvas hover:bg-admin-row",
               !value && "text-ink-muted",
             )}
           >
@@ -816,7 +798,7 @@ function DateTimePicker({
             autoFocus
             captionLayout="dropdown"
           />
-          <div className="border-t border-border-subtle p-3">
+          <div className="border-t border-admin p-3">
             <Label className="text-[10px] tracking-[0.18em] uppercase text-ink-soft mb-1.5 block">
               Hora
             </Label>
@@ -824,7 +806,7 @@ function DateTimePicker({
               type="time"
               value={timeValue}
               onChange={handleTimeChange}
-              className="h-9 bg-surface-base border-border-subtle"
+              className="h-9 bg-admin-canvas border-admin"
             />
           </div>
         </PopoverContent>
@@ -842,6 +824,22 @@ function DateTimePicker({
           <X className="h-4 w-4" />
         </Button>
       )}
+    </div>
+  );
+}
+
+interface SectionHeaderProps {
+  eyebrow: string;
+  title: string;
+}
+
+function SectionHeader({ eyebrow, title }: SectionHeaderProps) {
+  return (
+    <div className="mb-6">
+      <p className="admin-eyebrow mb-2">{eyebrow}</p>
+      <h2 className="font-serif text-xl text-ink-strong leading-tight">
+        {title}
+      </h2>
     </div>
   );
 }
@@ -870,7 +868,7 @@ function FormField({
       <Input
         id={props.name}
         {...props}
-        className="h-11 bg-surface-base border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0"
+        className="h-11 bg-admin-canvas border-admin rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0"
       />
       {hint && <p className="mt-1 text-xs text-ink-muted">{hint}</p>}
     </div>

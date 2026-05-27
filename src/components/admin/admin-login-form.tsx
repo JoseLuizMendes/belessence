@@ -14,6 +14,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { Spinner } from "@/components/ui/spinner";
 
 interface Props {
   /** Server action de login (recebe a FormData do formulário). */
@@ -28,9 +29,16 @@ function SubmitButton() {
     <Button
       type="submit"
       disabled={pending}
-      className="loreal-btn-pill w-full h-12 bg-brand-wine text-brand-pink text-[12px] font-medium tracking-[0.18em] uppercase hover:bg-brand-wine/90 disabled:opacity-60"
+      className="loreal-btn-pill w-full h-12 btn-wine text-[12px] font-medium tracking-[0.18em] uppercase disabled:opacity-60"
     >
-      {pending ? "Entrando…" : "Entrar"}
+      {pending ? (
+        <>
+          <Spinner className="mr-2" />
+          Entrando
+        </>
+      ) : (
+        "Entrar"
+      )}
     </Button>
   );
 }
@@ -54,7 +62,7 @@ export function AdminLoginForm({ action, redirectTo, totpOn }: Props) {
           required
           autoFocus
           autoComplete="current-password"
-          className="h-12 w-full px-4 text-sm bg-surface-base border border-border-subtle rounded-token-sm outline-none transition-colors focus:border-brand-wine"
+          className="h-12 w-full px-4 text-sm bg-admin-canvas border border-admin rounded-token-sm outline-none transition-colors focus:border-brand-wine"
         />
       </div>
 
@@ -80,14 +88,14 @@ export function AdminLoginForm({ action, redirectTo, totpOn }: Props) {
                 <InputOTPSlot
                   key={i}
                   index={i}
-                  className="h-12 w-11 rounded-token-sm border-border-subtle bg-surface-base text-base data-[active=true]:border-brand-wine data-[active=true]:ring-brand-wine/30"
+                  className="h-12 w-11 rounded-token-sm border-admin bg-admin-canvas text-base data-[active=true]:border-brand-wine data-[active=true]:ring-brand-wine/30"
                 />
               ))}
             </InputOTPGroup>
           </InputOTP>
-          <p className="mt-2 text-[11px] leading-relaxed text-ink-muted">
-            Abra seu app autenticador (Authy) e digite
-            o código de 6 dígitos. Ele muda a cada 30 segundos.
+          <p className="mt-2.5 text-[11px] leading-relaxed text-ink-muted text-center">
+            Abra seu app autenticador (Authy) e digite o código de 6 dígitos.
+            Ele muda a cada 30 segundos.
           </p>
         </div>
       )}

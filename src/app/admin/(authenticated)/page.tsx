@@ -1,29 +1,27 @@
 /**
  * /admin — Dashboard
  * ─────────────────────────────────────────────────────────────────────
- * Métricas: pedidos do dia/mês, receita, produtos em estoque baixo,
- * últimos 10 pedidos.
+ * Cards de métrica (KPIs) + receita destacada (committed panel) +
+ * pedidos recentes + estoque baixo. Tudo em RSC com leitura do Prisma.
  */
 
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { formatPrice } from "@/api/utils";
-import {
-  AlertTriangle,
-  ArrowRight,
-  ArrowUpRight,
-  ArrowDownRight,
-} from "lucide-react";
-import { AnimatedNumber } from "@/components/ui/animated-number";
+import { AlertTriangle, ArrowRight } from "lucide-react";
 import { AnimatedPrice } from "@/components/ui/animated-price";
+import { PageHeader } from "@/components/admin/page-header";
+import { MetricCard } from "@/components/admin/metric-card";
+import { CommittedPanel } from "@/components/admin/committed-panel";
+import { StatusPill, type StatusTone } from "@/components/admin/status-pill";
 
-const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  PENDING: { label: "Aguardando", color: "bg-yellow-100 text-yellow-800" },
-  PAYMENT_CONFIRMED: { label: "Confirmado", color: "bg-emerald-100 text-emerald-800" },
-  PREPARING: { label: "Preparando", color: "bg-blue-100 text-blue-800" },
-  SHIPPED: { label: "Enviado", color: "bg-indigo-100 text-indigo-800" },
-  DELIVERED: { label: "Entregue", color: "bg-green-100 text-green-800" },
-  CANCELLED: { label: "Cancelado", color: "bg-red-100 text-red-800" },
+const STATUS_MAP: Record<string, { label: string; tone: StatusTone }> = {
+  PENDING: { label: "Aguardando", tone: "pending" },
+  PAYMENT_CONFIRMED: { label: "Confirmado", tone: "active" },
+  PREPARING: { label: "Preparando", tone: "progress" },
+  SHIPPED: { label: "Enviado", tone: "shipped" },
+  DELIVERED: { label: "Entregue", tone: "done" },
+  CANCELLED: { label: "Cancelado", tone: "danger" },
 };
 
 export default async function AdminDashboard() {
@@ -88,90 +86,86 @@ export default async function AdminDashboard() {
 
   return (
     <div>
-      <header className="mb-8">
-        <p className="text-[11px] font-medium tracking-[0.32em] uppercase text-brand-wine mb-2">
-          Painel
-        </p>
-        <h1 className="font-playfair text-3xl sm:text-4xl text-ink-strong">
-          Dashboard
-        </h1>
-      </header>
+      <PageHeader
+        eyebrow="Painel"
+        title="Dashboard"
+        description="Visão consolidada da loja, atualizada a cada requisição."
+      />
 
-      {/* Cards de métricas — flat + hairline (Vercel), delta real (Stripe) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-        <Card
+      {/* KPIs */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <MetricCard
           label="Pedidos hoje"
           value={ordersToday}
           delta={{ pct: ordersTodayDelta, period: "vs ontem" }}
         />
-        <Card
+        <MetricCard
           label="Pedidos do mês"
           value={ordersMonth}
           delta={{ pct: ordersMonthDelta, period: "vs mês passado" }}
         />
-        <Card label="Produtos cadastrados" value={totalProducts} />
-        <Card label="Mensagens novas" value={pendingMessages} />
+        <MetricCard label="Produtos cadastrados" value={totalProducts} />
+        <MetricCard
+          label="Mensagens novas"
+          value={pendingMessages}
+          hint={pendingMessages > 0 ? "Responder a clientes" : "Tudo em dia"}
+        />
       </div>
 
-      {/* Receita destacada */}
-      <div className="mb-10 bg-brand-wine text-brand-pink rounded-token-md p-6 sm:p-8">
-        <p className="text-[10px] font-medium tracking-[0.32em] uppercase text-brand-pink/70 mb-2">
-          Receita total confirmada
-        </p>
+      {/* Receita — committed moment da página */}
+      <CommittedPanel
+        eyebrow="Receita total confirmada"
+        footnote="Considera pedidos confirmados, em preparação, enviados ou entregues."
+        className="mb-10"
+      >
         <AnimatedPrice
           value={revenue}
           immediate
           className="font-data text-4xl sm:text-5xl block"
         />
-        <p className="text-xs text-brand-pink/60 mt-2">
-          Considera pedidos com status confirmado, em preparação, enviados ou entregues
-        </p>
-      </div>
+      </CommittedPanel>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Pedidos recentes */}
-        <section className="lg:col-span-2 bg-surface-panel rounded-token-md p-6">
+        <section className="lg:col-span-2 bg-admin-panel border border-admin rounded-token-md p-6 shadow-petal-1">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="font-playfair text-xl text-ink-strong">
+            <h2 className="font-serif text-xl text-ink-strong">
               Pedidos recentes
             </h2>
             <Link
               href="/admin/pedidos"
-              className="text-[11px] tracking-[0.18em] uppercase text-brand-wine hover:underline"
+              className="inline-flex items-center gap-1.5 text-[11px] tracking-[0.18em] uppercase text-brand-wine hover:gap-2 transition-all focus-ring rounded-sm"
             >
               Ver todos
+              <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
 
           {recentOrders.length === 0 ? (
-            <p className="text-sm text-ink-muted italic text-center py-8">
+            <p className="text-sm text-ink-muted italic text-center py-10">
               Ainda não há pedidos.
             </p>
           ) : (
-            <ul className="space-y-3">
+            <ul className="-mx-3 [&>li+li]:border-t [&>li+li]:border-admin-soft">
               {recentOrders.map((order) => {
                 const status =
-                  STATUS_LABELS[order.status] ?? STATUS_LABELS.PENDING;
+                  STATUS_MAP[order.status] ?? STATUS_MAP.PENDING;
                 return (
                   <li key={order.id}>
                     <Link
                       href={`/admin/pedidos/${order.id}`}
-                      className="flex items-center justify-between gap-4 p-3 -mx-3 rounded-token-sm hover:bg-surface-section transition-colors"
+                      className="flex items-center justify-between gap-4 px-3 py-3 rounded-token-sm hover:bg-admin-row transition-colors focus-ring"
                     >
-                      <div className="min-w-0">
-                        <p className="text-xs font-medium tracking-[0.18em] uppercase text-ink-strong">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[11px] font-medium tracking-[0.18em] uppercase text-ink-strong">
                           #{order.id.slice(0, 8).toUpperCase()}
                         </p>
-                        <p className="text-xs text-ink-muted truncate">
+                        <p className="text-xs text-ink-muted truncate mt-0.5">
                           {order.customerName} · {order.customerEmail}
                         </p>
                       </div>
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-[0.14em] flex-shrink-0 ${status.color}`}
-                      >
-                        {status.label}
-                      </span>
-                      <span className="text-sm font-medium text-brand-wine flex-shrink-0 w-24 text-right">
+                      <StatusPill tone={status.tone}>{status.label}</StatusPill>
+                      <span className="font-data text-sm text-brand-wine flex-shrink-0 w-24 text-right">
                         {formatPrice(Number(order.total))}
                       </span>
                     </Link>
@@ -183,31 +177,34 @@ export default async function AdminDashboard() {
         </section>
 
         {/* Estoque baixo */}
-        <section className="bg-surface-panel rounded-token-md p-6">
+        <section className="bg-admin-panel border border-admin rounded-token-md p-6 shadow-petal-1">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="font-playfair text-xl text-ink-strong">
+            <h2 className="font-serif text-xl text-ink-strong">
               Estoque baixo
             </h2>
-            <AlertTriangle className="h-4 w-4 text-amber-600" />
+            <AlertTriangle
+              className="h-4 w-4 text-amber-600"
+              strokeWidth={1.6}
+            />
           </div>
 
           {lowStockProducts.length === 0 ? (
-            <p className="text-sm text-ink-muted italic text-center py-8">
-              Tudo abastecido!
+            <p className="text-sm text-ink-muted italic text-center py-10">
+              Tudo abastecido.
             </p>
           ) : (
-            <ul className="space-y-3">
+            <ul className="-mx-2 [&>li+li]:border-t [&>li+li]:border-admin-soft">
               {lowStockProducts.map((p) => (
                 <li key={p.id}>
                   <Link
                     href={`/admin/produtos/${p.id}/editar`}
-                    className="flex items-center justify-between gap-3 p-2 -mx-2 rounded-token-sm hover:bg-surface-section transition-colors"
+                    className="flex items-center justify-between gap-3 px-2 py-3 rounded-token-sm hover:bg-admin-row transition-colors focus-ring"
                   >
                     <span className="text-sm text-ink-strong truncate font-medium">
                       {p.name}
                     </span>
                     <span
-                      className={`text-xs font-bold tabular-nums ${
+                      className={`font-data text-xs font-semibold ${
                         p.stock < 5
                           ? "text-destructive"
                           : p.stock < 10
@@ -225,7 +222,7 @@ export default async function AdminDashboard() {
 
           <Link
             href="/admin/produtos"
-            className="mt-4 inline-flex items-center gap-1.5 text-[11px] tracking-[0.18em] uppercase text-brand-wine hover:underline"
+            className="mt-5 inline-flex items-center gap-1.5 text-[11px] tracking-[0.18em] uppercase text-brand-wine hover:gap-2 transition-all focus-ring rounded-sm"
           >
             Gerenciar produtos
             <ArrowRight className="h-3 w-3" />
@@ -240,38 +237,4 @@ export default async function AdminDashboard() {
 function pctDelta(current: number, previous: number): number {
   if (previous === 0) return current === 0 ? 0 : 100;
   return Math.round(((current - previous) / previous) * 100);
-}
-
-interface CardProps {
-  label: string;
-  value: number;
-  delta?: { pct: number; period: string };
-}
-
-function Card({ label, value, delta }: CardProps) {
-  const up = delta ? delta.pct >= 0 : true;
-  const DeltaIcon = up ? ArrowUpRight : ArrowDownRight;
-  const deltaColor = up ? "text-positive" : "text-negative";
-
-  return (
-    <div className="bg-surface-panel border border-subtle rounded-token-sm p-5">
-      <p className="text-[10px] font-medium tracking-[0.24em] uppercase text-ink-muted mb-3">
-        {label}
-      </p>
-      <AnimatedNumber
-        value={value}
-        immediate
-        className="font-data text-3xl sm:text-4xl text-ink-strong block leading-none"
-      />
-      {delta && (
-        <p className="mt-3 flex items-center gap-1 text-xs">
-          <DeltaIcon className={`h-3.5 w-3.5 ${deltaColor}`} strokeWidth={2} />
-          <span className={`font-data ${deltaColor}`}>
-            {Math.abs(delta.pct)}%
-          </span>
-          <span className="text-ink-muted ml-1">{delta.period}</span>
-        </p>
-      )}
-    </div>
-  );
 }

@@ -10,17 +10,17 @@ import { ArrowLeft } from "lucide-react";
 import { OrderStatusForm } from "@/components/admin/order-status-form";
 import { updateOrderStatus } from "../actions";
 import { productImageSrc } from "@/lib/product-image";
+import { PageHeader } from "@/components/admin/page-header";
+import { CommittedPanel } from "@/components/admin/committed-panel";
+import { StatusPill, type StatusTone } from "@/components/admin/status-pill";
 
-const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  PENDING: { label: "Aguardando", color: "bg-yellow-100 text-yellow-800" },
-  PAYMENT_CONFIRMED: {
-    label: "Confirmado",
-    color: "bg-emerald-100 text-emerald-800",
-  },
-  PREPARING: { label: "Preparando", color: "bg-blue-100 text-blue-800" },
-  SHIPPED: { label: "Enviado", color: "bg-indigo-100 text-indigo-800" },
-  DELIVERED: { label: "Entregue", color: "bg-green-100 text-green-800" },
-  CANCELLED: { label: "Cancelado", color: "bg-red-100 text-red-800" },
+const STATUS_INFO: Record<string, { label: string; tone: StatusTone }> = {
+  PENDING: { label: "Aguardando", tone: "pending" },
+  PAYMENT_CONFIRMED: { label: "Confirmado", tone: "active" },
+  PREPARING: { label: "Preparando", tone: "progress" },
+  SHIPPED: { label: "Enviado", tone: "shipped" },
+  DELIVERED: { label: "Entregue", tone: "done" },
+  CANCELLED: { label: "Cancelado", tone: "danger" },
 };
 
 interface PageProps {
@@ -47,81 +47,39 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
 
   if (!order) notFound();
 
-  const status = STATUS_LABELS[order.status] ?? STATUS_LABELS.PENDING;
+  const info = STATUS_INFO[order.status] ?? STATUS_INFO.PENDING;
   const updateStatus = updateOrderStatus.bind(null, id);
 
   return (
     <div>
       <Link
         href="/admin/pedidos"
-        className="inline-flex items-center gap-2 text-xs tracking-[0.18em] uppercase text-ink-soft hover:text-brand-wine mb-6"
+        className="inline-flex items-center gap-2 text-[11px] tracking-[0.22em] uppercase text-ink-soft hover:text-brand-wine mb-6 focus-ring rounded-sm transition-colors"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         Voltar para pedidos
       </Link>
 
-      <header className="mb-8">
-        <p className="text-[11px] font-medium tracking-[0.32em] uppercase text-brand-wine mb-2">
-          Pedido
-        </p>
-        <div className="flex items-center gap-3 flex-wrap">
-          <h1 className="font-playfair italic text-3xl sm:text-4xl text-ink-strong">
-            #{order.id.slice(0, 8).toUpperCase()}
-          </h1>
-          <span
-            className={`px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-[0.14em] ${status.color}`}
-          >
-            {status.label}
-          </span>
-        </div>
-        <p className="text-sm text-ink-soft mt-1">
-          Criado em {formatDate(order.createdAt)}
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="Pedido"
+        title={`#${order.id.slice(0, 8).toUpperCase()}`}
+        description={`Criado em ${formatDate(order.createdAt)}`}
+        action={<StatusPill tone={info.tone}>{info.label}</StatusPill>}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8">
         {/* COLUNA PRINCIPAL */}
         <div className="space-y-6">
-          {/* CLIENTE */}
-          <section className="bg-surface-panel rounded-token-md p-6">
-            <h2 className="font-playfair italic text-xl text-ink-strong mb-2">
-              Cliente
-            </h2>
-            <div className="h-px w-12 bg-brand-wine/60 mb-4" />
-            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-              <div>
-                <dt className="text-[10px] tracking-[0.18em] uppercase text-ink-muted mb-0.5">
-                  Nome
-                </dt>
-                <dd className="text-ink-strong">{order.customerName}</dd>
-              </div>
-              <div>
-                <dt className="text-[10px] tracking-[0.18em] uppercase text-ink-muted mb-0.5">
-                  Email
-                </dt>
-                <dd className="text-ink-strong">{order.customerEmail}</dd>
-              </div>
-              <div>
-                <dt className="text-[10px] tracking-[0.18em] uppercase text-ink-muted mb-0.5">
-                  Telefone
-                </dt>
-                <dd className="text-ink-strong">{order.customerPhone}</dd>
-              </div>
-              <div>
-                <dt className="text-[10px] tracking-[0.18em] uppercase text-ink-muted mb-0.5">
-                  CPF
-                </dt>
-                <dd className="text-ink-strong">{order.customerCpf}</dd>
-              </div>
+          <DetailSection eyebrow="Contato" title="Cliente">
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
+              <Field label="Nome">{order.customerName}</Field>
+              <Field label="Email">{order.customerEmail}</Field>
+              <Field label="Telefone">{order.customerPhone}</Field>
+              <Field label="CPF">{order.customerCpf}</Field>
             </dl>
-          </section>
+          </DetailSection>
 
-          {/* ENDEREÇO */}
-          <section className="bg-surface-panel rounded-token-md p-6">
-            <h2 className="font-playfair italic text-xl text-ink-strong mb-2">
-              Endereço de entrega
-            </h2>
-            <div className="h-px w-12 bg-brand-wine/60 mb-4" />
+          <DetailSection eyebrow="Logística" title="Endereço de entrega">
             <p className="text-sm text-ink-strong leading-relaxed">
               {order.addressStreet}, {order.addressNumber}
               {order.addressComplement && ` — ${order.addressComplement}`}
@@ -132,21 +90,19 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
               <br />
               CEP {order.addressCep}
             </p>
-          </section>
+          </DetailSection>
 
-          {/* ITENS */}
-          <section className="bg-surface-panel rounded-token-md p-6">
-            <h2 className="font-playfair italic text-xl text-ink-strong mb-2">
-              Itens ({order.items.length})
-            </h2>
-            <div className="h-px w-12 bg-brand-wine/60 mb-4" />
-            <div className="space-y-3">
+          <DetailSection
+            eyebrow="Itens"
+            title={`${order.items.length} ${order.items.length === 1 ? "produto" : "produtos"}`}
+          >
+            <ul className="[&>li+li]:border-t [&>li+li]:border-admin-soft">
               {order.items.map((item) => (
-                <div
+                <li
                   key={item.id}
-                  className="flex items-center gap-4 py-3 border-b border-border-subtle last:border-b-0"
+                  className="flex items-center gap-4 py-3 first:pt-0 last:pb-0"
                 >
-                  <div className="w-14 h-14 rounded-token-sm overflow-hidden bg-surface-base flex-shrink-0">
+                  <div className="w-14 h-14 rounded-token-sm overflow-hidden bg-admin-panel-soft flex-shrink-0">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={productImageSrc(item.imageUrl)}
@@ -158,94 +114,53 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                     <p className="text-sm text-ink-strong truncate">
                       {item.productName}
                     </p>
-                    <p className="text-xs text-ink-muted">
+                    <p className="text-xs text-ink-muted font-data">
                       {item.quantity} × {formatPrice(Number(item.price))}
                     </p>
                   </div>
-                  <p className="text-sm font-medium text-brand-wine tabular-nums">
+                  <p className="font-data text-sm font-medium text-brand-wine">
                     {formatPrice(Number(item.price) * item.quantity)}
                   </p>
-                </div>
+                </li>
               ))}
-            </div>
-          </section>
+            </ul>
+          </DetailSection>
 
-          {/* PAGAMENTO */}
-          <section className="bg-surface-panel rounded-token-md p-6">
-            <h2 className="font-playfair italic text-xl text-ink-strong mb-2">
-              Pagamento
-            </h2>
-            <div className="h-px w-12 bg-brand-wine/60 mb-4" />
-            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-              <div>
-                <dt className="text-[10px] tracking-[0.18em] uppercase text-ink-muted mb-0.5">
-                  Método
-                </dt>
-                <dd className="text-ink-strong">
-                  {order.paymentMethod ?? "—"}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[10px] tracking-[0.18em] uppercase text-ink-muted mb-0.5">
-                  ID Pagamento
-                </dt>
-                <dd className="text-ink-strong font-mono text-xs">
-                  {order.mpPaymentId ?? "—"}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[10px] tracking-[0.18em] uppercase text-ink-muted mb-0.5">
-                  Status do pagamento
-                </dt>
-                <dd className="text-ink-strong">{order.mpStatus ?? "—"}</dd>
-              </div>
-              <div>
-                <dt className="text-[10px] tracking-[0.18em] uppercase text-ink-muted mb-0.5">
-                  Cupom aplicado
-                </dt>
-                <dd className="text-ink-strong">{order.couponCode ?? "—"}</dd>
-              </div>
+          <DetailSection eyebrow="Financeiro" title="Pagamento">
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
+              <Field label="Método">{order.paymentMethod ?? "—"}</Field>
+              <Field label="ID Pagamento" mono>
+                {order.mpPaymentId ?? "—"}
+              </Field>
+              <Field label="Status do pagamento">{order.mpStatus ?? "—"}</Field>
+              <Field label="Cupom aplicado">{order.couponCode ?? "—"}</Field>
             </dl>
-          </section>
+          </DetailSection>
         </div>
 
         {/* SIDEBAR */}
         <aside className="space-y-6">
-          {/* RESUMO */}
-          <div className="bg-surface-panel rounded-token-md p-6">
-            <h3 className="font-playfair italic text-lg text-ink-strong mb-4">
-              Resumo
-            </h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-ink-soft">Subtotal</span>
-                <span className="text-ink-strong tabular-nums">
-                  {formatPrice(Number(order.subtotal))}
-                </span>
-              </div>
+          {/* RESUMO — committed moment desta página */}
+          <CommittedPanel eyebrow="Resumo">
+            <dl className="space-y-2 text-sm">
+              <Row label="Subtotal" value={formatPrice(Number(order.subtotal))} />
               {Number(order.discount) > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-ink-soft">Desconto</span>
-                  <span className="text-emerald-600 tabular-nums">
-                    −{formatPrice(Number(order.discount))}
-                  </span>
-                </div>
+                <Row
+                  label="Desconto"
+                  value={`−${formatPrice(Number(order.discount))}`}
+                  tone="positive"
+                />
               )}
-              <div className="flex justify-between">
-                <span className="text-ink-soft">Frete</span>
-                <span className="text-ink-strong tabular-nums">
-                  {formatPrice(Number(order.shippingCost))}
-                </span>
-              </div>
-              <div className="h-px bg-border-subtle my-3" />
+              <Row label="Frete" value={formatPrice(Number(order.shippingCost))} />
+              <div className="h-px bg-brand-pink/20 my-3" />
               <div className="flex justify-between text-base font-medium">
-                <span className="text-ink-strong">Total</span>
-                <span className="text-brand-wine tabular-nums">
+                <span>Total</span>
+                <span className="font-data">
                   {formatPrice(Number(order.total))}
                 </span>
               </div>
-            </div>
-          </div>
+            </dl>
+          </CommittedPanel>
 
           {/* MUDAR STATUS */}
           <OrderStatusForm
@@ -255,6 +170,74 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
           />
         </aside>
       </div>
+    </div>
+  );
+}
+
+function DetailSection({
+  eyebrow,
+  title,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="bg-admin-panel border border-admin rounded-token-md p-6 shadow-petal-1">
+      <div className="mb-5">
+        <p className="admin-eyebrow mb-2">{eyebrow}</p>
+        <h2 className="font-serif text-xl text-ink-strong leading-tight">
+          {title}
+        </h2>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function Field({
+  label,
+  children,
+  mono,
+}: {
+  label: string;
+  children: React.ReactNode;
+  mono?: boolean;
+}) {
+  return (
+    <div>
+      <dt className="text-[10px] tracking-[0.22em] uppercase text-ink-muted mb-1">
+        {label}
+      </dt>
+      <dd className={mono ? "text-ink-strong font-data text-xs" : "text-ink-strong"}>
+        {children}
+      </dd>
+    </div>
+  );
+}
+
+function Row({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone?: "positive";
+}) {
+  return (
+    <div className="flex justify-between">
+      <span className="text-brand-pink/70">{label}</span>
+      <span
+        className={
+          tone === "positive"
+            ? "font-data text-emerald-200"
+            : "font-data text-brand-pink"
+        }
+      >
+        {value}
+      </span>
     </div>
   );
 }

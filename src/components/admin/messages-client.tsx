@@ -13,7 +13,6 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Mail, MailOpen, Reply, Trash2, Inbox } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -32,6 +31,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { EmptyState } from "@/components/admin/empty-state";
+import { StatusPill } from "@/components/admin/status-pill";
 import {
   setMessageReplied,
   deleteMessage,
@@ -86,7 +87,10 @@ export function MessagesClient({ messages }: { messages: MessageDTO[] }) {
     startTransition(async () => {
       const r = await setMessageReplied(m.id, replied);
       if (!r.ok) toast.error(r.error ?? "Falha ao atualizar.");
-      else toast.success(replied ? "Marcada como respondida." : "Marcada como não respondida.");
+      else
+        toast.success(
+          replied ? "Marcada como respondida." : "Marcada como não respondida.",
+        );
       setSelected((cur) => (cur && cur.id === m.id ? { ...cur, replied } : cur));
     });
   };
@@ -113,15 +117,11 @@ export function MessagesClient({ messages }: { messages: MessageDTO[] }) {
 
   if (messages.length === 0) {
     return (
-      <div className="bg-surface-panel rounded-token-md p-12 text-center">
-        <Inbox className="h-12 w-12 text-ink-muted mx-auto mb-4" strokeWidth={1.2} />
-        <p className="text-base text-ink-strong font-medium mb-1">
-          Nenhuma mensagem por aqui
-        </p>
-        <p className="text-sm text-ink-soft">
-          As mensagens enviadas pelo formulário de contato aparecem aqui.
-        </p>
-      </div>
+      <EmptyState
+        icon={<Inbox strokeWidth={1.2} />}
+        title="Nenhuma mensagem por aqui"
+        description="Mensagens enviadas pelo formulário de contato aparecem nessa lista. Tente outro filtro acima se há volumes esperados."
+      />
     );
   }
 
@@ -133,21 +133,23 @@ export function MessagesClient({ messages }: { messages: MessageDTO[] }) {
             <button
               type="button"
               onClick={() => setSelected(m)}
-              className={`w-full text-left bg-surface-panel rounded-token-md p-4 sm:p-5 flex gap-4 transition-colors hover:bg-surface-section/60 ${
-                m.replied ? "" : "ring-1 ring-brand-wine/15"
+              className={`group w-full text-left bg-admin-panel border rounded-token-md p-4 sm:p-5 flex gap-4 transition-all duration-200 shadow-petal-1 hover:shadow-petal-2 focus-ring ${
+                m.replied
+                  ? "border-admin"
+                  : "border-brand-wine/25"
               }`}
             >
               {/* Avatar */}
               <div
                 className={`relative shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
                   m.replied
-                    ? "bg-surface-section text-ink-soft"
+                    ? "bg-admin-panel-soft text-ink-soft"
                     : "bg-brand-wine/10 text-brand-wine"
                 }`}
               >
                 {m.name.trim().charAt(0).toUpperCase() || "?"}
                 {!m.replied && (
-                  <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-brand-wine ring-2 ring-surface-panel" />
+                  <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-brand-wine ring-2 ring-admin-panel" />
                 )}
               </div>
 
@@ -160,21 +162,15 @@ export function MessagesClient({ messages }: { messages: MessageDTO[] }) {
                     <p className="text-xs text-ink-muted truncate">{m.email}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <Badge
-                      className={`text-[10px] uppercase tracking-[0.14em] ${
-                        m.replied
-                          ? "bg-emerald-100 text-emerald-800"
-                          : "bg-amber-100 text-amber-800"
-                      }`}
-                    >
+                    <StatusPill tone={m.replied ? "done" : "alert"}>
                       {m.replied ? "Respondida" : "Nova"}
-                    </Badge>
-                    <span className="text-[11px] text-ink-soft whitespace-nowrap">
+                    </StatusPill>
+                    <span className="text-[11px] text-ink-muted whitespace-nowrap">
                       {relativeDate(m.createdAt)}
                     </span>
                   </div>
                 </div>
-                <p className="text-sm text-ink-strong font-medium mt-1.5 truncate">
+                <p className="text-sm text-ink-strong font-medium mt-2 truncate">
                   {m.subject}
                 </p>
                 <p className="text-xs text-ink-soft mt-0.5 line-clamp-1">
@@ -188,11 +184,12 @@ export function MessagesClient({ messages }: { messages: MessageDTO[] }) {
 
       {/* Dialog: leitura da mensagem */}
       <Dialog open={selected !== null} onOpenChange={(o) => !o && setSelected(null)}>
-        <DialogContent className="bg-surface-panel max-w-lg">
+        <DialogContent className="bg-admin-panel border-admin max-w-lg">
           {selected && (
             <>
               <DialogHeader>
-                <DialogTitle className="font-playfair italic text-2xl text-ink-strong pr-6">
+                <p className="admin-eyebrow mb-2">Mensagem</p>
+                <DialogTitle className="font-serif text-2xl text-ink-strong pr-6 leading-tight">
                   {selected.subject}
                 </DialogTitle>
                 <DialogDescription asChild>
@@ -207,7 +204,7 @@ export function MessagesClient({ messages }: { messages: MessageDTO[] }) {
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="my-2 rounded-token-sm bg-surface-base border border-border-subtle p-4 text-sm text-ink-strong whitespace-pre-wrap max-h-72 overflow-y-auto">
+              <div className="my-2 rounded-token-sm bg-admin-canvas border border-admin p-4 text-sm text-ink-strong whitespace-pre-wrap max-h-72 overflow-y-auto">
                 {selected.message}
               </div>
 
@@ -217,7 +214,7 @@ export function MessagesClient({ messages }: { messages: MessageDTO[] }) {
                     variant="outline"
                     size="sm"
                     onClick={() => toggleReplied(selected, !selected.replied)}
-                    className="rounded-full text-[10px] tracking-[0.18em] uppercase border-border-subtle text-ink-soft hover:bg-surface-section"
+                    className="rounded-full text-[10px] tracking-[0.18em] uppercase border-admin text-ink-soft hover:bg-admin-row"
                   >
                     {selected.replied ? (
                       <>
@@ -245,7 +242,7 @@ export function MessagesClient({ messages }: { messages: MessageDTO[] }) {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle className="font-playfair italic text-2xl text-ink-strong">
+                        <AlertDialogTitle className="font-serif text-2xl text-ink-strong">
                           Excluir mensagem?
                         </AlertDialogTitle>
                         <AlertDialogDescription>
@@ -269,7 +266,7 @@ export function MessagesClient({ messages }: { messages: MessageDTO[] }) {
                 <Button
                   asChild
                   onClick={() => handleReply(selected)}
-                  className="loreal-btn-pill h-10 px-5 bg-brand-wine text-brand-pink text-[11px] font-medium tracking-[0.18em] uppercase hover:bg-brand-wine/90"
+                  className="loreal-btn-pill h-10 px-5 btn-wine text-[11px] font-medium tracking-[0.18em] uppercase"
                 >
                   <a href={mailtoHref(selected)}>
                     <Reply className="h-3.5 w-3.5" />

@@ -63,8 +63,15 @@ export function OrderStatusForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-surface-panel rounded-token-md p-6 space-y-4"
+      className="bg-admin-panel border border-admin rounded-token-md p-6 space-y-5 shadow-petal-1"
     >
+      <div>
+        <p className="admin-eyebrow mb-2">Ação</p>
+        <h3 className="font-serif text-lg text-ink-strong leading-tight">
+          Atualizar pedido
+        </h3>
+      </div>
+
       <div>
         <Label
           htmlFor="status"
@@ -77,7 +84,7 @@ export function OrderStatusForm({
         <Select value={status} onValueChange={setStatus}>
           <SelectTrigger
             id="status"
-            className="data-[size=default]:h-11 w-full bg-surface-base border-border-subtle rounded-token-sm"
+            className="data-[size=default]:h-11 w-full bg-admin-canvas border-admin rounded-token-sm"
           >
             <SelectValue />
           </SelectTrigger>
@@ -106,24 +113,24 @@ export function OrderStatusForm({
           onChange={(e) => setTrackingCode(e.target.value)}
           placeholder="BR123456789XX"
           required={requiresTracking}
-          className="h-11 bg-surface-base border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0"
+          className="h-11 bg-admin-canvas border-admin rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0"
         />
-        <p className="mt-1 text-xs text-ink-muted">
+        <p className="mt-1.5 text-xs text-ink-muted">
           {requiresTracking
-            ? "Obrigatório quando o status é Enviado"
-            : "Opcional — preencha quando despachar"}
+            ? "Obrigatório quando o status é Enviado."
+            : "Opcional; preencha quando despachar."}
         </p>
       </div>
 
       <Button
         type="submit"
         disabled={isPending}
-        className="w-full h-11 bg-brand-wine text-brand-pink text-[11px] font-medium tracking-[0.18em] uppercase hover:bg-brand-wine/90"
+        className="w-full h-11 btn-wine rounded-token-sm text-[11px] font-medium tracking-[0.18em] uppercase"
       >
         {isPending ? (
           <>
             <Spinner className="mr-2" />
-            Salvando...
+            Salvando
           </>
         ) : (
           "Atualizar pedido"

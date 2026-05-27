@@ -1,8 +1,10 @@
 /**
  * /admin/produtos — Lista de produtos
  * ─────────────────────────────────────────────────────────────────────
- * Coluna "Estado" mostra o ProductStatus com cor + aviso quando há promo
- * expirada que ainda precisa de cleanup manual.
+ * Desktop: tabela densa via DataTable (shadcn Table + estética admin).
+ * Mobile:  cards verticais com a mesma informação resumida.
+ * Coluna "Estado" usa ProductStatus + aviso quando promo expirada precisa
+ * de cleanup manual.
  */
 
 import { prisma } from "@/lib/prisma";
@@ -10,15 +12,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { formatPrice } from "@/api/utils";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import { TableBody, TableCell } from "@/components/ui/table";
 import {
   Tooltip,
   TooltipContent,
@@ -33,14 +27,23 @@ import {
 } from "@/lib/product-status";
 import type { ProductStatus } from "@prisma/client";
 
-const STATUS_BADGE: Record<
+import { PageHeader } from "@/components/admin/page-header";
+import { EmptyState } from "@/components/admin/empty-state";
+import { StatusPill, type StatusTone } from "@/components/admin/status-pill";
+import {
+  DataTable,
+  DataTableHeader,
+  DataTableRow,
+} from "@/components/admin/data-table";
+
+const STATUS_INFO: Record<
   ProductStatus,
-  { label: string; classes: string }
+  { label: string; tone: StatusTone }
 > = {
-  NORMAL: { label: "Normal", classes: "bg-surface-section text-ink-soft" },
-  PROMOTION: { label: "Promoção", classes: "bg-amber-100 text-amber-800" },
-  COMING_SOON: { label: "Em breve", classes: "bg-blue-100 text-blue-800" },
-  DISCONTINUED: { label: "Descontinuado", classes: "bg-ink-soft/15 text-ink-soft" },
+  NORMAL: { label: "Normal", tone: "neutral" },
+  PROMOTION: { label: "Promoção", tone: "alert" },
+  COMING_SOON: { label: "Em breve", tone: "progress" },
+  DISCONTINUED: { label: "Descontinuado", tone: "muted" },
 };
 
 function relativeEnd(date: Date | null, now: Date): string | null {
@@ -59,54 +62,43 @@ export default async function AdminProductsPage() {
   });
 
   const now = new Date();
+  const countLabel = `${products.length} ${products.length === 1 ? "produto" : "produtos"} no catálogo`;
 
   return (
     <div>
-      <header className="flex items-end justify-between mb-8 gap-4 flex-wrap">
-        <div>
-          <p className="text-[11px] font-medium tracking-[0.32em] uppercase text-brand-wine mb-2">
-            Catálogo
-          </p>
-          <h1 className="font-playfair italic text-3xl sm:text-4xl text-ink-strong">
-            Produtos
-          </h1>
-          <p className="text-sm text-ink-soft mt-1">
-            {products.length}{" "}
-            {products.length === 1 ? "produto" : "produtos"} no catálogo
-          </p>
-        </div>
-        <Link href="/admin/produtos/novo">
-          <Button className="loreal-btn-pill h-11 px-6 bg-brand-wine text-brand-pink text-[11px] font-medium tracking-[0.18em] uppercase hover:bg-brand-wine/90">
-            <Plus className="mr-2 h-4 w-4" />
-            Novo produto
-          </Button>
-        </Link>
-      </header>
-
-      {products.length === 0 ? (
-        <div className="bg-surface-panel rounded-token-md p-12 text-center">
-          <Package
-            className="h-12 w-12 text-ink-muted mx-auto mb-4"
-            strokeWidth={1.2}
-          />
-          <p className="text-base text-ink-strong font-medium mb-2">
-            Nenhum produto cadastrado
-          </p>
-          <p className="text-sm text-ink-soft mb-6">
-            Comece criando seu primeiro produto.
-          </p>
+      <PageHeader
+        eyebrow="Catálogo"
+        title="Produtos"
+        description={countLabel}
+        action={
           <Link href="/admin/produtos/novo">
-            <Button className="loreal-btn-pill h-11 px-6 bg-brand-wine text-brand-pink text-[11px] font-medium tracking-[0.18em] uppercase">
-              Criar primeiro produto
+            <Button className="loreal-btn-pill h-11 px-6 btn-wine text-[11px] font-medium tracking-[0.18em] uppercase">
+              <Plus className="mr-2 h-4 w-4" />
+              Novo produto
             </Button>
           </Link>
-        </div>
+        }
+      />
+
+      {products.length === 0 ? (
+        <EmptyState
+          icon={<Package strokeWidth={1.2} />}
+          title="Nenhum produto cadastrado"
+          description="Comece criando seu primeiro produto. O cadastro inclui galeria, coleção, preço e status."
+          action={
+            <Link href="/admin/produtos/novo">
+              <Button className="loreal-btn-pill h-11 px-6 btn-wine text-[11px] font-medium tracking-[0.18em] uppercase">
+                Criar primeiro produto
+              </Button>
+            </Link>
+          }
+        />
       ) : (
         <>
           {/* Mobile: cards (< md) */}
           <ul className="md:hidden flex flex-col gap-3">
             {products.map((p) => {
-              const statusInfo = STATUS_BADGE[p.status];
+              const statusInfo = STATUS_INFO[p.status];
               const effectivePromo = getEffectivePromotion(
                 {
                   status: p.status,
@@ -123,9 +115,9 @@ export default async function AdminProductsPage() {
               return (
                 <li
                   key={p.id}
-                  className="bg-surface-panel rounded-token-md p-4 flex gap-3"
+                  className="bg-admin-panel border border-admin rounded-token-md p-4 flex gap-3 shadow-petal-1"
                 >
-                  <div className="relative w-16 h-16 rounded-token-sm overflow-hidden bg-surface-section flex-shrink-0">
+                  <div className="relative w-16 h-16 rounded-token-sm overflow-hidden bg-admin-panel-soft flex-shrink-0">
                     {p.images[0] && (
                       <Image
                         src={productImageSrc(p.images[0])}
@@ -152,7 +144,7 @@ export default async function AdminProductsPage() {
                             <Link
                               href={`/admin/produtos/${p.id}/editar`}
                               aria-label={`Editar ${p.name}`}
-                              className="inline-flex items-center justify-center h-8 w-8 rounded-full text-brand-wine border border-brand-wine/20 hover:bg-brand-wine hover:text-brand-pink transition-colors flex-shrink-0"
+                              className="inline-flex items-center justify-center h-8 w-8 rounded-full text-brand-wine border border-brand-wine/20 hover:bg-brand-wine hover:text-brand-pink transition-colors flex-shrink-0 focus-ring"
                             >
                               <Pencil className="h-3.5 w-3.5" />
                             </Link>
@@ -163,11 +155,9 @@ export default async function AdminProductsPage() {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-1.5">
-                      <Badge
-                        className={`text-[10px] uppercase tracking-[0.14em] ${statusInfo.classes}`}
-                      >
+                      <StatusPill tone={statusInfo.tone}>
                         {statusInfo.label}
-                      </Badge>
+                      </StatusPill>
                       {p.isLimitedEdition && (
                         <span className="text-[10px] text-ink-muted">
                           Ed. limitada
@@ -183,11 +173,11 @@ export default async function AdminProductsPage() {
 
                     <div className="flex items-end justify-between gap-2 mt-0.5">
                       <div className="flex flex-col">
-                        <span className="text-sm font-medium text-brand-wine tabular-nums">
+                        <span className="font-data text-sm font-medium text-brand-wine">
                           {formatPrice(Number(p.price))}
                         </span>
                         {effectivePromo && (
-                          <span className="text-[10px] text-ink-muted line-through tabular-nums">
+                          <span className="text-[10px] text-ink-muted line-through font-data">
                             {formatPrice(effectivePromo.originalPrice)}
                             {promoEndsRel && (
                               <span className="ml-1 text-amber-700 font-medium no-underline">
@@ -197,7 +187,7 @@ export default async function AdminProductsPage() {
                           </span>
                         )}
                       </div>
-                      <div className="text-right text-[11px] text-ink-soft tabular-nums">
+                      <div className="text-right text-[11px] text-ink-soft font-data">
                         <p>
                           Estoque:{" "}
                           <span
@@ -222,156 +212,136 @@ export default async function AdminProductsPage() {
           </ul>
 
           {/* Desktop/tablet: tabela (md+) */}
-          <div className="hidden md:block bg-surface-panel rounded-token-md overflow-hidden">
-            <Table>
-              <TableHeader className="bg-surface-section">
-                <TableRow className="hover:bg-transparent border-b border-border-subtle">
-                  <TableHead className="py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                    Produto
-                  </TableHead>
-                  <TableHead className="py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                    Estado
-                  </TableHead>
-                  <TableHead className="py-3 px-5 text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                    Coleção
-                  </TableHead>
-                  <TableHead className="py-3 px-5 text-right text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                    Preço
-                  </TableHead>
-                  <TableHead className="py-3 px-5 text-right text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                    Estoque
-                  </TableHead>
-                  <TableHead className="py-3 px-5 text-right text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                    Vendidos
-                  </TableHead>
-                  <TableHead className="py-3 px-5 text-right text-[10px] tracking-[0.18em] uppercase font-medium text-ink-soft">
-                    Ações
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {products.map((p) => {
-                  const statusInfo = STATUS_BADGE[p.status];
-                  const effectivePromo = getEffectivePromotion(
-                    {
-                      status: p.status,
-                      originalPrice:
-                        p.originalPrice != null
-                          ? Number(p.originalPrice)
-                          : null,
-                      promotionStartsAt: p.promotionStartsAt,
-                      promotionEndsAt: p.promotionEndsAt,
-                    },
-                    now,
-                  );
-                  const promoStale = isPromotionStale(p, now);
-                  const promoEndsRel = relativeEnd(p.promotionEndsAt, now);
+          <DataTable>
+            <DataTableHeader
+              columns={[
+                { key: "produto", label: "Produto" },
+                { key: "estado", label: "Estado" },
+                { key: "colecao", label: "Coleção" },
+                { key: "preco", label: "Preço", align: "right" },
+                { key: "estoque", label: "Estoque", align: "right" },
+                { key: "vendidos", label: "Vendidos", align: "right" },
+                { key: "acoes", label: "Ações", align: "right" },
+              ]}
+            />
+            <TableBody>
+              {products.map((p) => {
+                const statusInfo = STATUS_INFO[p.status];
+                const effectivePromo = getEffectivePromotion(
+                  {
+                    status: p.status,
+                    originalPrice:
+                      p.originalPrice != null
+                        ? Number(p.originalPrice)
+                        : null,
+                    promotionStartsAt: p.promotionStartsAt,
+                    promotionEndsAt: p.promotionEndsAt,
+                  },
+                  now,
+                );
+                const promoStale = isPromotionStale(p, now);
+                const promoEndsRel = relativeEnd(p.promotionEndsAt, now);
 
-                  return (
-                    <TableRow
-                      key={p.id}
-                      className="border-b border-border-subtle hover:bg-surface-section/50"
-                    >
-                      <TableCell className="py-4 px-5">
-                        <div className="flex items-center gap-3">
-                          <div className="relative w-12 h-12 rounded-token-sm overflow-hidden bg-surface-section flex-shrink-0">
-                            {p.images[0] && (
-                              <Image
-                                src={productImageSrc(p.images[0])}
-                                alt={p.name}
-                                fill
-                                className="object-cover"
-                                sizes="48px"
-                              />
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-ink-strong line-clamp-1">
-                              {p.name}
-                            </p>
-                            <p className="text-xs text-ink-muted">{p.slug}</p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="py-4 px-5">
-                        <div className="flex flex-col items-start gap-1">
-                          <Badge
-                            className={`text-[10px] uppercase tracking-[0.14em] ${statusInfo.classes}`}
-                          >
-                            {statusInfo.label}
-                          </Badge>
-                          {promoStale && (
-                            <span className="inline-flex items-center gap-1 text-[10px] text-amber-700 font-medium">
-                              <AlertTriangle className="h-3 w-3" />
-                              promo expirou — revisar
-                            </span>
-                          )}
-                          {p.isLimitedEdition && (
-                            <span className="text-[10px] text-ink-muted">
-                              Ed. limitada
-                            </span>
+                return (
+                  <DataTableRow key={p.id}>
+                    <TableCell className="py-4 px-5">
+                      <div className="flex items-center gap-3">
+                        <div className="relative w-12 h-12 rounded-token-sm overflow-hidden bg-admin-panel-soft flex-shrink-0">
+                          {p.images[0] && (
+                            <Image
+                              src={productImageSrc(p.images[0])}
+                              alt={p.name}
+                              fill
+                              className="object-cover"
+                              sizes="48px"
+                            />
                           )}
                         </div>
-                      </TableCell>
-                      <TableCell className="py-4 px-5 text-sm text-ink-soft capitalize">
-                        {p.collection}
-                      </TableCell>
-                      <TableCell className="py-4 px-5 text-right">
-                        <div className="flex flex-col items-end">
-                          <span className="text-sm font-medium text-brand-wine">
-                            {formatPrice(Number(p.price))}
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-ink-strong line-clamp-1">
+                            {p.name}
+                          </p>
+                          <p className="text-xs text-ink-muted">{p.slug}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-4 px-5">
+                      <div className="flex flex-col items-start gap-1.5">
+                        <StatusPill tone={statusInfo.tone}>
+                          {statusInfo.label}
+                        </StatusPill>
+                        {promoStale && (
+                          <span className="inline-flex items-center gap-1 text-[10px] text-amber-700 font-medium">
+                            <AlertTriangle className="h-3 w-3" />
+                            promo expirou, revisar
                           </span>
-                          {effectivePromo && (
-                            <>
-                              <span className="text-[10px] text-ink-muted line-through">
-                                {formatPrice(effectivePromo.originalPrice)}
-                              </span>
-                              {promoEndsRel && (
-                                <span className="text-[10px] text-amber-700 font-medium">
-                                  termina em {promoEndsRel}
-                                </span>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="py-4 px-5 text-right">
-                        <span
-                          className={`text-sm font-medium tabular-nums ${
-                            p.stock < 5
-                              ? "text-destructive"
-                              : p.stock < 20
-                                ? "text-amber-600"
-                                : "text-ink-strong"
-                          }`}
-                        >
-                          {p.stock}
+                        )}
+                        {p.isLimitedEdition && (
+                          <span className="text-[10px] text-ink-muted">
+                            Ed. limitada
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-4 px-5 text-sm text-ink-soft capitalize">
+                      {p.collection}
+                    </TableCell>
+                    <TableCell className="py-4 px-5 text-right">
+                      <div className="flex flex-col items-end">
+                        <span className="font-data text-sm font-medium text-brand-wine">
+                          {formatPrice(Number(p.price))}
                         </span>
-                      </TableCell>
-                      <TableCell className="py-4 px-5 text-right text-sm text-ink-soft tabular-nums">
-                        {p.totalSold}
-                      </TableCell>
-                      <TableCell className="py-4 px-5 text-right">
-                        <Button
-                          asChild
-                          variant="outline"
-                          size="sm"
-                          className="rounded-full text-[10px] tracking-[0.18em] uppercase text-brand-wine border-brand-wine/20 hover:bg-brand-wine hover:text-brand-pink"
-                        >
-                          <Link href={`/admin/produtos/${p.id}/editar`}>
-                            <Pencil className="h-3 w-3" />
-                            Editar
-                          </Link>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
+                        {effectivePromo && (
+                          <>
+                            <span className="font-data text-[10px] text-ink-muted line-through">
+                              {formatPrice(effectivePromo.originalPrice)}
+                            </span>
+                            {promoEndsRel && (
+                              <span className="text-[10px] text-amber-700 font-medium">
+                                termina em {promoEndsRel}
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-4 px-5 text-right">
+                      <span
+                        className={`font-data text-sm font-medium ${
+                          p.stock < 5
+                            ? "text-destructive"
+                            : p.stock < 20
+                              ? "text-amber-600"
+                              : "text-ink-strong"
+                        }`}
+                      >
+                        {p.stock}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-4 px-5 text-right font-data text-sm text-ink-soft">
+                      {p.totalSold}
+                    </TableCell>
+                    <TableCell className="py-4 px-5 text-right">
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full text-[10px] tracking-[0.18em] uppercase text-brand-wine border-brand-wine/25 hover:bg-brand-wine hover:text-brand-pink hover:border-brand-wine"
+                      >
+                        <Link href={`/admin/produtos/${p.id}/editar`}>
+                          <Pencil className="h-3 w-3" />
+                          Editar
+                        </Link>
+                      </Button>
+                    </TableCell>
+                  </DataTableRow>
+                );
+              })}
+            </TableBody>
+          </DataTable>
         </>
       )}
     </div>
   );
 }
+

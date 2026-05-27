@@ -4,6 +4,7 @@ import { updateProduct, deleteProduct } from "../../actions";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { PageHeader } from "@/components/admin/page-header";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -22,20 +23,13 @@ export default async function EditarProdutoPage({ params }: PageProps) {
     <div>
       <Link
         href="/admin/produtos"
-        className="inline-flex items-center gap-2 text-xs tracking-[0.18em] uppercase text-ink-soft hover:text-brand-wine mb-6"
+        className="inline-flex items-center gap-2 text-[11px] tracking-[0.22em] uppercase text-ink-soft hover:text-brand-wine mb-6 focus-ring rounded-sm transition-colors"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         Voltar para produtos
       </Link>
 
-      <header className="mb-8">
-        <p className="text-[11px] font-medium tracking-[0.32em] uppercase text-brand-wine mb-2">
-          Editar
-        </p>
-        <h1 className="font-playfair italic text-3xl sm:text-4xl text-ink-strong">
-          {product.name}
-        </h1>
-      </header>
+      <PageHeader eyebrow={`Catálogo · ${product.collection}`} title={product.name} />
 
       <ProductForm
         action={update}

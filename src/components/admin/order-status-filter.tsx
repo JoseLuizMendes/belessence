@@ -1,14 +1,13 @@
 "use client";
 
 /**
- * OrderStatusFilter — pílulas de filtro de status com shadcn ToggleGroup.
- * ─────────────────────────────────────────────────────────────────────
- * Recebe o status ativo (do searchParams server-side) e navega ao mudar.
- * value="" representa "Todos" (sem filtro).
+ * OrderStatusFilter — fila de pílulas para filtrar pedidos por status.
+ * Mobile: scroll horizontal sem barra; desktop: wrap natural.
+ * "all" representa "Todos" (sem filtro).
  */
 
 import { useRouter } from "next/navigation";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { cn } from "@/api/utils";
 import type { OrderStatus } from "@prisma/client";
 
 interface OrderStatusFilterProps {
@@ -22,40 +21,49 @@ export function OrderStatusFilter({
 }: OrderStatusFilterProps) {
   const router = useRouter();
 
-  const handleChange = (value: string) => {
-    // ToggleGroup single permite "desselecionar" → trata como "Todos"
-    if (!value || value === "all") {
+  const handleClick = (value: OrderStatus | "all") => {
+    if (value === "all") {
       router.push("/admin/pedidos");
       return;
     }
     router.push(`/admin/pedidos?status=${value}`);
   };
 
+  const items: { value: OrderStatus | "all"; label: string }[] = [
+    { value: "all", label: "Todos" },
+    ...statuses,
+  ];
+
   const current = activeStatus ?? "all";
 
   return (
-    <ToggleGroup
-      type="single"
-      value={current}
-      onValueChange={handleChange}
-      spacing={8}
-      className="flex flex-wrap mb-8"
+    <div
+      role="tablist"
+      aria-label="Filtrar pedidos"
+      className="flex gap-2 overflow-x-auto scrollbar-none -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap"
     >
-      <ToggleGroupItem
-        value="all"
-        className="rounded-full px-4 py-2 h-auto text-[10px] font-medium tracking-[0.18em] uppercase border border-border-subtle bg-surface-panel text-ink-soft data-[state=on]:bg-brand-wine data-[state=on]:text-brand-pink data-[state=on]:border-brand-wine hover:border-brand-wine"
-      >
-        Todos
-      </ToggleGroupItem>
-      {statuses.map(({ value, label }) => (
-        <ToggleGroupItem
-          key={value}
-          value={value}
-          className="rounded-full px-4 py-2 h-auto text-[10px] font-medium tracking-[0.18em] uppercase border border-border-subtle bg-surface-panel text-ink-soft data-[state=on]:bg-brand-wine data-[state=on]:text-brand-pink data-[state=on]:border-brand-wine hover:border-brand-wine"
-        >
-          {label}
-        </ToggleGroupItem>
-      ))}
-    </ToggleGroup>
+      {items.map(({ value, label }) => {
+        const active = value === current;
+        return (
+          <button
+            key={value}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            onClick={() => handleClick(value)}
+            className={cn(
+              "shrink-0 rounded-full px-4 py-2",
+              "text-[11px] font-medium tracking-[0.18em] uppercase",
+              "transition-all duration-200 focus-ring",
+              active
+                ? "bg-brand-wine text-brand-pink border border-brand-wine shadow-[0_4px_12px_-4px_rgba(46,11,18,0.35)]"
+                : "bg-admin-panel border border-admin text-ink-soft hover:border-brand-wine/40 hover:text-ink-strong",
+            )}
+          >
+            {label}
+          </button>
+        );
+      })}
+    </div>
   );
 }

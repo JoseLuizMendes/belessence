@@ -84,33 +84,39 @@ export default async function AdminLoginPage({ searchParams }: PageProps) {
   const totpOn = isTotpConfigured();
 
   return (
-    <div className="min-h-screen bg-brand-pink flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-admin-canvas flex flex-col items-center justify-center p-6 relative">
+      {/* Acento decorativo: gradiente vinho na base, sutilíssimo */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 bottom-0 h-2/5 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(80% 60% at 50% 100%, rgba(71,19,28,0.10) 0%, transparent 70%)",
+        }}
+      />
+
       <Link
         href="/"
-        className="absolute top-6 left-6 text-xs tracking-[0.24em] uppercase text-ink-soft hover:text-brand-wine transition-colors flex items-center gap-2"
+        className="absolute top-6 left-6 text-[11px] tracking-[0.24em] uppercase text-ink-soft hover:text-brand-wine transition-colors flex items-center gap-2 focus-ring rounded-sm"
       >
-        <ChevronLeftIcon className="h-6 w-6 text-ink-soft" />
+        <ChevronLeftIcon className="h-5 w-5" />
         Voltar à loja
       </Link>
 
-      <div className="w-full max-w-md bg-surface-panel rounded-token-md p-8 sm:p-10 shadow-card">
+      <div className="relative w-full max-w-md bg-admin-panel border border-admin rounded-token-md p-8 sm:p-10 shadow-petal-3 animate-admin-rise">
         <div className="text-center mb-8">
           <div className="w-14 h-14 mx-auto mb-5 rounded-full bg-brand-wine/10 flex items-center justify-center">
             <Lock className="h-6 w-6 text-brand-wine" strokeWidth={1.5} />
           </div>
-          <p className="text-[11px] font-medium tracking-[0.32em] uppercase text-brand-wine mb-3">
-            Mari Beauty
-          </p>
-          <h1 className="font-playfair italic text-3xl text-ink-strong mb-2">
+          <p className="admin-eyebrow mb-3">Mari Beauty</p>
+          <h1 className="font-serif text-3xl text-ink-strong mb-2 leading-tight">
             Painel Admin
           </h1>
-          <p className="text-sm text-ink-soft font-light">
-            Acesso restrito.
-          </p>
+          <p className="text-sm text-ink-soft">Acesso restrito.</p>
         </div>
 
         {errorMessage && (
-          <p className="mb-5 rounded-token-sm bg-destructive/10 px-4 py-3 text-xs text-destructive text-center">
+          <p className="mb-5 rounded-token-sm bg-destructive/10 border border-destructive/20 px-4 py-3 text-xs text-destructive text-center">
             {errorMessage}
           </p>
         )}
@@ -119,26 +125,28 @@ export default async function AdminLoginPage({ searchParams }: PageProps) {
 
         {!totpOn && (
           <p className="mt-4 text-[11px] leading-relaxed text-ink-muted text-center">
-            2FA não configurado — o login está usando apenas a senha. Rode{" "}
-            <code className="font-mono">scripts/admin-setup.mjs</code> para
+            2FA não configurado, o login está usando apenas a senha. Rode{" "}
+            <code className="font-data">scripts/admin-setup.mjs</code> para
             ativar o autenticador.
           </p>
         )}
 
         <div className="my-6 flex items-center gap-3">
-          <span className="h-px flex-1 bg-border-subtle" />
-          <span className="text-[10px] tracking-[0.18em] uppercase text-ink-muted">
+          <span className="h-px flex-1 bg-admin-border" />
+          <span className="text-[10px] tracking-[0.22em] uppercase text-ink-muted">
             ou
           </span>
-          <span className="h-px flex-1 bg-border-subtle" />
+          <span className="h-px flex-1 bg-admin-border" />
         </div>
 
         <Button
           asChild
           variant="outline"
-          className="w-full h-12 text-[12px] font-medium tracking-[0.18em] uppercase"
+          className="w-full h-12 text-[12px] font-medium tracking-[0.18em] uppercase border-admin hover:bg-admin-row hover:border-brand-wine/40"
         >
-          <a href={`/api/admin/oauth/google?redirect=${encodeURIComponent(redirectTo)}`}>
+          <a
+            href={`/api/admin/oauth/google?redirect=${encodeURIComponent(redirectTo)}`}
+          >
             Entrar com Google
           </a>
         </Button>

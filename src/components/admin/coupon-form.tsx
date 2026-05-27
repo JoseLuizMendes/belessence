@@ -61,7 +61,7 @@ function toDayValue(d: Date): string {
 const labelCls =
   "block text-[10px] font-medium tracking-[0.24em] uppercase text-ink-soft mb-2";
 const inputCls =
-  "h-11 bg-surface-base border-border-subtle rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0";
+  "h-11 bg-admin-canvas border-admin rounded-token-sm focus-visible:border-brand-wine focus-visible:ring-0";
 
 export function CouponForm({ defaultValues, action, onDone }: CouponFormProps) {
   const [isPending, startTransition] = useTransition();
@@ -128,7 +128,7 @@ export function CouponForm({ defaultValues, action, onDone }: CouponFormProps) {
             value={type}
             onValueChange={(v) => setType(v as "PERCENTAGE" | "FIXED")}
           >
-            <SelectTrigger className="data-[size=default]:h-11 w-full bg-surface-base border-border-subtle rounded-token-sm">
+            <SelectTrigger className="data-[size=default]:h-11 w-full bg-admin-canvas border-admin rounded-token-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -204,7 +204,7 @@ export function CouponForm({ defaultValues, action, onDone }: CouponFormProps) {
                 type="button"
                 variant="outline"
                 className={cn(
-                  "h-11 flex-1 justify-start text-left font-normal text-sm rounded-token-sm border-border-subtle bg-surface-base hover:bg-surface-section",
+                  "h-11 flex-1 justify-start text-left font-normal text-sm rounded-token-sm border-admin bg-admin-canvas hover:bg-admin-row",
                   !expiresAt && "text-ink-muted",
                 )}
               >
@@ -265,12 +265,12 @@ export function CouponForm({ defaultValues, action, onDone }: CouponFormProps) {
         <Button
           type="submit"
           disabled={isPending}
-          className="loreal-btn-pill h-11 px-7 bg-brand-wine text-brand-pink text-[11px] font-medium tracking-[0.18em] uppercase hover:bg-brand-wine/90 disabled:opacity-60"
+          className="loreal-btn-pill h-11 px-7 btn-wine text-[11px] font-medium tracking-[0.18em] uppercase disabled:opacity-60"
         >
           {isPending ? (
             <>
               <Spinner className="mr-2" />
-              Salvando…
+              Salvando
             </>
           ) : defaultValues?.id ? (
             "Salvar alterações"
