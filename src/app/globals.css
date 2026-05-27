@@ -118,6 +118,23 @@
   --shadow-card-hover: 0 8px 28px rgba(46, 11, 18, 0.11), 0 2px 8px rgba(46, 11, 18, 0.06);
   --shadow-gold: 0 4px 20px rgba(71, 19, 28, 0.24);
   --shadow-luxury: 0 24px 64px rgba(46, 11, 18, 0.12);
+
+  /* ── ADMIN SURFACE TOKENS ────────────────────────────────────────
+   * Restrained híbrido: neutros aquecidos puxando o vinho, vinho/rosé
+   * reservados para acentos e o "committed moment" de cada página.
+   * Usados apenas dentro de /admin/*; não tocar nas surfaces públicas.
+   */
+  --color-admin-canvas: oklch(0.965 0.008 47);        /* fundo geral do admin */
+  --color-admin-panel: oklch(0.99 0.004 60);          /* cards de conteúdo */
+  --color-admin-panel-soft: oklch(0.975 0.006 55);    /* zona secundária dentro de painel */
+  --color-admin-row-hover: oklch(0.95 0.012 47);      /* linhas de tabela em hover */
+  --color-admin-border: oklch(0.89 0.012 50);         /* hairline aquecido */
+  --color-admin-border-soft: oklch(0.93 0.008 50);    /* divisores internos */
+
+  /* Sombras "petal": quase invisíveis em repouso, ganham peso só em hover. */
+  --shadow-petal-1: 0 1px 0 var(--color-admin-border);
+  --shadow-petal-2: 0 1px 2px rgba(46, 11, 18, 0.03), 0 8px 24px -12px rgba(46, 11, 18, 0.05);
+  --shadow-petal-3: 0 2px 4px rgba(46, 11, 18, 0.04), 0 12px 32px -10px rgba(46, 11, 18, 0.08);
 }
 
 .dark {
@@ -834,6 +851,60 @@
     .loreal-btn-pill {
       transition-duration: 0.01ms !important;
     }
+  }
+
+  /* ── ADMIN UTILITIES ─────────────────────────────────────────────
+   * Vocabulário compartilhado por componentes em src/components/admin.
+   * Nada aqui é usado nas rotas públicas.
+   */
+  .bg-admin-canvas      { background-color: var(--color-admin-canvas); }
+  .bg-admin-panel       { background-color: var(--color-admin-panel); }
+  .bg-admin-panel-soft  { background-color: var(--color-admin-panel-soft); }
+  .hover\:bg-admin-row:hover { background-color: var(--color-admin-row-hover); }
+
+  .border-admin         { border-color: var(--color-admin-border); }
+  .border-admin-soft    { border-color: var(--color-admin-border-soft); }
+
+  .shadow-petal-1 { box-shadow: var(--shadow-petal-1); }
+  .shadow-petal-2 { box-shadow: var(--shadow-petal-2); }
+  .shadow-petal-3 { box-shadow: var(--shadow-petal-3); }
+
+  /* Pílula uppercase (eyebrow) reutilizada em headers de página admin */
+  .admin-eyebrow {
+    color: var(--color-brand-wine);
+    font-family: var(--font-geist);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+}
+
+/* ── ADMIN MICRO-MOTION ──────────────────────────────────────────────
+ * Blur-in suave aplicado uma única vez no mount de uma seção/página.
+ * Sem cascata orquestrada; o admin é ferramenta, não palco.
+ */
+@keyframes admin-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.animate-admin-rise {
+  animation: admin-rise 260ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-admin-rise {
+    animation: none !important;
   }
 }
 
