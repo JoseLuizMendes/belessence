@@ -13,8 +13,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 import { ArrowRight } from "lucide-react";
-import { scrollReveal } from "@/lib/gsap-utils";
+import { scrollReveal, prefersReducedMotion } from "@/lib/gsap-utils";
 import { MediaBackground } from "@/components/ui/media-background";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ type NewsletterForm = z.infer<typeof newsletterSchema>;
 export default function Newsletter() {
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const delicateRef = useRef<HTMLSpanElement>(null);
 
   const form = useForm<NewsletterForm>({
     resolver: zodResolver(newsletterSchema),
@@ -51,6 +53,36 @@ export default function Newsletter() {
         stagger: 0.1,
         start: "top 82%",
       });
+
+      // Animação "Perfume Mist" — bidirecional (condensa ao descer, dissolve ao subir)
+      if (delicateRef.current) {
+        if (prefersReducedMotion()) {
+          gsap.set(delicateRef.current, { opacity: 1, filter: "blur(0px)", scale: 1 });
+        } else {
+          gsap.fromTo(
+            delicateRef.current,
+            {
+              opacity: 0,
+              filter: "blur(18px)",
+              scale: 1.12,
+            },
+            {
+              opacity: 1,
+              filter: "blur(0px)",
+              scale: 1,
+              duration: 1.8,
+              delay: 0.3,
+              ease: "power4.out",
+              immediateRender: false,
+              scrollTrigger: {
+                trigger: contentRef.current,
+                start: "top 82%",
+                toggleActions: "play none none reverse",
+              },
+            }
+          );
+        }
+      }
     }
   }, { scope: sectionRef });
 
@@ -103,16 +135,16 @@ export default function Newsletter() {
           {/* Conteúdo à direita */}
           <div ref={contentRef} className="max-w-lg">
 
-            {/* Eyebrow */}
-            <p className="text-[11px] font-medium tracking-[0.32em] uppercase text-brand-wine mb-5">
-              Mari Beauty
-            </p>
 
             {/* Título italic display */}
             <h2 className="font-playfair italic text-[clamp(2.4rem,6vw,4rem)] leading-[1.04] tracking-[-0.02em] text-ink-strong mb-6">
-              Beauty is a <br className="hidden sm:block" /> lifestyle.
+              Our <span ref={delicateRef} className="text-brand-wine-soft inline-block">Delicate</span><br className="hidden sm:block" /> Point of View.
             </h2>
 
+            {/* Eyebrow */}
+            <p className="text-[11px] font-medium tracking-[0.32em] uppercase text-brand-wine mb-5">
+             Beauty is a lifestyle.
+            </p>
             {/* Divider */}
             <div className="h-px w-12 bg-brand-wine/60 mb-6" />
 

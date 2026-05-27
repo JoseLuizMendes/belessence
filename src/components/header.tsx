@@ -205,7 +205,7 @@ export default function Header() {
                 type="search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="buscar fragrâncias"
+                placeholder="Buscar Fragrâncias"
                 aria-label="Buscar produtos"
                 className="search-pill h-8 w-36 lg:w-52 xl:w-64 rounded-full border border-[rgba(71,19,28,0.14)] bg-[rgba(255,243,232,0.72)] pl-8.5 pr-7 text-[11px] tracking-[0.03em] text-ink-strong placeholder:text-ink-muted placeholder:tracking-[0.06em] outline-none transition-[width,box-shadow,border-color,background-color] duration-[300ms] ease-out backdrop-blur-sm focus:w-44 lg:focus:w-60 xl:focus:w-72 focus:border-[rgba(71,19,28,0.38)] focus:bg-[rgba(255,232,240,0.88)] focus:shadow-[0_0_0_3px_rgba(71,19,28,0.08)]"
               />
@@ -280,7 +280,7 @@ export default function Header() {
                       type="search"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="buscar fragrâncias"
+                      placeholder="Buscar Fragrâncias"
                       aria-label="Buscar produtos"
                       className="h-10 w-full rounded-full border border-[rgba(71,19,28,0.14)] bg-[rgba(255,243,232,0.72)] pl-9 pr-8 text-[12px] tracking-[0.04em] text-ink-strong placeholder:text-ink-muted placeholder:tracking-[0.06em] outline-none transition-[box-shadow,border-color,background-color] duration-[250ms] ease-out backdrop-blur-sm focus:border-[rgba(71,19,28,0.38)] focus:bg-[rgba(255,232,240,0.88)] focus:shadow-[0_0_0_3px_rgba(71,19,28,0.08)]"
                     />
