@@ -294,7 +294,7 @@ export default function Hero() {
       </div>
 
       {/* ══ 3. CAROUSEL ══════════════════════════════════════════════════════ */}
-      <div className="w-full bg-brand-pink pb-8">
+      <div className="w-full bg-brand-pink pb-8 px-4 sm:px-6 lg:px-0">
         <div
           ref={carouselRef}
           className="relative max-w-[1440px] mx-auto hero-banner-height overflow-hidden rounded-token-xl"
@@ -419,14 +419,6 @@ export default function Hero() {
                 )}
               </button>
             ))}
-          </div>
-
-          {/* Indicador de scroll (estilo Boty) ───────────────────────────── */}
-          <div className="absolute bottom-4 right-6 z-20 hidden flex-col items-center gap-1.5 sm:flex">
-            <span className="text-[9px] uppercase tracking-[0.3em] text-surface-base/70">
-              Role
-            </span>
-            <ChevronDown className="size-4 text-surface-base/70 animate-pulse-slow" />
           </div>
         </div>
       </div>
