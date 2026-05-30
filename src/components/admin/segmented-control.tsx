@@ -10,7 +10,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { cn } from "@/api/utils";
+import { cn } from "@/shadcn-utils/utils";
 
 interface SegmentOption<T extends string> {
   value: T;

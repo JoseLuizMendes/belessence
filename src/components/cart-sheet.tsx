@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sheet";
 import { useCart } from "./cart";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
-import { formatPrice } from "@/api/utils";
+import { formatPrice } from "@/shadcn-utils/utils";
 import Image from "next/image";
 import Link from "next/link";
 

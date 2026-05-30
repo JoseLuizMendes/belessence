@@ -24,7 +24,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ShoppingBag, Ban, Clock } from "lucide-react";
-import { formatPrice } from "@/api/utils";
+import { formatPrice } from "@/shadcn-utils/utils";
 import { useCart } from "./cart";
 import { WishlistButton } from "./wishlist-button";
 import { useRequireAuth } from "@/lib/hooks/use-require-auth";

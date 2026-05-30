@@ -5,7 +5,7 @@
  * Não usar como decoração; é semântico.
  */
 
-import { cn } from "@/api/utils";
+import { cn } from "@/shadcn-utils/utils";
 
 interface CommittedPanelProps {
   eyebrow?: string;

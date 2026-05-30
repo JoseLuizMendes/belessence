@@ -6,7 +6,7 @@
  */
 
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
-import { cn } from "@/api/utils";
+import { cn } from "@/shadcn-utils/utils";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 
 interface MetricCardProps {

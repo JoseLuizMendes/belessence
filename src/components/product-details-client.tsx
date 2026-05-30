@@ -25,7 +25,7 @@ import {
 import { fadeInUp } from "@/lib/gsap-utils";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, ShoppingBag } from "lucide-react";
-import { formatPrice } from "@/api/utils";
+import { formatPrice } from "@/shadcn-utils/utils";
 import Image from "next/image";
 import type { Product } from "@/lib/products-db";
 import { productImageSrc } from "@/lib/product-image";

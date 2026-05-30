@@ -9,7 +9,7 @@
  */
 
 import * as React from "react";
-import { cn } from "@/api/utils";
+import { cn } from "@/shadcn-utils/utils";
 import {
   Table,
   TableHead,

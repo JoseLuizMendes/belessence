@@ -12,7 +12,7 @@
  */
 
 import Image from "next/image";
-import { cn } from "@/api/utils";
+import { cn } from "@/shadcn-utils/utils";
 
 export type MediaType = "image" | "video";
 

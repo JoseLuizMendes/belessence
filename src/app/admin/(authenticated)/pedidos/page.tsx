@@ -4,7 +4,7 @@
 
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { formatPrice } from "@/api/utils";
+import { formatPrice } from "@/shadcn-utils/utils";
 import { TableBody, TableCell } from "@/components/ui/table";
 import { ShoppingBag } from "lucide-react";
 import { OrderStatusFilter } from "@/components/admin/order-status-filter";

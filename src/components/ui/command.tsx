@@ -4,7 +4,7 @@ import * as React from "react"
 import { Command as CommandPrimitive } from "cmdk"
 import { SearchIcon } from "lucide-react"
 
-import { cn } from "@/api/utils"
+import { cn } from "@/shadcn-utils/utils"
 import {
   Dialog,
   DialogContent,

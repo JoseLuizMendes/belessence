@@ -15,7 +15,7 @@
  *  - muted     → secundário/descontinuado
  */
 
-import { cn } from "@/api/utils";
+import { cn } from "@/shadcn-utils/utils";
 
 type StatusTone =
   | "neutral"

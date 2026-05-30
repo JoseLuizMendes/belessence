@@ -12,7 +12,7 @@
 import * as React from "react";
 import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/api/utils";
+import { cn } from "@/shadcn-utils/utils";
 
 interface NumberFieldProps
   extends Omit<

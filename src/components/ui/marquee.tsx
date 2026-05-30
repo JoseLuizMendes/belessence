@@ -12,7 +12,7 @@
  */
 
 import type { CSSProperties, ReactNode } from "react";
-import { cn } from "@/api/utils";
+import { cn } from "@/shadcn-utils/utils";
 
 export interface MarqueeProps {
   children: ReactNode;

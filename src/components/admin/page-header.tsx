@@ -4,7 +4,7 @@
  * + slot de ação à direita. Sem container; quem renderiza decide a margem.
  */
 
-import { cn } from "@/api/utils";
+import { cn } from "@/shadcn-utils/utils";
 
 interface PageHeaderProps {
   eyebrow?: string;

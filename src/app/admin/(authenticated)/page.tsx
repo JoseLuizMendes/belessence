@@ -7,7 +7,7 @@
 
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { formatPrice } from "@/api/utils";
+import { formatPrice } from "@/shadcn-utils/utils";
 import { AlertTriangle, ArrowRight } from "lucide-react";
 import { AnimatedPrice } from "@/components/ui/animated-price";
 import { PageHeader } from "@/components/admin/page-header";

@@ -7,7 +7,7 @@
 
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { cn } from "@/api/utils";
+import { cn } from "@/shadcn-utils/utils";
 import {
   MessagesClient,
   type MessageDTO,

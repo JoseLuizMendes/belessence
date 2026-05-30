@@ -8,7 +8,7 @@
  */
 
 import { useCountUp } from "@/lib/hooks/use-count-up";
-import { formatPrice } from "@/api/utils";
+import { formatPrice } from "@/shadcn-utils/utils";
 
 interface AnimatedPriceProps {
   value: number;

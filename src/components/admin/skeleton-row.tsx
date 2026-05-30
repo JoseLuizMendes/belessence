@@ -4,7 +4,7 @@
  * antes de hidratar dados client-side.
  */
 
-import { cn } from "@/api/utils";
+import { cn } from "@/shadcn-utils/utils";
 
 export function SkeletonBlock({ className }: { className?: string }) {
   return (

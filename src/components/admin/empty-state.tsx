@@ -4,7 +4,7 @@
  * Icon: ReactNode (passar <Package /> etc. com strokeWidth={1.2}).
  */
 
-import { cn } from "@/api/utils";
+import { cn } from "@/shadcn-utils/utils";
 
 interface EmptyStateProps {
   icon?: React.ReactNode;

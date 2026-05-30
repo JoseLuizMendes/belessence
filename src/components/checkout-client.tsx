@@ -34,7 +34,7 @@ import {
   Tag,
   CheckCircle2,
 } from "lucide-react";
-import { formatPrice } from "@/api/utils";
+import { formatPrice } from "@/shadcn-utils/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { checkoutSchema, type CheckoutInput } from "@/lib/validations";

@@ -29,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/api/utils";
+import { cn } from "@/shadcn-utils/utils";
 import type { CouponActionResult } from "@/app/admin/(authenticated)/cupons/actions";
 
 export interface CouponFormData {

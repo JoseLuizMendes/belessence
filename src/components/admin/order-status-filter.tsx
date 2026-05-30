@@ -7,7 +7,7 @@
  */
 
 import { useRouter } from "next/navigation";
-import { cn } from "@/api/utils";
+import { cn } from "@/shadcn-utils/utils";
 import type { OrderStatus } from "@prisma/client";
 
 interface OrderStatusFilterProps {

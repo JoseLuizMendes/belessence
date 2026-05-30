@@ -45,7 +45,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { cn } from "@/api/utils";
+import { cn } from "@/shadcn-utils/utils";
 
 interface CloudinaryUploadProps {
   value: string[];

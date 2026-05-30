@@ -11,7 +11,7 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Tag, Infinity as InfinityIcon } from "lucide-react";
-import { formatPrice } from "@/api/utils";
+import { formatPrice } from "@/shadcn-utils/utils";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { TableBody, TableCell } from "@/components/ui/table";

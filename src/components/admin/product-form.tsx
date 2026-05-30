@@ -49,7 +49,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { CalendarIcon, Trash2, X } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
-import { cn } from "@/api/utils";
+import { cn } from "@/shadcn-utils/utils";
 import { CloudinaryUpload } from "./cloudinary-upload";
 import type { ProductStatus, Gender } from "@prisma/client";
 

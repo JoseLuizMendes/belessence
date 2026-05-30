@@ -5,7 +5,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { formatPrice } from "@/api/utils";
+import { formatPrice } from "@/shadcn-utils/utils";
 import { ArrowLeft } from "lucide-react";
 import { OrderStatusForm } from "@/components/admin/order-status-form";
 import { updateOrderStatus } from "../actions";
