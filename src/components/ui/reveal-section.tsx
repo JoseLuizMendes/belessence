@@ -12,7 +12,7 @@
 
 import { useRef, ReactNode, ElementType } from "react";
 import { useGSAP } from "@gsap/react";
-import { revealSection } from "@/lib/gsap-utils";
+import { revealSection } from "@/lib/motion/presentation/gsap-helpers";
 
 interface RevealSectionProps {
   children: ReactNode;

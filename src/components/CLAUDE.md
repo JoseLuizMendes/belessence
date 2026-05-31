@@ -61,7 +61,7 @@ Padrão de composição: **Server faz fetch e passa dados como prop** para um
 
 - **GSAP** é o motion engine padrão. Usar `@gsap/react`'s `useGSAP()`
   dentro de Client Components.
-- Helpers em [`@/lib/gsap-utils`](../lib/gsap-utils.ts).
+- Helpers em [`@/lib/motion/presentation/gsap-helpers`](../lib/motion/presentation/gsap-helpers.ts) (bounded context Motion).
 - **Lenis** (smooth scroll) é montado uma vez em
   [`providers/lenis-provider.tsx`](providers/lenis-provider.tsx) — não
   duplicar.

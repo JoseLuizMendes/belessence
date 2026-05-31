@@ -14,7 +14,7 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { Sparkles, Gem, Truck, ShieldCheck, type LucideIcon } from "lucide-react";
-import { scrollReveal, blurReveal } from "@/lib/gsap-utils";
+import { scrollReveal, blurReveal } from "@/lib/motion/presentation/gsap-helpers";
 import { MediaBackground, type MediaType } from "./ui/media-background";
 
 const RITUAL: {

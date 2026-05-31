@@ -11,7 +11,7 @@ import { useGSAP } from "@gsap/react";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { scrollReveal } from "@/lib/gsap-utils";
+import { scrollReveal } from "@/lib/motion/presentation/gsap-helpers";
 
 // accentClass referencia classes definidas em globals.css (.bg-accent-*)
 const COLLECTIONS = [

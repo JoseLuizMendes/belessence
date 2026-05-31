@@ -22,7 +22,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { fadeInUp } from "@/lib/gsap-utils";
+import { fadeInUp } from "@/lib/motion/presentation/gsap-helpers";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, ShoppingBag } from "lucide-react";
 import { formatPrice } from "@/shadcn-utils/utils";

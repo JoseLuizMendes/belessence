@@ -12,7 +12,7 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { ProductCard } from "./product-card";
 import type { Product } from "@/lib/products-db";
-import { blurReveal } from "@/lib/gsap-utils";
+import { blurReveal } from "@/lib/motion/presentation/gsap-helpers";
 
 interface FeatureProductsProps {
   products: Product[];

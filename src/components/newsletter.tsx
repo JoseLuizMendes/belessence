@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ArrowRight } from "lucide-react";
-import { scrollReveal, prefersReducedMotion } from "@/lib/gsap-utils";
+import { scrollReveal, prefersReducedMotion } from "@/lib/motion/presentation/gsap-helpers";
 import { MediaBackground } from "@/components/ui/media-background";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

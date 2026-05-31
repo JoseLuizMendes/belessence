@@ -17,7 +17,7 @@ import { useRef, type ReactNode } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { prefersReducedMotion } from "@/lib/gsap-utils";
+import { prefersReducedMotion } from "@/lib/motion/presentation/gsap-helpers";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);

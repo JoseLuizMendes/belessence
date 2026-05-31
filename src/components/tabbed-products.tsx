@@ -16,7 +16,7 @@
 import { useMemo, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { ProductCard } from "./product-card";
-import { blurReveal } from "@/lib/gsap-utils";
+import { blurReveal } from "@/lib/motion/presentation/gsap-helpers";
 import { getEffectivePromotion, isEffectivelyNew } from "@/lib/product-status";
 import type { Product } from "@/lib/products-db";
 import type { Gender } from "@prisma/client";

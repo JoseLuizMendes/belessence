@@ -8,7 +8,7 @@
 
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
-import { staggerIn } from "@/lib/gsap-utils";
+import { staggerIn } from "@/lib/motion/presentation/gsap-helpers";
 import { ProductCard } from "@/components/product-card";
 import type { Product } from "@/lib/products-db";
 
