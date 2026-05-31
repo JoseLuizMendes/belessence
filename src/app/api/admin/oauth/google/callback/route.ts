@@ -10,12 +10,12 @@ import {
   ADMIN_COOKIE,
   createAdminSessionToken,
   adminCookieOptions,
-} from "@/lib/admin-auth";
+} from "@/lib/auth/presentation/admin-auth";
 import {
   createGoogle,
   decodeIdToken,
   isAllowedAdminEmail,
-} from "@/lib/admin-google";
+} from "@/lib/auth/infrastructure/external/admin-google";
 
 const TEMP_COOKIES = [
   "admin_oauth_state",

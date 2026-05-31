@@ -13,7 +13,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { ADMIN_COOKIE, verifyAdminSession } from "@/lib/admin-auth";
+import { ADMIN_COOKIE, verifyAdminSession } from "@/lib/auth/presentation/admin-auth";
 
 const PUBLIC_ADMIN_PATHS = new Set<string>([
   "/admin/login",

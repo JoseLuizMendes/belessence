@@ -22,7 +22,7 @@ import {
 import { MariLogo } from "@/components/mari-logo";
 import { AdminMobileNav } from "@/components/admin/admin-mobile-nav";
 import { Button } from "@/components/ui/button";
-import { ADMIN_COOKIE } from "@/lib/admin-auth";
+import { ADMIN_COOKIE } from "@/lib/auth/presentation/admin-auth";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },

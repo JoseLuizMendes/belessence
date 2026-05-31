@@ -10,7 +10,7 @@ import "client-only";
 
 import { useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { useAuthGate } from "@/lib/auth-gate-store";
+import { useAuthGate } from "@/lib/auth/presentation/auth-gate-store";
 
 export function useRequireAuth() {
   const { status } = useSession();

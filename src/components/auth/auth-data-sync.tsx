@@ -13,7 +13,7 @@ import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useCartStore } from "@/lib/cart/presentation/cart-store";
 import { useWishlistStore } from "@/lib/wishlist/presentation/wishlist-store";
-import { useAuthGate } from "@/lib/auth-gate-store";
+import { useAuthGate } from "@/lib/auth/presentation/auth-gate-store";
 import { getCartAction } from "@/lib/cart/presentation/cart-actions";
 import { getWishlistAction } from "@/lib/wishlist/presentation/wishlist-actions";
 

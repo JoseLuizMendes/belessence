@@ -22,7 +22,7 @@ vi.mock("cloudinary", () => ({
 
 // Auth admin agora é via token assinado. Mockamos a verificação: só o token
 // "valid-token" é aceito (a correção do jose é coberta por admin-auth).
-vi.mock("@/lib/admin-auth", () => ({
+vi.mock("@/lib/auth/presentation/admin-auth", () => ({
   ADMIN_COOKIE: "admin_session",
   verifyAdminSession: vi.fn(async (token?: string) => token === "valid-token"),
 }));

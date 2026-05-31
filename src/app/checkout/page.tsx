@@ -8,7 +8,7 @@
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import CheckoutClient from "@/components/checkout-client";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/infrastructure/external/auth";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 

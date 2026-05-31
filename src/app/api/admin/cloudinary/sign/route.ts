@@ -20,7 +20,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { v2 as cloudinary } from "cloudinary";
-import { ADMIN_COOKIE, verifyAdminSession } from "@/lib/admin-auth";
+import { ADMIN_COOKIE, verifyAdminSession } from "@/lib/auth/presentation/admin-auth";
 
 export async function POST(req: NextRequest) {
   // Defesa em profundidade — o middleware já protege, mas conferimos aqui.

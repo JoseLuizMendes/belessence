@@ -6,7 +6,7 @@
  * essas ações para usuários logados (auth-gate), isto é uma rede de proteção.
  */
 
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/infrastructure/external/auth";
 import {
   getWishlistProductIds,
   toggleWishlist,

@@ -5,7 +5,7 @@
  * data layer. No-ops seguros se deslogado.
  */
 
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/infrastructure/external/auth";
 import {
   getCart,
   addToCart,

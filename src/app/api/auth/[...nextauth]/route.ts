@@ -3,6 +3,6 @@
  * callback, session, csrf, etc.). Toda a lógica vive em `@/lib/auth`.
  */
 
-import { handlers } from "@/lib/auth";
+import { handlers } from "@/lib/auth/infrastructure/external/auth";
 
 export const { GET, POST } = handlers;

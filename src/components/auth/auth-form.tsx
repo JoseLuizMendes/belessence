@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { registerUser } from "@/lib/auth-actions";
+import { registerUser } from "@/lib/auth/presentation/auth-actions";
 import {
   loginSchema,
   registerSchema,

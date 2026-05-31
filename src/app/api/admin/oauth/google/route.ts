@@ -11,7 +11,7 @@ import {
   generateCodeVerifier,
   googleConfigured,
   GOOGLE_SCOPES,
-} from "@/lib/admin-google";
+} from "@/lib/auth/infrastructure/external/admin-google";
 
 function safeRedirect(raw: string | null): string {
   if (raw && raw.startsWith("/") && !raw.startsWith("//")) return raw;

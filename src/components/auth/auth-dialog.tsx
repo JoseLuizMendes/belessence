@@ -15,7 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useAuthGate } from "@/lib/auth-gate-store";
+import { useAuthGate } from "@/lib/auth/presentation/auth-gate-store";
 import { AuthForm } from "./auth-form";
 
 export function AuthDialog() {

@@ -17,7 +17,7 @@ import {
   ADMIN_COOKIE,
   createAdminSessionToken,
   adminCookieOptions,
-} from "@/lib/admin-auth";
+} from "@/lib/auth/presentation/admin-auth";
 import {
   verifyAdminPassword,
   verifyAdminTotp,
@@ -25,7 +25,7 @@ import {
   checkLoginRateLimit,
   recordLoginFailure,
   clearLoginAttempts,
-} from "@/lib/admin-login";
+} from "@/lib/auth/infrastructure/persistence/admin-login";
 
 function clientIp(forwardedFor: string | null): string {
   return (forwardedFor ?? "").split(",")[0]?.trim() || "unknown";
