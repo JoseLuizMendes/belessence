@@ -29,7 +29,7 @@ import {
   registerSchema,
   type LoginInput,
   type RegisterInput,
-} from "@/lib/validations";
+} from "@/lib/shared/domain/zod-schemas";
 
 type AuthMode = "login" | "register";
 

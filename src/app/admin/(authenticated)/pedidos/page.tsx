@@ -2,7 +2,7 @@
  * /admin/pedidos — Lista de pedidos com filtro por status
  */
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 import Link from "next/link";
 import { formatPrice } from "@/shadcn-utils/utils";
 import { TableBody, TableCell } from "@/components/ui/table";

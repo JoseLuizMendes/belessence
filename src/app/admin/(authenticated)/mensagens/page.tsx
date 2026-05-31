@@ -6,7 +6,7 @@
  */
 
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 import { cn } from "@/shadcn-utils/utils";
 import {
   MessagesClient,

@@ -14,7 +14,7 @@
  *  - Em PROMOTION: promoPrice < price, endsAt > startsAt
  */
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";

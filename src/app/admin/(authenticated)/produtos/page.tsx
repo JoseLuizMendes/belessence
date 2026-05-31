@@ -7,7 +7,7 @@
  * de cleanup manual.
  */
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 import Link from "next/link";
 import Image from "next/image";
 import { formatPrice } from "@/shadcn-utils/utils";

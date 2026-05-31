@@ -7,7 +7,7 @@
  * usadas por RSC (ex.: carrossel de depoimentos da home).
  */
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 
 /** Depoimento "achatado" para a home: review + nome/slug do produto. */
 export interface FeaturedReview {

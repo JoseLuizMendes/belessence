@@ -10,7 +10,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { validateCoupon } from "@/lib/coupons";
-import { couponValidateSchema } from "@/lib/validations";
+import { couponValidateSchema } from "@/lib/shared/domain/zod-schemas";
 
 export async function POST(req: NextRequest) {
   try {

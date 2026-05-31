@@ -5,9 +5,9 @@
  * Atualiza status de pedido com validação Zod.
  */
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 import { revalidatePath } from "next/cache";
-import { orderStatusSchema } from "@/lib/validations";
+import { orderStatusSchema } from "@/lib/shared/domain/zod-schemas";
 
 export async function updateOrderStatus(orderId: string, formData: FormData) {
   const raw = {

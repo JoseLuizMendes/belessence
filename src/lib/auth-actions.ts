@@ -7,8 +7,8 @@
  */
 
 import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/prisma";
-import { registerSchema } from "@/lib/validations";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
+import { registerSchema } from "@/lib/shared/domain/zod-schemas";
 
 export type RegisterResult = { ok: true } | { ok: false; error: string };
 

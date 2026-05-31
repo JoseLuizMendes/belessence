@@ -7,7 +7,7 @@
  * a fronteira Server → Client Component no Next.js 16 / React 19.
  */
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 import type { ProductStatus, Gender } from "@prisma/client";
 
 // ─── TIPOS ───────────────────────────────────────────────────────────────────

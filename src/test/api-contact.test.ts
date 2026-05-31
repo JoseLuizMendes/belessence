@@ -6,7 +6,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { POST } from "@/app/api/contact/route";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 
 function makeReq(body: unknown): NextRequest {
   return new NextRequest("http://localhost/api/contact", {

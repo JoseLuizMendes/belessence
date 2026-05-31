@@ -6,7 +6,7 @@ import "server-only";
  * enxerga e altera os próprios favoritos.
  */
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 
 /** IDs dos produtos favoritados pelo usuário. */
 export async function getWishlistProductIds(userId: string): Promise<string[]> {

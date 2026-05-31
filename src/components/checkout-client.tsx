@@ -37,7 +37,7 @@ import {
 import { formatPrice } from "@/shadcn-utils/utils";
 import Image from "next/image";
 import Link from "next/link";
-import { checkoutSchema, type CheckoutInput } from "@/lib/validations";
+import { checkoutSchema, type CheckoutInput } from "@/lib/shared/domain/zod-schemas";
 import { Input } from "./ui/input";
 import {
   Form,

@@ -6,7 +6,7 @@
  * (criar/editar/ativar/excluir) ao <CouponsClient>.
  */
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 import { CouponsClient, type CouponDTO } from "@/components/admin/coupons-client";
 import { PageHeader } from "@/components/admin/page-header";
 import { MetricCard } from "@/components/admin/metric-card";

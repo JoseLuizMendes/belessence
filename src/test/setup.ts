@@ -59,7 +59,8 @@ if (
 // Mock global do Prisma — testes individuais sobrescrevem com mockResolvedValueOnce.
 // Centralizado aqui para evitar repetir em cada arquivo de teste.
 // Cobertura: models usados em src/lib/* e src/app/api/*.
-vi.mock("@/lib/prisma", () => ({
+// Path canon após Rodada 4.1: src/lib/shared/infrastructure/prisma-client.ts
+vi.mock("@/lib/shared/infrastructure/prisma-client", () => ({
   prisma: {
     coupon: {
       findUnique: vi.fn(),

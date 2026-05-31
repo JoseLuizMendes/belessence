@@ -2,7 +2,7 @@
  * /admin/pedidos/[id] — Detalhe do pedido com mudança de status
  */
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { formatPrice } from "@/shadcn-utils/utils";

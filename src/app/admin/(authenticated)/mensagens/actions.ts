@@ -6,7 +6,7 @@
  * dashboard (que conta mensagens não respondidas).
  */
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 import { revalidatePath } from "next/cache";
 
 export interface MessageActionResult {

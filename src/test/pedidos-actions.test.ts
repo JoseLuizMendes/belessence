@@ -11,7 +11,7 @@ const { revalidatePath } = vi.hoisted(() => ({ revalidatePath: vi.fn() }));
 vi.mock("next/cache", () => ({ revalidatePath }));
 
 import { updateOrderStatus } from "@/app/admin/(authenticated)/pedidos/actions";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 
 function form(fields: Record<string, string>): FormData {
   const fd = new FormData();

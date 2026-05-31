@@ -10,8 +10,8 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { reviewSchema } from "@/lib/validations";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
+import { reviewSchema } from "@/lib/shared/domain/zod-schemas";
 
 export async function POST(req: NextRequest) {
   try {

@@ -10,7 +10,7 @@ import {
   getFilteredProducts,
   countFilteredProducts,
 } from "@/lib/products-db";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 
 function rawRow(over: Record<string, unknown> = {}) {
   const decimal = (n: number) => ({ toString: () => String(n) });

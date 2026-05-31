@@ -17,7 +17,7 @@
 
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 import { formatPrice } from "@/shadcn-utils/utils";
 import { notFound } from "next/navigation";
 import Link from "next/link";

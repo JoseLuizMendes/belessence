@@ -6,7 +6,7 @@ import "server-only";
  * sempre relido do produto no banco (nunca confiar no client).
  */
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 import type { CartItem } from "@/lib/cart-store";
 
 type BadgeVariant = CartItem["badgeVariant"];

@@ -8,7 +8,7 @@ import "server-only";
 
 import bcrypt from "bcryptjs";
 import { verifySync } from "otplib";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 
 const MAX_ATTEMPTS = 5;
 const LOCK_MINUTES = 15;

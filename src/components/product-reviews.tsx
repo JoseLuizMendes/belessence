@@ -18,7 +18,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Empty, EmptyDescription, EmptyHeader } from "./ui/empty";
-import { reviewSchema, type ReviewInput } from "@/lib/validations";
+import { reviewSchema, type ReviewInput } from "@/lib/shared/domain/zod-schemas";
 
 interface Review {
   id: string;

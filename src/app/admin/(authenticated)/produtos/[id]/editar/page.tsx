@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 import { ProductForm } from "@/components/admin/product-form";
 import { updateProduct, deleteProduct } from "../../actions";
 import Link from "next/link";

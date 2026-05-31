@@ -11,7 +11,7 @@ import {
   reviewSchema,
   couponValidateSchema,
   orderStatusSchema,
-} from "@/lib/validations";
+} from "@/lib/shared/domain/zod-schemas";
 
 const validCustomer = {
   name: "Maria Silva",

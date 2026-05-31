@@ -8,10 +8,10 @@
  * Validação compartilhada em `adminCouponSchema` (@/lib/validations).
  */
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
-import { adminCouponSchema } from "@/lib/validations";
+import { adminCouponSchema } from "@/lib/shared/domain/zod-schemas";
 
 export interface CouponActionResult {
   ok: boolean;

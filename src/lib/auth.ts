@@ -17,8 +17,8 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/prisma";
-import { loginSchema } from "@/lib/validations";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
+import { loginSchema } from "@/lib/shared/domain/zod-schemas";
 
 const providers: NextAuthConfig["providers"] = [
   Credentials({

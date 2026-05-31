@@ -5,7 +5,7 @@
  * Usado pelo /api/coupon/validate e /api/checkout (server-only).
  */
 
-import { prisma } from "./prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 
 export interface CouponValidationResult {
   valid: boolean;

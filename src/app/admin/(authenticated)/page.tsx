@@ -5,7 +5,7 @@
  * pedidos recentes + estoque baixo. Tudo em RSC com leitura do Prisma.
  */
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 import Link from "next/link";
 import { formatPrice } from "@/shadcn-utils/utils";
 import { AlertTriangle, ArrowRight } from "lucide-react";

@@ -18,7 +18,7 @@ import {
   getProductBySlug,
   getSalesProducts,
 } from "@/lib/products-db";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 
 /** Linha "crua" como o Prisma devolveria (Decimal como objeto com toString). */
 function rawRow(over: Partial<Record<string, unknown>> = {}) {

@@ -21,7 +21,7 @@ import {
   updateProduct,
   deleteProduct,
 } from "@/app/admin/(authenticated)/produtos/actions";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 
 /** Monta um FormData de produto com defaults válidos. */
 function makeForm(over: Record<string, string> = {}): FormData {
