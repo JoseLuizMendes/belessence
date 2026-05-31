@@ -10,7 +10,7 @@
 import { Star } from "lucide-react";
 import { Marquee } from "./ui/marquee";
 import { RevealSection } from "./ui/reveal-section";
-import type { FeaturedReview } from "@/lib/reviews-db";
+import type { FeaturedReview } from "@/lib/reviews/infrastructure/persistence/reviews-repository";
 
 function Stars({ rating }: { rating: number }) {
   return (

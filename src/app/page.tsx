@@ -19,7 +19,7 @@ import Testimonials from "@/components/testimonials";
 import Newsletter from "@/components/newsletter";
 import Footer from "@/components/footer";
 import { getFeaturedProducts } from "@/lib/products/infrastructure/persistence/products-repository";
-import { getFeaturedReviews } from "@/lib/reviews-db";
+import { getFeaturedReviews } from "@/lib/reviews/infrastructure/persistence/reviews-repository";
 
 export default async function Home() {
   // Pool maior alimenta as tabs (filtro coleção→gênero em memória);

@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { createPayment, isMockPayment } from "@/lib/payment-provider";
+import { createPayment, isMockPayment } from "@/lib/payment/infrastructure/external/payment-provider";
 
 const input = {
   orderId: "ord-1",

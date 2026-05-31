@@ -7,7 +7,7 @@
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { prisma } from "@/lib/shared/infrastructure/prisma-client";
-import { getFeaturedReviews } from "@/lib/reviews-db";
+import { getFeaturedReviews } from "@/lib/reviews/infrastructure/persistence/reviews-repository";
 
 describe("getFeaturedReviews", () => {
   beforeEach(() => {

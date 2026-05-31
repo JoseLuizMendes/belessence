@@ -24,13 +24,13 @@ import { NextRequest } from "next/server";
 
 vi.mock("@/lib/coupons/infrastructure/persistence/coupons-repository", () => ({ validateCoupon: vi.fn() }));
 vi.mock("@/lib/shipping/infrastructure/external/shipping", () => ({ getShippingCostByState: vi.fn() }));
-vi.mock("@/lib/payment-provider", () => ({ createPayment: vi.fn() }));
+vi.mock("@/lib/payment/infrastructure/external/payment-provider", () => ({ createPayment: vi.fn() }));
 
 import { POST } from "@/app/api/checkout/route";
 import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 import { validateCoupon } from "@/lib/coupons/infrastructure/persistence/coupons-repository";
 import { getShippingCostByState } from "@/lib/shipping/infrastructure/external/shipping";
-import { createPayment } from "@/lib/payment-provider";
+import { createPayment } from "@/lib/payment/infrastructure/external/payment-provider";
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
