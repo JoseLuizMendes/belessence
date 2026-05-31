@@ -28,12 +28,12 @@ import { formatPrice } from "@/shadcn-utils/utils";
 import { useCart } from "./cart";
 import { WishlistButton } from "./wishlist-button";
 import { useRequireAuth } from "@/lib/hooks/use-require-auth";
-import { productImageSrc } from "@/lib/product-image";
+import { productImageSrc } from "@/lib/products/infrastructure/external/product-image";
 import {
   getEffectivePromotion,
   isEffectivelyNew,
-} from "@/lib/product-status";
-import type { Product } from "@/lib/products-db";
+} from "@/lib/products/domain/product-status";
+import type { Product } from "@/lib/products/infrastructure/persistence/products-repository";
 import type { ProductStatus } from "@prisma/client";
 
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline";

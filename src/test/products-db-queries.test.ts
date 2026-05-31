@@ -9,7 +9,7 @@ import {
   getProductsByCollection,
   getFeaturedProducts,
   getBestsellers,
-} from "@/lib/products-db";
+} from "@/lib/products/infrastructure/persistence/products-repository";
 import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 
 function rawRow(over: Record<string, unknown> = {}) {

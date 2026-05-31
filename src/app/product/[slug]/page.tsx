@@ -6,7 +6,7 @@
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import ProductDetailsClient from "@/components/product-details-client";
-import { getProductBySlug, getFeaturedProducts } from "@/lib/products-db";
+import { getProductBySlug, getFeaturedProducts } from "@/lib/products/infrastructure/persistence/products-repository";
 import { ProductCard } from "@/components/product-card";
 import {
   Breadcrumb,
@@ -19,7 +19,7 @@ import {
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import type { Product } from "@/lib/products-db";
+import type { Product } from "@/lib/products/infrastructure/persistence/products-repository";
 
 export async function generateMetadata({
   params,

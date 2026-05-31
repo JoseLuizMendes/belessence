@@ -17,7 +17,7 @@ import {
   getAllProducts,
   getProductBySlug,
   getSalesProducts,
-} from "@/lib/products-db";
+} from "@/lib/products/infrastructure/persistence/products-repository";
 import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 
 /** Linha "crua" como o Prisma devolveria (Decimal como objeto com toString). */

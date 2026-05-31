@@ -9,7 +9,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   getFilteredProducts,
   countFilteredProducts,
-} from "@/lib/products-db";
+} from "@/lib/products/infrastructure/persistence/products-repository";
 import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 
 function rawRow(over: Record<string, unknown> = {}) {

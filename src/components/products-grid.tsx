@@ -10,7 +10,7 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { staggerIn } from "@/lib/motion/presentation/gsap-helpers";
 import { ProductCard } from "@/components/product-card";
-import type { Product } from "@/lib/products-db";
+import type { Product } from "@/lib/products/infrastructure/persistence/products-repository";
 
 interface ProductsGridProps {
   products: Product[];

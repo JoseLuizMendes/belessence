@@ -1,18 +1,18 @@
 /**
  * Testes — GET /api/products
- * Mocka @/lib/products-db. Foco: contrato HTTP + filtro por IDs.
+ * Mocka @/lib/products/infrastructure/persistence/products-repository. Foco: contrato HTTP + filtro por IDs.
  */
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { NextRequest } from "next/server";
 
-vi.mock("@/lib/products-db", () => ({
+vi.mock("@/lib/products/infrastructure/persistence/products-repository", () => ({
   getAllProducts: vi.fn(),
   getFilteredProducts: vi.fn(),
 }));
 
 import { GET } from "@/app/api/products/route";
-import { getAllProducts, getFilteredProducts } from "@/lib/products-db";
+import { getAllProducts, getFilteredProducts } from "@/lib/products/infrastructure/persistence/products-repository";
 
 function makeReq(url: string): NextRequest {
   return new NextRequest(url);

@@ -25,7 +25,7 @@ import { ProductCard } from "./product-card";
 import { Heart, ArrowRight, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import type { Product } from "@/lib/products-db";
+import type { Product } from "@/lib/products/infrastructure/persistence/products-repository";
 
 const SOFT_LIMIT = 24;
 

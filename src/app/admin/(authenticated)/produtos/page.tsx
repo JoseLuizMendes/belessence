@@ -20,11 +20,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Plus, Pencil, Package, AlertTriangle } from "lucide-react";
-import { productImageSrc } from "@/lib/product-image";
+import { productImageSrc } from "@/lib/products/infrastructure/external/product-image";
 import {
   getEffectivePromotion,
   isPromotionStale,
-} from "@/lib/product-status";
+} from "@/lib/products/domain/product-status";
 import type { ProductStatus } from "@prisma/client";
 
 import { PageHeader } from "@/components/admin/page-header";

@@ -18,7 +18,7 @@ import FeatureProducts from "@/components/feature-products";
 import Testimonials from "@/components/testimonials";
 import Newsletter from "@/components/newsletter";
 import Footer from "@/components/footer";
-import { getFeaturedProducts } from "@/lib/products-db";
+import { getFeaturedProducts } from "@/lib/products/infrastructure/persistence/products-repository";
 import { getFeaturedReviews } from "@/lib/reviews-db";
 
 export default async function Home() {

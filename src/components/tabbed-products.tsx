@@ -17,8 +17,8 @@ import { useMemo, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { ProductCard } from "./product-card";
 import { blurReveal } from "@/lib/motion/presentation/gsap-helpers";
-import { getEffectivePromotion, isEffectivelyNew } from "@/lib/product-status";
-import type { Product } from "@/lib/products-db";
+import { getEffectivePromotion, isEffectivelyNew } from "@/lib/products/domain/product-status";
+import type { Product } from "@/lib/products/infrastructure/persistence/products-repository";
 import type { Gender } from "@prisma/client";
 
 const MAX_VISIBLE = 8;

@@ -21,7 +21,7 @@ import { z } from "zod";
 import {
   applyStatusTransition,
   StatusTransitionError,
-} from "@/lib/product-status";
+} from "@/lib/products/domain/product-status";
 import type { ProductStatus } from "@prisma/client";
 
 const productSchema = z.object({

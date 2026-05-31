@@ -6,7 +6,7 @@
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import ProductsGrid from "@/components/products-grid";
-import { getProductsByCollection } from "@/lib/products-db";
+import { getProductsByCollection } from "@/lib/products/infrastructure/persistence/products-repository";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { notFound } from "next/navigation";

@@ -28,7 +28,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { ArrowRight, Package, Search, ShoppingBag } from "lucide-react";
-import { productImageSrc } from "@/lib/product-image";
+import { productImageSrc } from "@/lib/products/infrastructure/external/product-image";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

@@ -9,7 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getAllProducts, getFilteredProducts } from "@/lib/products-db";
+import { getAllProducts, getFilteredProducts } from "@/lib/products/infrastructure/persistence/products-repository";
 
 export async function GET(req: NextRequest) {
   try {

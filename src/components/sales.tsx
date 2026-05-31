@@ -13,8 +13,8 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronDown, Sparkles, Timer, Tag } from "lucide-react";
-import type { SalesProduct } from "@/lib/products-db";
-import { productImageSrc } from "@/lib/product-image";
+import type { SalesProduct } from "@/lib/products/infrastructure/persistence/products-repository";
+import { productImageSrc } from "@/lib/products/infrastructure/external/product-image";
 
 // Helper component to render icon by name
 const IconRenderer = ({ name, className }: { name?: string; className?: string }) => {

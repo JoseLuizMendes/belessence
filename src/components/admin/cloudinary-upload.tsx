@@ -34,7 +34,7 @@ import {
   UploadCloud,
   Plus,
 } from "lucide-react";
-import { productImageSrc } from "@/lib/product-image";
+import { productImageSrc } from "@/lib/products/infrastructure/external/product-image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AspectRatio } from "@/components/ui/aspect-ratio";

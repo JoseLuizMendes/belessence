@@ -11,7 +11,7 @@ import {
   isPromotionStale,
   StatusTransitionError,
   type StatusTransitionInput,
-} from "@/lib/product-status";
+} from "@/lib/products/domain/product-status";
 
 const baseInput: StatusTransitionInput = {
   currentStatus: "NORMAL",

@@ -27,9 +27,9 @@ import { Button } from "@/components/ui/button";
 import { Minus, Plus, ShoppingBag } from "lucide-react";
 import { formatPrice } from "@/shadcn-utils/utils";
 import Image from "next/image";
-import type { Product } from "@/lib/products-db";
-import { productImageSrc } from "@/lib/product-image";
-import { getEffectivePromotion, isEffectivelyNew } from "@/lib/product-status";
+import type { Product } from "@/lib/products/infrastructure/persistence/products-repository";
+import { productImageSrc } from "@/lib/products/infrastructure/external/product-image";
+import { getEffectivePromotion, isEffectivelyNew } from "@/lib/products/domain/product-status";
 
 interface ProductDetailsClientProps {
   product: Product;

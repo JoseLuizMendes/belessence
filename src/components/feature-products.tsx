@@ -11,7 +11,7 @@ import { useGSAP } from "@gsap/react";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { ProductCard } from "./product-card";
-import type { Product } from "@/lib/products-db";
+import type { Product } from "@/lib/products/infrastructure/persistence/products-repository";
 import { blurReveal } from "@/lib/motion/presentation/gsap-helpers";
 
 interface FeatureProductsProps {

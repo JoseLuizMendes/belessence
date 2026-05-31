@@ -15,7 +15,7 @@ import {
   getFilteredProducts,
   countFilteredProducts,
   type ProductSort,
-} from "@/lib/products-db";
+} from "@/lib/products/infrastructure/persistence/products-repository";
 import { SortSelect } from "@/components/sort-select";
 import {
   Breadcrumb,

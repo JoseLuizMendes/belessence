@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { productImageSrc, isCloudinaryUrl } from "@/lib/product-image";
+import { productImageSrc, isCloudinaryUrl } from "@/lib/products/infrastructure/external/product-image";
 
 describe("productImageSrc", () => {
   it("retorna placeholder para null/undefined/vazio", () => {

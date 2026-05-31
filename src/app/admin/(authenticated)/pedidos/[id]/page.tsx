@@ -9,7 +9,7 @@ import { formatPrice } from "@/shadcn-utils/utils";
 import { ArrowLeft } from "lucide-react";
 import { OrderStatusForm } from "@/components/admin/order-status-form";
 import { updateOrderStatus } from "../actions";
-import { productImageSrc } from "@/lib/product-image";
+import { productImageSrc } from "@/lib/products/infrastructure/external/product-image";
 import { PageHeader } from "@/components/admin/page-header";
 import { CommittedPanel } from "@/components/admin/committed-panel";
 import { StatusPill, type StatusTone } from "@/components/admin/status-pill";

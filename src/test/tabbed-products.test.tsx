@@ -8,7 +8,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import type { Product } from "@/lib/products-db";
+import type { Product } from "@/lib/products/infrastructure/persistence/products-repository";
 
 vi.mock("@/components/product-card", () => ({
   ProductCard: ({ product }: { product: { name: string } }) => (

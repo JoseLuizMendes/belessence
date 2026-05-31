@@ -33,7 +33,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Typewriter } from "@/components/ui/typewriter";
 import { AnimatedPrice } from "@/components/ui/animated-price";
-import { productImageSrc } from "@/lib/product-image";
+import { productImageSrc } from "@/lib/products/infrastructure/external/product-image";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
