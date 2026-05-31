@@ -24,7 +24,7 @@ vi.mock("@/components/cart", () => ({
   useCart: () => ({ cartCount: state.cartCount }),
 }));
 
-vi.mock("@/lib/wishlist-store", () => ({
+vi.mock("@/lib/wishlist/presentation/wishlist-store", () => ({
   useWishlistStore: (selector: (s: unknown) => unknown) =>
     selector({ count: state.wishlistCount }),
 }));

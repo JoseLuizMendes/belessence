@@ -9,7 +9,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { useWishlistStore } from "@/lib/wishlist-store";
+import { useWishlistStore } from "@/lib/wishlist/presentation/wishlist-store";
 import { useHasMounted } from "@/lib/hooks/use-has-mounted";
 import { Button } from "./ui/button";
 import { Spinner } from "./ui/spinner";

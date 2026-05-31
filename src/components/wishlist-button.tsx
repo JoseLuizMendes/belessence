@@ -9,7 +9,7 @@
  */
 
 import { Heart } from "lucide-react";
-import { useWishlistStore } from "@/lib/wishlist-store";
+import { useWishlistStore } from "@/lib/wishlist/presentation/wishlist-store";
 import { toast } from "sonner";
 import { useHasMounted } from "@/lib/hooks/use-has-mounted";
 import { useRequireAuth } from "@/lib/hooks/use-require-auth";

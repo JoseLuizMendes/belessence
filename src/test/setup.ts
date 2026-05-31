@@ -172,7 +172,7 @@ vi.mock("@/lib/cart/presentation/cart-actions", () => ({
   clearCartAction: vi.fn(async () => ({ ok: true })),
 }));
 
-vi.mock("@/lib/wishlist-actions", () => ({
+vi.mock("@/lib/wishlist/presentation/wishlist-actions", () => ({
   getWishlistAction: vi.fn(async () => []),
   toggleWishlistAction: vi.fn(async () => ({ ok: true, favorited: true })),
   removeWishlistAction: vi.fn(async () => ({ ok: true })),

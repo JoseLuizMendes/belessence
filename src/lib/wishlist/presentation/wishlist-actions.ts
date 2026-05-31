@@ -12,7 +12,7 @@ import {
   toggleWishlist,
   removeWishlistItem,
   clearWishlist,
-} from "@/lib/wishlist-db";
+} from "@/lib/wishlist/infrastructure/persistence/wishlist-repository";
 
 async function currentUserId(): Promise<string | null> {
   const session = await auth();

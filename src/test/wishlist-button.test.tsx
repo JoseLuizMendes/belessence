@@ -20,7 +20,7 @@ const { toggleMock, toastSuccess, state } = vi.hoisted(() => ({
   state: { items: [] as string[] },
 }));
 
-vi.mock("@/lib/wishlist-store", () => ({
+vi.mock("@/lib/wishlist/presentation/wishlist-store", () => ({
   useWishlistStore: (selector: (s: unknown) => unknown) =>
     selector({ items: state.items, toggle: toggleMock }),
 }));

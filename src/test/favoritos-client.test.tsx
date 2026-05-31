@@ -24,7 +24,7 @@ const { state, clearMock, toastSuccess, toastError } = vi.hoisted(() => ({
   toastError: vi.fn(),
 }));
 
-vi.mock("@/lib/wishlist-store", () => ({
+vi.mock("@/lib/wishlist/presentation/wishlist-store", () => ({
   useWishlistStore: (selector: (s: unknown) => unknown) =>
     selector({ items: state.items, clear: clearMock }),
 }));

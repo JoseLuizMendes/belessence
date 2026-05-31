@@ -9,7 +9,7 @@
  *  - Mutações fazem update otimista e sincronizam via Server Action, com
  *    rollback em caso de falha.
  *
- * Uso: import { useWishlistStore } from '@/lib/wishlist-store'
+ * Uso: import { useWishlistStore } from '@/lib/wishlist/presentation/wishlist-store'
  */
 
 import { create } from "zustand";
@@ -18,7 +18,7 @@ import {
   toggleWishlistAction,
   removeWishlistAction,
   clearWishlistAction,
-} from "@/lib/wishlist-actions";
+} from "@/lib/wishlist/presentation/wishlist-actions";
 
 interface WishlistState {
   /** IDs dos produtos favoritados (cache do servidor). */

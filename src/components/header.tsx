@@ -30,7 +30,7 @@ import { useCart } from "./cart";
 import { CartSheet } from "./cart-sheet";
 import { MariLogo } from "./mari-logo";
 import Link from "next/link";
-import { useWishlistStore } from "@/lib/wishlist-store";
+import { useWishlistStore } from "@/lib/wishlist/presentation/wishlist-store";
 import { AccountMenu } from "./auth/account-menu";
 
 gsap.registerPlugin(ScrollTrigger);

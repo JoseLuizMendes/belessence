@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { useWishlistStore } from "@/lib/wishlist-store";
+import { useWishlistStore } from "@/lib/wishlist/presentation/wishlist-store";
 
 describe("useWishlistStore", () => {
   beforeEach(() => {
