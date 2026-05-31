@@ -11,7 +11,7 @@
 
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { motion } from '@/lib/design-tokens';
+import { motion } from '@/lib/design/domain/tokens';
 
 // Registrar plugins uma vez
 if (typeof window !== 'undefined') {
