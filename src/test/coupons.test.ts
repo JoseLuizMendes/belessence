@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { validateCoupon } from "@/lib/coupons";
+import { validateCoupon } from "@/lib/coupons/infrastructure/persistence/coupons-repository";
 import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 
 type CouponShape = {

@@ -7,12 +7,12 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { NextRequest } from "next/server";
 
-vi.mock("@/lib/coupons", () => ({
+vi.mock("@/lib/coupons/infrastructure/persistence/coupons-repository", () => ({
   validateCoupon: vi.fn(),
 }));
 
 import { POST } from "@/app/api/coupon/validate/route";
-import { validateCoupon } from "@/lib/coupons";
+import { validateCoupon } from "@/lib/coupons/infrastructure/persistence/coupons-repository";
 
 function makeReq(body: unknown): NextRequest {
   return new NextRequest("http://localhost/api/coupon/validate", {

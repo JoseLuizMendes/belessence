@@ -8,7 +8,7 @@ import {
   getShippingCostByState,
   getShippingFromCEP,
   FREE_SHIPPING_THRESHOLD,
-} from "@/lib/shipping";
+} from "@/lib/shipping/infrastructure/external/shipping";
 
 describe("calculateShippingCost — política por UF", () => {
   it("frete grátis quando subtotal >= FREE_SHIPPING_THRESHOLD", () => {

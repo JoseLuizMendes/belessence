@@ -8,7 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getShippingFromCEP } from "@/lib/shipping";
+import { getShippingFromCEP } from "@/lib/shipping/infrastructure/external/shipping";
 
 export async function GET(
   req: NextRequest,

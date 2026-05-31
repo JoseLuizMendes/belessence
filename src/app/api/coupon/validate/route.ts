@@ -9,7 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { validateCoupon } from "@/lib/coupons";
+import { validateCoupon } from "@/lib/coupons/infrastructure/persistence/coupons-repository";
 import { couponValidateSchema } from "@/lib/shared/domain/zod-schemas";
 
 export async function POST(req: NextRequest) {

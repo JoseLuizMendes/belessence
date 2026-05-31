@@ -16,8 +16,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 import { checkoutSchema } from "@/lib/shared/domain/zod-schemas";
-import { validateCoupon } from "@/lib/coupons";
-import { getShippingCostByState } from "@/lib/shipping";
+import { validateCoupon } from "@/lib/coupons/infrastructure/persistence/coupons-repository";
+import { getShippingCostByState } from "@/lib/shipping/infrastructure/external/shipping";
 import { createPayment } from "@/lib/payment-provider";
 import { z } from "zod";
 

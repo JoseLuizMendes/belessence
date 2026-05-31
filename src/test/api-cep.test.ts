@@ -7,12 +7,12 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { NextRequest } from "next/server";
 
-vi.mock("@/lib/shipping", () => ({
+vi.mock("@/lib/shipping/infrastructure/external/shipping", () => ({
   getShippingFromCEP: vi.fn(),
 }));
 
 import { GET } from "@/app/api/cep/[cep]/route";
-import { getShippingFromCEP } from "@/lib/shipping";
+import { getShippingFromCEP } from "@/lib/shipping/infrastructure/external/shipping";
 
 function makeReq(url: string): NextRequest {
   return new NextRequest(url);
