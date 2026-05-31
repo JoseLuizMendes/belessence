@@ -7,7 +7,7 @@ import "server-only";
  */
 
 import { prisma } from "@/lib/shared/infrastructure/prisma-client";
-import type { CartItem } from "@/lib/cart-store";
+import type { CartItem } from "@/lib/cart/presentation/cart-store";
 
 type BadgeVariant = CartItem["badgeVariant"];
 

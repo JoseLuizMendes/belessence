@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { CartProvider, useCart } from "@/components/cart";
-import { useCartStore } from "@/lib/cart-store";
+import { useCartStore } from "@/lib/cart/presentation/cart-store";
 
 const product = {
   id: "p1",

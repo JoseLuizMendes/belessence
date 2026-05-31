@@ -12,8 +12,8 @@ import {
   setCartQuantity,
   removeFromCart,
   clearCart,
-} from "@/lib/cart-db";
-import type { CartItem } from "@/lib/cart-store";
+} from "@/lib/cart/infrastructure/persistence/cart-repository";
+import type { CartItem } from "@/lib/cart/presentation/cart-store";
 
 async function currentUserId(): Promise<string | null> {
   const session = await auth();

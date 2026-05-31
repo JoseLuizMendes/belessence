@@ -164,7 +164,7 @@ vi.mock("next-auth/react", () => ({
 // Mock das Server Actions de carrinho/wishlist — as stores as importam, mas
 // nos testes unitários queremos isolar do servidor (auth + Prisma). Por padrão
 // retornam sucesso, então o update otimista das stores se mantém.
-vi.mock("@/lib/cart-actions", () => ({
+vi.mock("@/lib/cart/presentation/cart-actions", () => ({
   getCartAction: vi.fn(async () => []),
   addToCartAction: vi.fn(async () => ({ ok: true })),
   setCartQuantityAction: vi.fn(async () => ({ ok: true })),

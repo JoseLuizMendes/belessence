@@ -7,9 +7,9 @@
  */
 
 import { ReactNode } from "react";
-import { useCartStore, CartProduct } from "@/lib/cart-store";
+import { useCartStore, CartProduct } from "@/lib/cart/presentation/cart-store";
 
-export type { CartProduct as Product, CartItem } from "@/lib/cart-store";
+export type { CartProduct as Product, CartItem } from "@/lib/cart/presentation/cart-store";
 
 // ─── PROVIDER (não-op — Zustand não precisa de Provider) ─────────────────────
 

@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { useCartStore } from "@/lib/cart-store";
+import { useCartStore } from "@/lib/cart/presentation/cart-store";
 
 const mockProduct = {
   id: "1",

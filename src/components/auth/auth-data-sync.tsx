@@ -11,10 +11,10 @@
 
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useCartStore } from "@/lib/cart-store";
+import { useCartStore } from "@/lib/cart/presentation/cart-store";
 import { useWishlistStore } from "@/lib/wishlist-store";
 import { useAuthGate } from "@/lib/auth-gate-store";
-import { getCartAction } from "@/lib/cart-actions";
+import { getCartAction } from "@/lib/cart/presentation/cart-actions";
 import { getWishlistAction } from "@/lib/wishlist-actions";
 
 export function AuthDataSync() {

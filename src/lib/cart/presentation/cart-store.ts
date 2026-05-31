@@ -14,7 +14,7 @@
  * quais itens finalizar (mínimo 1, máximo todos). Os não selecionados
  * permanecem no carrinho após a compra. É estado de UI — não persiste.
  *
- * Uso: import { useCartStore } from '@/lib/cart-store'
+ * Uso: import { useCartStore } from '@/lib/cart/presentation/cart-store'
  */
 
 import { create } from "zustand";
@@ -24,7 +24,7 @@ import {
   setCartQuantityAction,
   removeFromCartAction,
   clearCartAction,
-} from "@/lib/cart-actions";
+} from "@/lib/cart/presentation/cart-actions";
 
 // ─── TIPOS ───────────────────────────────────────────────────────────────────
 
