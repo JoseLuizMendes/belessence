@@ -308,6 +308,10 @@ export default async function SucessoPage({ params }: PageProps) {
                     updatedAt: order.updatedAt.toISOString(),
                     total: Number(order.total),
                     itemCount: order.items.reduce((sum, item) => sum + item.quantity, 0),
+                    events: order.events.map((e) => ({
+                      status: e.status,
+                      createdAt: e.createdAt.toISOString(),
+                    })),
                   }}
                 />
               </div>
