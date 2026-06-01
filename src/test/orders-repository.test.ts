@@ -59,11 +59,11 @@ describe("ordersRepository", () => {
     });
   });
 
-  describe("hasEventForPayment", () => {
+  describe("findEventForPayment", () => {
     it("filtra por orderId e metadata.paymentId", async () => {
       vi.mocked(prisma.orderEvent.findFirst).mockResolvedValue(null);
 
-      await ordersRepository.hasEventForPayment("order-1", "MP_123");
+      await ordersRepository.findEventForPayment("order-1", "MP_123");
 
       expect(prisma.orderEvent.findFirst).toHaveBeenCalledWith({
         where: {

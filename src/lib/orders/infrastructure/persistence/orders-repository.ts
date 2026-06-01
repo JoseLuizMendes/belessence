@@ -8,6 +8,14 @@ import "server-only";
 import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 import type { OrderStatus } from "../../domain/order-types";
 
+export interface ApplyPaymentConfirmationInput {
+  orderId: string;
+  paymentId: string;
+  mpStatus: string;
+  paymentMethod: string;
+  source: "checkout" | "webhook";
+}
+
 export const ordersRepository = {
   findById(id: string) {
     return prisma.order.findUnique({
@@ -31,10 +39,11 @@ export const ordersRepository = {
   },
 
   /**
-   * Idempotência: chamado antes de `applyPaymentConfirmation`. Se já existe
-   * um OrderEvent com este paymentId, o pagamento já foi processado.
+   * Idempotência: chamado antes de `applyPaymentConfirmation`. Se retornar
+   * truthy, o pagamento já foi processado e a confirmação é no-op.
+   * Retorna o OrderEvent encontrado (útil para debug/log) ou null.
    */
-  hasEventForPayment(orderId: string, paymentId: string) {
+  findEventForPayment(orderId: string, paymentId: string) {
     return prisma.orderEvent.findFirst({
       where: {
         orderId,
@@ -48,13 +57,7 @@ export const ordersRepository = {
    * transação atômica. Persiste dois OrderEvents (com `auto: true` no
    * segundo para marcar transição derivada).
    */
-  applyPaymentConfirmation(input: {
-    orderId: string;
-    paymentId: string;
-    mpStatus: string;
-    paymentMethod: string;
-    source: "checkout" | "webhook";
-  }) {
+  applyPaymentConfirmation(input: ApplyPaymentConfirmationInput) {
     return prisma.$transaction(async (tx) => {
       await tx.order.update({
         where: { id: input.orderId },
