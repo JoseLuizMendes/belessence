@@ -56,6 +56,16 @@ if (
   Element.prototype.scrollIntoView = function () {};
 }
 
+// jsdom não implementa Pointer Capture API (hasPointerCapture, setPointerCapture,
+// releasePointerCapture). Radix UI Select (shadcn) usa essas APIs internamente —
+// sem polyfill, testes que abrem o dropdown quebram com
+// "TypeError: target.hasPointerCapture is not a function".
+if (typeof window !== "undefined" && !Element.prototype.hasPointerCapture) {
+  Element.prototype.hasPointerCapture = () => false;
+  Element.prototype.setPointerCapture = () => {};
+  Element.prototype.releasePointerCapture = () => {};
+}
+
 // Mock global do Prisma — testes individuais sobrescrevem com mockResolvedValueOnce.
 // Centralizado aqui para evitar repetir em cada arquivo de teste.
 // Cobertura: models usados em src/lib/* e src/app/api/*.

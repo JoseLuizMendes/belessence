@@ -39,22 +39,22 @@ describe("OrderStatusFilter", () => {
       <OrderStatusFilter activeStatus={undefined} statuses={statuses} />,
     );
     expect(
-      screen.getByRole("radio", { name: /^todos$/i }),
+      screen.getByRole("tab", { name: /^todos$/i }),
     ).toBeInTheDocument();
     for (const { label } of statuses) {
       expect(
-        screen.getByRole("radio", { name: new RegExp(`^${label}$`, "i") }),
+        screen.getByRole("tab", { name: new RegExp(`^${label}$`, "i") }),
       ).toBeInTheDocument();
     }
   });
 
-  it("quando activeStatus é undefined, 'Todos' está com aria-checked='true'", () => {
+  it("quando activeStatus é undefined, 'Todos' está com aria-selected='true'", () => {
     render(
       <OrderStatusFilter activeStatus={undefined} statuses={statuses} />,
     );
     expect(
-      screen.getByRole("radio", { name: /^todos$/i }),
-    ).toHaveAttribute("aria-checked", "true");
+      screen.getByRole("tab", { name: /^todos$/i }),
+    ).toHaveAttribute("aria-selected", "true");
   });
 
   it("quando activeStatus='SHIPPED', a pill 'Enviado' está marcada", () => {
@@ -62,8 +62,8 @@ describe("OrderStatusFilter", () => {
       <OrderStatusFilter activeStatus="SHIPPED" statuses={statuses} />,
     );
     expect(
-      screen.getByRole("radio", { name: /^enviado$/i }),
-    ).toHaveAttribute("aria-checked", "true");
+      screen.getByRole("tab", { name: /^enviado$/i }),
+    ).toHaveAttribute("aria-selected", "true");
   });
 
   it("clicar em uma pill chama router.push com ?status=<value>", async () => {
@@ -71,7 +71,7 @@ describe("OrderStatusFilter", () => {
     render(
       <OrderStatusFilter activeStatus={undefined} statuses={statuses} />,
     );
-    await user.click(screen.getByRole("radio", { name: /^enviado$/i }));
+    await user.click(screen.getByRole("tab", { name: /^enviado$/i }));
     expect(routerPush).toHaveBeenCalledWith("/admin/pedidos?status=SHIPPED");
   });
 
@@ -80,7 +80,7 @@ describe("OrderStatusFilter", () => {
     render(
       <OrderStatusFilter activeStatus="SHIPPED" statuses={statuses} />,
     );
-    await user.click(screen.getByRole("radio", { name: /^todos$/i }));
+    await user.click(screen.getByRole("tab", { name: /^todos$/i }));
     expect(routerPush).toHaveBeenCalledWith("/admin/pedidos");
   });
 });
