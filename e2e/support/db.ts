@@ -55,6 +55,37 @@ export async function countOrdersByEmail(email: string): Promise<number> {
   return Number(rows[0]?.count ?? 0);
 }
 
+/** Status atual de um pedido por id. */
+export async function getOrderStatus(orderId: string): Promise<string | null> {
+  const rows = await query<{ status: string }>(
+    'SELECT status FROM orders WHERE id = $1',
+    [orderId],
+  );
+  return rows[0]?.status ?? null;
+}
+
+/** Shape mínimo de um OrderEvent retornado pelas asserções E2E. */
+export interface OrderEventRow {
+  id: string;
+  status: string;
+  createdAt: Date;
+  metadata: Record<string, unknown> | null;
+}
+
+/** Lista os eventos de um pedido em ordem cronológica ascendente. */
+export async function getOrderEvents(orderId: string): Promise<OrderEventRow[]> {
+  const rows = await query<{
+    id: string;
+    status: string;
+    createdAt: Date;
+    metadata: Record<string, unknown> | null;
+  }>(
+    'SELECT id, status, "createdAt", metadata FROM order_events WHERE "orderId" = $1 ORDER BY "createdAt" ASC',
+    [orderId],
+  );
+  return rows;
+}
+
 export async function closeDb(): Promise<void> {
   if (pool) {
     await pool.end();
