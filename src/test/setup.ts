@@ -107,6 +107,41 @@ vi.mock("@/lib/shared/infrastructure/prisma-client", () => ({
       create: vi.fn(),
       update: vi.fn(),
     },
+    // Adicionados após Rodada 4: bounded contexts auth + cart + wishlist
+    user: {
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+    },
+    account: {
+      findUnique: vi.fn(),
+      create: vi.fn(),
+    },
+    session: {
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      delete: vi.fn(),
+    },
+    cartItem: {
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      upsert: vi.fn(),
+      delete: vi.fn(),
+      deleteMany: vi.fn(),
+    },
+    wishlistItem: {
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      delete: vi.fn(),
+      deleteMany: vi.fn(),
+    },
+    adminUser: {
+      findUnique: vi.fn(),
+      update: vi.fn(),
+    },
     $transaction: vi.fn(async (arg: unknown) => {
       // Suporta tanto array de promises quanto callback(tx)
       if (Array.isArray(arg)) return Promise.all(arg);
@@ -188,6 +223,11 @@ vi.mock("@/lib/wishlist/presentation/wishlist-actions", () => ({
   removeWishlistAction: vi.fn(async () => ({ ok: true })),
   clearWishlistAction: vi.fn(async () => ({ ok: true })),
 }));
+
+// `server-only` é um módulo Next.js virtual que só existe em build. Em Vitest
+// (jsdom) precisamos mocká-lo pra evitar erro de resolução em arquivos
+// `import "server-only"` (ex.: wishlist-repository.ts, cart-repository.ts).
+vi.mock("server-only", () => ({}));
 
 vi.mock("lenis", () => ({
   default: vi.fn().mockImplementation(() => ({
