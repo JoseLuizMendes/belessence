@@ -95,7 +95,12 @@ describe("Hero — Section context (breadcrumb + categorias)", () => {
     ).toBeInTheDocument();
   });
 
-  it("renderiza o breadcrumb com 'Início' como link", () => {
+  // O Hero atual NÃO renderiza breadcrumb com "Início" — só heading + category pills.
+  // Este teste foi escrito antecipando uma feature de breadcrumb que não foi
+  // implementada (ou foi removida). Mantido como skip pra preservar a intenção
+  // caso a feature seja retomada. Quando implementar: adicionar <Link href="/">Início</Link>
+  // na seção "2. SECTION CONTEXT" antes do heading.
+  it.skip("renderiza o breadcrumb com 'Início' como link (feature pendente)", () => {
     render(<Hero />);
     expect(screen.getByRole("link", { name: /^início$/i })).toHaveAttribute(
       "href",

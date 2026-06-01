@@ -2,11 +2,18 @@
  * Testes — OrderStatusForm (admin)
  * Foco: 6 opções de status, asterisco condicional em tracking quando SHIPPED,
  * submit chama Server Action com FormData, toasts de sucesso/erro.
+ *
+ * Padrão Radix Select (shadcn):
+ *  - Trigger é <button role="combobox">, NÃO <select> nativo
+ *  - Options renderizam em portal só quando dropdown abre
+ *  - Form usa <input type="hidden" name="status"> pra carregar value no FormData
+ *  - userEvent precisa de pointerEventsCheck: 0 porque Radix usa pointer-events: none
+ *    no body durante portal aberto (impede clicks no jsdom sem o bypass)
  */
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import userEvent, { PointerEventsCheckLevel } from "@testing-library/user-event";
 
 const { toastSuccess, toastError } = vi.hoisted(() => ({
   toastSuccess: vi.fn(),
@@ -19,12 +26,19 @@ vi.mock("sonner", () => ({
 
 import { OrderStatusForm } from "@/components/admin/order-status-form";
 
+/** Setup userEvent que tolera pointer-events: none do Radix Select em jsdom. */
+const setupUser = () =>
+  userEvent.setup({
+    pointerEventsCheck: PointerEventsCheckLevel.Never,
+  });
+
 describe("OrderStatusForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("renderiza as 6 opções de status", () => {
+  it("renderiza as 6 opções de status ao abrir o select", async () => {
+    const user = setupUser();
     render(
       <OrderStatusForm
         currentStatus="PENDING"
@@ -32,6 +46,9 @@ describe("OrderStatusForm", () => {
         action={vi.fn()}
       />,
     );
+    // Abre o dropdown — Radix Select só monta options no portal após click no trigger
+    await user.click(screen.getByRole("combobox"));
+
     const labels = [
       /aguardando pagamento/i,
       /pagamento confirmado/i,
@@ -41,11 +58,11 @@ describe("OrderStatusForm", () => {
       /^cancelado$/i,
     ];
     for (const l of labels) {
-      expect(screen.getByRole("option", { name: l })).toBeInTheDocument();
+      expect(await screen.findByRole("option", { name: l })).toBeInTheDocument();
     }
   });
 
-  it("seleciona o currentStatus como valor inicial", () => {
+  it("seleciona o currentStatus como valor inicial (trigger mostra a label correspondente)", () => {
     render(
       <OrderStatusForm
         currentStatus="SHIPPED"
@@ -53,8 +70,8 @@ describe("OrderStatusForm", () => {
         action={vi.fn()}
       />,
     );
-    const select = screen.getByRole("combobox") as HTMLSelectElement;
-    expect(select.value).toBe("SHIPPED");
+    // Radix expõe a label do option selecionado no texto do trigger via SelectValue
+    expect(screen.getByRole("combobox")).toHaveTextContent(/enviado/i);
   });
 
   it("preenche o trackingCode inicial quando fornecido", () => {
@@ -97,13 +114,14 @@ describe("OrderStatusForm", () => {
     expect(
       screen.getByPlaceholderText(/BR123456789XX/i),
     ).not.toBeRequired();
+    // Component renderiza "Opcional; preencha quando despachar."
     expect(
-      screen.getByText(/opcional — preencha quando despachar/i),
+      screen.getByText(/opcional; preencha quando despachar/i),
     ).toBeInTheDocument();
   });
 
-  it("mudar status para SHIPPED no select torna tracking obrigatório", async () => {
-    const user = userEvent.setup();
+  it("mudar status para SHIPPED via select torna tracking obrigatório", async () => {
+    const user = setupUser();
     render(
       <OrderStatusForm
         currentStatus="PREPARING"
@@ -111,15 +129,18 @@ describe("OrderStatusForm", () => {
         action={vi.fn()}
       />,
     );
-    const select = screen.getByRole("combobox");
-    await user.selectOptions(select, "SHIPPED");
-    expect(
-      screen.getByPlaceholderText(/BR123456789XX/i),
-    ).toBeRequired();
+    // Abre o select e clica em "Enviado"
+    await user.click(screen.getByRole("combobox"));
+    await user.click(await screen.findByRole("option", { name: /^enviado$/i }));
+
+    // Após selecionar, o estado interno muda e tracking vira required
+    await waitFor(() =>
+      expect(screen.getByPlaceholderText(/BR123456789XX/i)).toBeRequired(),
+    );
   });
 
   it("submit chama action(FormData) e toast.success", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const action = vi.fn().mockResolvedValue(undefined);
     render(
       <OrderStatusForm
@@ -137,7 +158,7 @@ describe("OrderStatusForm", () => {
   });
 
   it("toast.error com mensagem quando action lança Error", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const action = vi
       .fn()
       .mockRejectedValue(new Error("Pedido já entregue"));
@@ -155,7 +176,7 @@ describe("OrderStatusForm", () => {
   });
 
   it("toast.error genérico quando action lança não-Error", async () => {
-    const user = userEvent.setup();
+    const user = setupUser();
     const action = vi.fn().mockRejectedValue("string crua");
     render(
       <OrderStatusForm
