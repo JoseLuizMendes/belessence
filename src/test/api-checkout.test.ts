@@ -25,12 +25,14 @@ import { NextRequest } from "next/server";
 vi.mock("@/lib/coupons/infrastructure/persistence/coupons-repository", () => ({ validateCoupon: vi.fn() }));
 vi.mock("@/lib/shipping/infrastructure/external/shipping", () => ({ getShippingCostByState: vi.fn() }));
 vi.mock("@/lib/payment/infrastructure/external/payment-provider", () => ({ createPayment: vi.fn() }));
+vi.mock("@/lib/orders/application/confirm-payment", () => ({ confirmPayment: vi.fn() }));
 
 import { POST } from "@/app/api/checkout/route";
 import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 import { validateCoupon } from "@/lib/coupons/infrastructure/persistence/coupons-repository";
 import { getShippingCostByState } from "@/lib/shipping/infrastructure/external/shipping";
 import { createPayment } from "@/lib/payment/infrastructure/external/payment-provider";
+import { confirmPayment } from "@/lib/orders/application/confirm-payment";
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
@@ -211,7 +213,7 @@ describe("POST /api/checkout", () => {
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.orderId).toBe("ord-1");
-    expect(json.status).toBe("PAYMENT_CONFIRMED");
+    expect(json.status).toBe("PREPARING");
     expect(json.paymentMethod).toBe("pix");
 
     // Subtotal = 450. Sem cupom → discount=0. Frete passado = 450.
@@ -226,18 +228,14 @@ describe("POST /api/checkout", () => {
       }),
     );
 
-    // Order atualizado com paymentId após confirmação
-    expect(prisma.order.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { id: "ord-1" },
-        data: expect.objectContaining({
-          status: "PAYMENT_CONFIRMED",
-          mpPaymentId: "MP-123",
-          mpStatus: "approved",
-          paymentMethod: "pix",
-        }),
-      }),
-    );
+    // Approved → delega ao use case confirmPayment com source="checkout"
+    expect(confirmPayment).toHaveBeenCalledWith({
+      orderId: "ord-1",
+      paymentId: "MP-123",
+      mpStatus: "approved",
+      paymentMethod: "pix",
+      source: "checkout",
+    });
   });
 
   it("caminho feliz com cupom: aplica desconto antes do frete", async () => {
@@ -320,10 +318,14 @@ describe("POST /api/checkout", () => {
     const json = await res.json();
     expect(json.status).toBe("PENDING");
 
+    // Pending → não invoca o use case de confirmação
+    expect(confirmPayment).not.toHaveBeenCalled();
+
+    // Apenas persiste os metadados do pagamento, sem alterar status
     expect(prisma.order.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          status: "PENDING",
+          mpPaymentId: "MP-999",
           mpStatus: "pending",
         }),
       }),

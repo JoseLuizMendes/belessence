@@ -947,6 +947,22 @@
   animation: pulse-slow 2.4s ease-in-out infinite;
 }
 
+/* ── TRACKING TIMELINE PULSE (etapa atual) ───────────────────── */
+@keyframes tracking-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 4px rgba(71, 19, 28, 0.12);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(71, 19, 28, 0.06);
+    transform: scale(1.05);
+  }
+}
+
+.animate-tracking-pulse {
+  animation: tracking-pulse 2s ease-in-out infinite;
+}
+
 /* ── MARQUEE CONTÍNUO (depoimentos) ───────────────────────────────
  * O conteúdo é duplicado no componente; deslocar -50% cria um loop
  * sem emenda. Duração controlável via --marquee-duration. Pausa no
@@ -1036,7 +1052,8 @@
 /* ── REDUCED-MOTION OVERRIDES ──────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .page-transition,
-  .animate-pulse-slow {
+  .animate-pulse-slow,
+  .animate-tracking-pulse {
     animation: none !important;
   }
 }

@@ -17,7 +17,7 @@
 
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import { prisma } from "@/lib/shared/infrastructure/prisma-client";
+import { getOrderById } from "@/lib/orders/application/get-order-by-id";
 import { formatPrice } from "@/shadcn-utils/utils";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -33,6 +33,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Typewriter } from "@/components/ui/typewriter";
 import { AnimatedPrice } from "@/components/ui/animated-price";
+import { OrderTrackingModal } from "@/components/order-tracking-modal";
 import { productImageSrc } from "@/lib/products/infrastructure/external/product-image";
 import type { Metadata } from "next";
 
@@ -63,10 +64,7 @@ const PAYMENT_LABELS: Record<string, string> = {
 export default async function SucessoPage({ params }: PageProps) {
   const { id } = await params;
 
-  const order = await prisma.order.findUnique({
-    where: { id },
-    include: { items: true },
-  });
+  const order = await getOrderById(id);
 
   if (!order) notFound();
 
@@ -181,7 +179,7 @@ export default async function SucessoPage({ params }: PageProps) {
               </section>
 
               {/* Endereço */}
-              <section className="bg-surface-panel rounded-token-md p-6 sm:p-8">
+              <section className="bg-surface-panel rounded-token-md p-6 sm:p-10">
                 <div className="flex items-center gap-2 mb-2">
                   <MapPin className="h-4 w-4 text-brand-wine" />
                   <h2 className="font-playfair italic text-xl text-ink-strong">
@@ -299,6 +297,23 @@ export default async function SucessoPage({ params }: PageProps) {
                 >
                   <Link href="/allProducts">Continuar comprando</Link>
                 </Button>
+               
+                <OrderTrackingModal
+                  order={{
+                    id: order.id,
+                    status: order.status,
+                    customerName: order.customerName,
+                    trackingCode: order.trackingCode,
+                    createdAt: order.createdAt.toISOString(),
+                    updatedAt: order.updatedAt.toISOString(),
+                    total: Number(order.total),
+                    itemCount: order.items.reduce((sum, item) => sum + item.quantity, 0),
+                    events: order.events.map((e) => ({
+                      status: e.status,
+                      createdAt: e.createdAt.toISOString(),
+                    })),
+                  }}
+                />
               </div>
             </aside>
           </div>

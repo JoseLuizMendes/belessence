@@ -116,6 +116,7 @@ model Order {
   couponCode   String?
 
   items     OrderItem[]
+  events    OrderEvent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -151,6 +152,21 @@ model OrderItem {
   quantity Int
 
   @@map("order_items")
+}
+
+// ─── EVENTOS DE PEDIDO ────────────────────────────────────────────────────────
+
+model OrderEvent {
+  id        String      @id @default(uuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  status    OrderStatus
+  createdAt DateTime    @default(now())
+  metadata  Json?       // { paymentId?, mpStatus?, source: "checkout" | "webhook" | "admin", auto?: bool }
+
+  @@index([orderId, createdAt])
+  @@map("order_events")
 }
 
 // ─── AVALIAÇÃO ────────────────────────────────────────────────────────────────

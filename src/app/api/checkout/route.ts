@@ -19,6 +19,7 @@ import { checkoutSchema } from "@/lib/shared/domain/zod-schemas";
 import { validateCoupon } from "@/lib/coupons/infrastructure/persistence/coupons-repository";
 import { getShippingCostByState } from "@/lib/shipping/infrastructure/external/shipping";
 import { createPayment } from "@/lib/payment/infrastructure/external/payment-provider";
+import { confirmPayment } from "@/lib/orders/application/confirm-payment";
 import { z } from "zod";
 
 // ─── Schema do body ──────────────────────────────────────────────────────────
@@ -186,21 +187,31 @@ export async function POST(req: NextRequest) {
       customerCpf: customer.cpf,
     });
 
-    // ── 7. Atualiza Order com dados do pagamento ────────────────────────────
-    // Como o mock retorna `approved` imediatamente, marcamos como PAYMENT_CONFIRMED.
-    // Em produção, isso aconteceria via webhook do MP, e aqui só salvaríamos o paymentId.
-    const finalStatus =
-      payment.status === "approved" ? "PAYMENT_CONFIRMED" : "PENDING";
+    // ── 7. Aplica regra de negócio se aprovado, ou só salva metadados ──────
+    // approved → use case orquestra PAYMENT_CONFIRMED + PREPARING (idempotente).
+    // pending/rejected → apenas persiste o paymentId para futuro webhook.
+    let finalStatus: "PREPARING" | "PENDING";
 
-    await prisma.order.update({
-      where: { id: order.id },
-      data: {
-        status: finalStatus,
-        mpPaymentId: payment.paymentId,
+    if (payment.status === "approved") {
+      await confirmPayment({
+        orderId: order.id,
+        paymentId: payment.paymentId,
         mpStatus: payment.status,
         paymentMethod: payment.paymentMethod,
-      },
-    });
+        source: "checkout",
+      });
+      finalStatus = "PREPARING";
+    } else {
+      await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          mpPaymentId: payment.paymentId,
+          mpStatus: payment.status,
+          paymentMethod: payment.paymentMethod,
+        },
+      });
+      finalStatus = "PENDING";
+    }
 
     return NextResponse.json({
       orderId: order.id,
