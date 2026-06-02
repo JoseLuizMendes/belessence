@@ -248,9 +248,41 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
         <div className="h-px w-12 bg-brand-wine/60 mb-8 mx-auto" />
 
         {reviews === null ? (
-          <div className="text-center py-8">
-            <Spinner className="size-6 text-brand-wine mx-auto" />
-          </div>
+          /**
+           * Skeleton com 2 cards que replicam o shape final.
+           * Não usar Spinner: ele tem altura pequena, então quando as
+           * reviews reais chegam (3-5 cards) o wrapper cresce de ~80px
+           * para ~600px e isso causa layout shift visível.
+           * Skeleton de 2 cards ~280px aproxima da altura real e
+           * absorve o shift.
+           */
+          <ul className="space-y-6" aria-label="Carregando avaliações">
+            {[0, 1].map((i) => (
+              <li
+                key={i}
+                className="bg-surface-panel rounded-token-sm p-5 sm:p-6 animate-pulse"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="space-y-2">
+                    <div className="h-3.5 w-24 rounded bg-brand-wine/10" />
+                    <div className="h-3 w-16 rounded bg-brand-wine/10" />
+                  </div>
+                  <div className="flex gap-0.5">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <div
+                        key={s}
+                        className="h-3.5 w-3.5 rounded-sm bg-brand-wine/10"
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-3 w-full rounded bg-brand-wine/10" />
+                  <div className="h-3 w-4/5 rounded bg-brand-wine/10" />
+                </div>
+              </li>
+            ))}
+          </ul>
         ) : reviews.length === 0 ? (
           <Empty className="py-8">
             <EmptyHeader>
