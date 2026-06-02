@@ -10,7 +10,8 @@
  *  - Tabs: Descrição | Ritual de Uso | Ingredientes
  */
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useCart } from "@/components/cart";
 import { useRequireAuth } from "@/lib/hooks/use-require-auth";
@@ -57,12 +58,140 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
   const priceRef = useRef<HTMLDivElement>(null);
   const descRef = useRef<HTMLParagraphElement>(null);
 
+  // Refs do segmented-tabs (pill deslizante + transição de altura + slide)
+  const pillRef = useRef<HTMLSpanElement>(null);
+  const triggerRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const contentWrapperRef = useRef<HTMLDivElement>(null);
+  const contentInnerRef = useRef<HTMLDivElement>(null);
+  const previousHeightRef = useRef<number | null>(null);
+  const pillInitializedRef = useRef(false);
+  const slideDirectionRef = useRef<1 | -1>(1);
+
+  /**
+   * Captura a altura atual ANTES da troca de aba, para que o useGSAP de
+   * altura possa interpolar de old → new sem causar salto visual.
+   */
+  const handleTabChange = (newKey: string) => {
+    const oldIndex = TABS.findIndex((t) => t.key === activeTab);
+    const newIndex = TABS.findIndex((t) => t.key === newKey);
+    slideDirectionRef.current = newIndex > oldIndex ? 1 : -1;
+
+    if (contentWrapperRef.current) {
+      previousHeightRef.current = contentWrapperRef.current.offsetHeight;
+    }
+    setActiveTab(newKey as TabKey);
+  };
+
   useGSAP(() => {
     if (imageRef.current) fadeInUp(imageRef.current, { y: 24, duration: 0.7 });
     if (titleRef.current) fadeInUp(titleRef.current, { y: 24, duration: 0.7, delay: 0.12 });
     if (priceRef.current) fadeInUp(priceRef.current, { y: 24, duration: 0.7, delay: 0.22 });
     if (descRef.current) fadeInUp(descRef.current, { y: 24, duration: 0.7, delay: 0.32 });
   }, { scope: pageRef });
+
+  /**
+   * Pill deslizante: posiciona/dimensiona o `<span>` bordô atrás da tab
+   * ativa. Primeira execução usa `set` (sem animação) para evitar flicker
+   * inicial; trocas subsequentes usam `to` com easing exponencial.
+   */
+  useGSAP(() => {
+    if (!pillRef.current) return;
+    const activeIndex = TABS.findIndex((t) => t.key === activeTab);
+    const activeBtn = triggerRefs.current[activeIndex];
+    if (!activeBtn) return;
+
+    const target = { 
+      x: activeBtn.offsetLeft, 
+      y: activeBtn.offsetTop,
+      width: activeBtn.offsetWidth,
+      height: activeBtn.offsetHeight
+    };
+
+    if (!pillInitializedRef.current) {
+      gsap.set(pillRef.current, { ...target, opacity: 1 });
+      pillInitializedRef.current = true;
+    } else {
+      gsap.to(pillRef.current, { ...target, duration: 0.55, ease: "expo.out" });
+    }
+  }, { dependencies: [activeTab], scope: pageRef });
+
+  /**
+   * Slide lateral + altura suave do conteúdo:
+   * 1. Altura interpola old→new com expo.out (sem salto).
+   * 2. Conteúdo interno desliza na direção da tab escolhida.
+   *    Se clicou pra direita, conteúdo antigo sai pela esquerda e novo
+   *    entra pela direita (e vice-versa).
+   */
+  useGSAP(() => {
+    if (!contentWrapperRef.current || !contentInnerRef.current) return;
+
+    const wrapper = contentWrapperRef.current;
+    const inner = contentInnerRef.current;
+    const dir = slideDirectionRef.current;
+
+    // Slide lateral do conteúdo
+    gsap.fromTo(
+      inner,
+      { x: dir * 40, opacity: 0 },
+      {
+        x: 0,
+        opacity: 1,
+        duration: 0.45,
+        ease: "expo.out",
+      },
+    );
+
+    // Altura suave (apenas em trocas, não no render inicial)
+    if (previousHeightRef.current !== null) {
+      const fromHeight = previousHeightRef.current;
+      const toHeight = inner.offsetHeight;
+      const delta = Math.abs(toHeight - fromHeight);
+
+      /**
+       * Duração adaptativa: deltas grandes (ex.: ir para AVALIAÇÕES com
+       * form completo) animam mais rápido para evitar a sensação de
+       * "loading reveal". Deltas pequenos ganham mais tempo para reforçar
+       * a suavidade.
+       */
+      const duration = delta < 200 ? 0.5 : delta < 500 ? 0.42 : 0.35;
+
+      gsap.fromTo(
+        wrapper,
+        { height: fromHeight },
+        {
+          height: toHeight,
+          duration,
+          ease: "expo.out",
+          onComplete: () => {
+            gsap.set(wrapper, { height: "auto" });
+          },
+        },
+      );
+
+      previousHeightRef.current = null;
+    }
+  }, { dependencies: [activeTab], scope: pageRef });
+
+  /**
+   * Recalcula a posição do pill no resize da janela (offsets dos triggers
+   * mudam com flex layout responsivo). `gsap.set` sem animação para evitar
+   * "deriva" durante o arrastar.
+   */
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handler = () => {
+      const activeIndex = TABS.findIndex((t) => t.key === activeTab);
+      const activeBtn = triggerRefs.current[activeIndex];
+      if (activeBtn && pillRef.current) {
+        gsap.set(pillRef.current, {
+          x: activeBtn.offsetLeft,
+          width: activeBtn.offsetWidth,
+        });
+      }
+    };
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, [activeTab]);
 
   const handleAddToCart = () => {
     requireAuth(() => {
@@ -109,11 +238,21 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
         ))}
       </ul>
     ),
-    avaliacoes: <ProductReviews productId={product.id} />,
+    /**
+     * `min-h-[480px]` reserva espaço para o form de avaliação ANTES do
+     * fetch async das reviews completar. Sem isso, a altura cresceria
+     * em duas fases visíveis (forma → forma+reviews), criando aquela
+     * sensação de "carrega o título primeiro depois o resto".
+     */
+    avaliacoes: (
+      <div className="min-h-[480px]">
+        <ProductReviews productId={product.id} />
+      </div>
+    ),
   };
 
   return (
-    <div ref={pageRef} className="space-y-16">
+    <div ref={pageRef} className="space-y-7">
       {/* Layout principal: galeria + info */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
         {/* Galeria */}
@@ -299,34 +438,73 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
         </div>
       </div>
 
-      {/* Tabs: Descrição / Ritual / Ingredientes / Avaliações */}
-      <div className="border-t border-border-subtle pt-12">
+      {/* Tabs: Descrição / Ritual / Ingredientes / Avaliações
+          ────────────────────────────────────────────────────────
+          - Tabs flutuam limpas sem container (bg/border/shadow removidos).
+          - Pill sólida vinho desliza com GSAP expo.out.
+          - Conteúdo slide lateral + altura interpolada suavemente. */}
+      <div>
         <Tabs
           value={activeTab}
-          onValueChange={(v) => setActiveTab(v as TabKey)}
+          onValueChange={handleTabChange}
           className="w-full"
         >
-          <TabsList className="mx-auto mb-10 flex h-auto flex-wrap items-center justify-center gap-6 sm:gap-12 bg-transparent p-0">
-            {TABS.map((tab) => (
+          {/* ── TabsList ────────────────────────────────────────────
+              - flex-nowrap + overflow-x-auto: em mobile, tabs ficam
+                numa linha só e rolam horizontalmente em vez de quebrar
+                (que fazia AVALIAÇÕES ficar w-full sozinha numa segunda
+                linha por causa do flex-1 herdado do shadcn).
+              - mx-auto + w-fit: centraliza quando cabe; em mobile expande
+                até max-w-full e rola.
+              - scrollbar oculta visualmente (mantém funcional).
+              - Cada trigger tem o MESMO border sempre (subtle bordô) —
+                o que muda é o pill bordô absoluto e a cor do texto. */}
+          <TabsList
+            className="relative mx-auto mb-6 flex h-auto w-fit max-w-full flex-nowrap items-center gap-2 overflow-x-auto overflow-y-visible rounded-none border-0 bg-transparent p-0 shadow-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {/* Pill deslizante (GSAP anima x + width entre triggers) */}
+            <span
+              ref={pillRef}
+              aria-hidden
+              className="pointer-events-none absolute top-0 left-0 rounded-full bg-brand-wine opacity-0 shadow-[0_4px_14px_-4px_rgba(71,19,28,0.35)] will-change-transform"
+            />
+
+            {TABS.map((tab, i) => (
               <TabsTrigger
                 key={tab.key}
+                ref={(el) => {
+                  triggerRefs.current[i] = el;
+                }}
                 value={tab.key}
-                className="relative h-auto px-0 pb-2 text-[11px] font-medium tracking-[0.24em] uppercase text-ink-muted shadow-none rounded-none bg-transparent transition-colors hover:text-ink-soft data-[state=active]:text-brand-wine data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:after:absolute data-[state=active]:after:-bottom-px data-[state=active]:after:left-0 data-[state=active]:after:right-0 data-[state=active]:after:h-px data-[state=active]:after:bg-brand-wine"
+                className="relative z-10 h-auto !flex-none shrink-0 rounded-full border border-brand-wine/15 bg-transparent px-4 py-2.5 text-[10.5px] font-medium tracking-[0.2em] uppercase whitespace-nowrap shadow-none transition-colors duration-300 hover:border-brand-wine/30 focus-visible:outline-none focus-visible:ring-0 sm:px-5 sm:text-[11px] data-[state=active]:bg-transparent data-[state=active]:shadow-none"
               >
-                {tab.label}
+                <span
+                  className={
+                    activeTab === tab.key
+                      ? "text-brand-pink transition-colors duration-300"
+                      : "text-ink-strong transition-colors duration-300"
+                  }
+                >
+                  {tab.label}
+                </span>
               </TabsTrigger>
             ))}
           </TabsList>
 
-          {TABS.map((tab) => (
-            <TabsContent
-              key={tab.key}
-              value={tab.key}
-              className="max-w-2xl mx-auto text-center"
-            >
-              {tabContent[tab.key]}
-            </TabsContent>
-          ))}
+          {/* Wrapper de altura animada + slide lateral */}
+          <div ref={contentWrapperRef} className="overflow-hidden">
+            <div ref={contentInnerRef}>
+              {TABS.map((tab) => (
+                <TabsContent
+                  key={tab.key} 
+                  value={tab.key}
+                  className="max-w-2xl pt-2 pb-6 text-left"
+                >
+                  {tabContent[tab.key]}
+                </TabsContent>
+              ))}
+            </div>
+          </div>
         </Tabs>
       </div>
     </div>
