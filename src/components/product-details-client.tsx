@@ -10,7 +10,7 @@
  *  - Tabs: Descrição | Ritual de Uso | Ingredientes
  */
 
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { useCart } from "@/components/cart";
 import { useRequireAuth } from "@/lib/hooks/use-require-auth";
@@ -63,12 +63,46 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
   const priceRef = useRef<HTMLDivElement>(null);
   const descRef = useRef<HTMLParagraphElement>(null);
 
+  // Refs do sliding pill das tabs
+  const pillRef = useRef<HTMLSpanElement>(null);
+  const triggerRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
   useGSAP(() => {
     if (imageRef.current) fadeInUp(imageRef.current, { y: 24, duration: 0.7 });
     if (titleRef.current) fadeInUp(titleRef.current, { y: 24, duration: 0.7, delay: 0.12 });
     if (priceRef.current) fadeInUp(priceRef.current, { y: 24, duration: 0.7, delay: 0.22 });
     if (descRef.current) fadeInUp(descRef.current, { y: 24, duration: 0.7, delay: 0.32 });
   }, { scope: pageRef });
+
+  /**
+   * Sliding pill — bordô que desliza entre tabs com `transform: translate(x,y)`.
+   * Usa `translate` (não só `translateX`) porque com `flex-wrap`, AVALIAÇÕES
+   * pode estar em row 2 — pill precisa descer diagonalmente até lá.
+   *
+   * Transição do pill (transform + width + height) tem MESMA duration/ease
+   * da transição do `color` dos triggers (500ms quart.out). Sincronia
+   * preserva legibilidade durante o slide: enquanto o pill cobre o novo
+   * tab, o texto novo já está fade-in pra brand-pink; enquanto o pill sai
+   * do velho tab, o texto velho está fade-out pra ink-strong.
+   *
+   * useLayoutEffect garante posicionamento ANTES da pintura (sem flicker).
+   */
+  useLayoutEffect(() => {
+    const positionPill = () => {
+      const activeIndex = TABS.findIndex((t) => t.key === activeTab);
+      const activeBtn = triggerRefs.current[activeIndex];
+      const pill = pillRef.current;
+      if (!activeBtn || !pill) return;
+      pill.style.transform = `translate(${activeBtn.offsetLeft}px, ${activeBtn.offsetTop}px)`;
+      pill.style.width = `${activeBtn.offsetWidth}px`;
+      pill.style.height = `${activeBtn.offsetHeight}px`;
+      pill.style.opacity = "1";
+    };
+    positionPill();
+    if (typeof window === "undefined") return;
+    window.addEventListener("resize", positionPill);
+    return () => window.removeEventListener("resize", positionPill);
+  }, [activeTab]);
 
   const handleAddToCart = () => {
     requireAuth(() => {
@@ -308,15 +342,18 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
       {/* Tabs: Descrição / Ritual / Ingredientes / Avaliações
           ────────────────────────────────────────────────────────
           Arquitetura:
-          - SEM sliding pill. Cada trigger gerencia seu próprio
-            bg/text via `data-[state=active]:*`. Eliminou o
-            "texto escuro sobre vinho" durante slide, que era
-            ilegível.
+          - Sliding pill bordô segue tab ativa via translate(x,y)
+            absoluto. transform+width+height transicionam em 500ms
+            com cubic-bezier ≈ quart.out.
+          - Cor dos triggers transiciona em MESMA duration/ease
+            (500ms quart.out). Sincronia preserva legibilidade
+            durante o slide: pill cobre o novo tab enquanto texto
+            faz fade pra brand-pink.
           - Wrap natural: flex-wrap + justify-center + flex-none.
-            Tabs ficam na ordem natural; quando não cabem,
-            descem mantendo largura intrínseca (não esticam).
-          - Triggers IDÊNTICOS — zero className condicional.
-            Radix data-state controla o resto. */}
+            Quando AVALIAÇÕES desce pra row 2, pill segue diagonal.
+          - Triggers IDÊNTICOS exceto pelo `data-[state=active]:`
+            que zera border + text vira brand-pink (pill cuida do
+            bg). Radix controla data-state. */}
       <div>
         <Tabs
           value={activeTab}
@@ -324,13 +361,31 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
           className="w-full"
         >
           <TabsList
-            className="mx-auto mb-8 flex h-auto w-full max-w-3xl flex-wrap items-center justify-center gap-2 rounded-none border-0 bg-transparent p-0 shadow-none sm:gap-3"
+            className="relative mx-auto mb-8 flex h-auto w-full max-w-3xl flex-wrap items-center justify-center gap-2 rounded-none border-0 bg-transparent p-0 shadow-none sm:gap-3"
           >
-            {TABS.map((tab) => (
+            {/* Sliding pill — bordô que segue a tab ativa.
+                z-0 fica atrás dos triggers (que são z-10) — o texto
+                permanece no topo, sempre acessível ao Radix/a11y. */}
+            <span
+              ref={pillRef}
+              aria-hidden
+              className="pointer-events-none absolute top-0 left-0 z-0 rounded-full bg-brand-wine opacity-0 shadow-[0_4px_14px_-4px_rgba(71,19,28,0.35)] will-change-transform"
+              style={{
+                width: 0,
+                height: 0,
+                transition:
+                  "transform 500ms cubic-bezier(0.22, 1, 0.36, 1), width 500ms cubic-bezier(0.22, 1, 0.36, 1), height 500ms cubic-bezier(0.22, 1, 0.36, 1)",
+              }}
+            />
+
+            {TABS.map((tab, i) => (
               <TabsTrigger
                 key={tab.key}
+                ref={(el) => {
+                  triggerRefs.current[i] = el;
+                }}
                 value={tab.key}
-                className="h-auto !flex-none shrink-0 rounded-full border border-brand-wine/20 bg-transparent px-4 py-2.5 text-[10.5px] font-medium tracking-[0.2em] uppercase whitespace-nowrap text-ink-strong shadow-none transition-colors duration-300 hover:border-brand-wine/40 focus-visible:outline-none focus-visible:ring-0 sm:px-5 sm:text-[11px] data-[state=active]:border-brand-wine data-[state=active]:bg-brand-wine data-[state=active]:text-brand-pink data-[state=active]:shadow-[0_4px_14px_-4px_rgba(71,19,28,0.35)]"
+                className="relative z-10 h-auto !flex-none shrink-0 rounded-full border border-brand-wine/20 bg-transparent px-4 py-2.5 text-[10.5px] font-medium tracking-[0.2em] uppercase whitespace-nowrap text-ink-strong shadow-none transition-colors duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-brand-wine/40 focus-visible:outline-none focus-visible:ring-0 sm:px-5 sm:text-[11px] data-[state=active]:border-transparent data-[state=active]:bg-transparent data-[state=active]:text-brand-pink data-[state=active]:shadow-none"
               >
                 {tab.label}
               </TabsTrigger>
