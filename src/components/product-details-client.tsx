@@ -361,7 +361,7 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
           className="w-full"
         >
           <TabsList
-            className="relative mx-auto mb-10 flex h-auto w-full max-w-3xl flex-wrap items-center justify-center gap-2 rounded-none border-0 bg-transparent p-0 shadow-none sm:mb-14 sm:gap-3"
+            className="relative mx-auto mb-20 flex h-auto w-full max-w-3xl flex-wrap items-center justify-center gap-2 rounded-none border-0 bg-transparent p-0 shadow-none sm:mb-14 sm:gap-3"
           >
             {/* Sliding pill — bordô que segue a tab ativa.
                 z-0 fica atrás dos triggers (que são z-10) — o texto
@@ -385,9 +385,19 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
                   triggerRefs.current[i] = el;
                 }}
                 value={tab.key}
-                className="relative z-10 h-auto !flex-none shrink-0 rounded-full border border-brand-wine/20 bg-transparent px-4 py-2.5 text-[10.5px] font-medium tracking-[0.2em] uppercase whitespace-nowrap text-ink-strong shadow-none transition-colors duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-brand-wine/40 focus-visible:outline-none focus-visible:ring-0 sm:px-5 sm:text-[11px] data-[state=active]:border-transparent data-[state=active]:bg-transparent data-[state=active]:!text-brand-pink data-[state=active]:shadow-none"
+                className="relative z-10 h-auto flex-none! shrink-0 rounded-full border border-brand-wine/20 bg-transparent px-4 py-2.5 text-[10.5px] font-medium tracking-[0.2em] uppercase whitespace-nowrap shadow-none transition-colors duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-brand-wine/40 focus-visible:outline-none focus-visible:ring-0 sm:px-5 sm:text-[11px] data-[state=active]:border-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none"
               >
-                {tab.label}
+                {/* Cor via span filho — vence a specificity de
+                    `data-[state=active]:text-foreground` que o shadcn
+                    base aplica no botão pai. Transição em 500ms
+                    sincronizada com o slide do pill. */}
+                <span
+                  className={`transition-colors duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                    activeTab === tab.key ? "text-brand-pink" : "text-ink-strong"
+                  }`}
+                >
+                  {tab.label}
+                </span>
               </TabsTrigger>
             ))}
           </TabsList>
