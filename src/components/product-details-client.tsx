@@ -10,7 +10,7 @@
  *  - Tabs: Descrição | Ritual de Uso | Ingredientes
  */
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { useCart } from "@/components/cart";
 import { useRequireAuth } from "@/lib/hooks/use-require-auth";
@@ -37,11 +37,17 @@ interface ProductDetailsClientProps {
 
 type TabKey = "descricao" | "ritual" | "ingredientes" | "avaliacoes";
 
-const TABS: { key: TabKey; label: string }[] = [
-  { key: "descricao", label: "Descrição" },
-  { key: "ritual", label: "Ritual de Uso" },
-  { key: "ingredientes", label: "Ingredientes" },
-  { key: "avaliacoes", label: "Avaliações" },
+/**
+ * `minH` (px) por tab: as 3 primeiras compartilham uma altura fixa
+ * para evitar reajuste a cada troca. AVALIAÇÕES tem `null` porque o
+ * form + lista de reviews legitimamente cresce — não dá pra prever
+ * tamanho fixo sem cortar conteúdo.
+ */
+const TABS: { key: TabKey; label: string; minH: number | null }[] = [
+  { key: "descricao", label: "Descrição", minH: 260 },
+  { key: "ritual", label: "Ritual de Uso", minH: 260 },
+  { key: "ingredientes", label: "Ingredientes", minH: 260 },
+  { key: "avaliacoes", label: "Avaliações", minH: null },
 ];
 
 export default function ProductDetailsClient({ product }: ProductDetailsClientProps) {
@@ -57,44 +63,12 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
   const priceRef = useRef<HTMLDivElement>(null);
   const descRef = useRef<HTMLParagraphElement>(null);
 
-  // Refs das tabs — apenas o pill (CSS transition) e os triggers para medir.
-  const pillRef = useRef<HTMLSpanElement>(null);
-  const triggerRefs = useRef<(HTMLButtonElement | null)[]>([]);
-
   useGSAP(() => {
     if (imageRef.current) fadeInUp(imageRef.current, { y: 24, duration: 0.7 });
     if (titleRef.current) fadeInUp(titleRef.current, { y: 24, duration: 0.7, delay: 0.12 });
     if (priceRef.current) fadeInUp(priceRef.current, { y: 24, duration: 0.7, delay: 0.22 });
     if (descRef.current) fadeInUp(descRef.current, { y: 24, duration: 0.7, delay: 0.32 });
   }, { scope: pageRef });
-
-  /**
-   * Pill bordô: posiciona via inline-style (`transform: translateX + width`)
-   * e a transição é puro CSS (cubic-bezier ~= quart.out). Sem GSAP — o pill
-   * tem uma propriedade só pra animar, então CSS é o ferramentado certo.
-   * `useLayoutEffect` garante que a posição inicial seja aplicada antes da
-   * pintura — sem flicker.
-   *
-   * Roda também no resize/scroll horizontal porque `offsetLeft` muda com o
-   * layout dos triggers.
-   */
-  useLayoutEffect(() => {
-    const positionPill = () => {
-      const activeIndex = TABS.findIndex((t) => t.key === activeTab);
-      const activeBtn = triggerRefs.current[activeIndex];
-      const pill = pillRef.current;
-      if (!activeBtn || !pill) return;
-      pill.style.transform = `translateX(${activeBtn.offsetLeft}px)`;
-      pill.style.width = `${activeBtn.offsetWidth}px`;
-      pill.style.opacity = "1";
-    };
-
-    positionPill();
-
-    if (typeof window === "undefined") return;
-    window.addEventListener("resize", positionPill);
-    return () => window.removeEventListener("resize", positionPill);
-  }, [activeTab]);
 
   const handleAddToCart = () => {
     requireAuth(() => {
@@ -333,68 +307,48 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
 
       {/* Tabs: Descrição / Ritual / Ingredientes / Avaliações
           ────────────────────────────────────────────────────────
-          - Tabs flutuam limpas sem container (bg/border/shadow removidos).
-          - Pill sólida vinho desliza com GSAP expo.out.
-          - Conteúdo slide lateral + altura interpolada suavemente. */}
+          Arquitetura:
+          - SEM sliding pill. Cada trigger gerencia seu próprio
+            bg/text via `data-[state=active]:*`. Eliminou o
+            "texto escuro sobre vinho" durante slide, que era
+            ilegível.
+          - Wrap natural: flex-wrap + justify-center + flex-none.
+            Tabs ficam na ordem natural; quando não cabem,
+            descem mantendo largura intrínseca (não esticam).
+          - Triggers IDÊNTICOS — zero className condicional.
+            Radix data-state controla o resto. */}
       <div>
         <Tabs
           value={activeTab}
           onValueChange={(v) => setActiveTab(v as TabKey)}
           className="w-full"
         >
-          {/* ── TabsList ────────────────────────────────────────────
-              Princípios:
-              - TRIGGERS IDÊNTICOS. Mesma classe, sem className condicional.
-                Estado vem APENAS de `data-[state=active]:*`.
-              - flex-nowrap + overflow-x-auto: em viewport estreito, tabs
-                rolam horizontalmente em vez de quebrarem linha. Scrollbar
-                oculta cross-browser.
-              - !flex-none: override do `flex-1` herdado do shadcn primitive,
-                que fazia o wrap forçar a tab que sobrou a ocupar 100% da
-                linha (causa do AVALIAÇÕES w-full).
-              - Pill: posicionado via useLayoutEffect com transform/width
-                inline. CSS transition cuida da animação (cubic-bezier
-                ≈ quart.out). Sem GSAP — uma propriedade, uma transition. */}
           <TabsList
-            className="relative mx-auto mb-8 flex h-auto w-fit max-w-full flex-nowrap items-center gap-2 overflow-x-auto overflow-y-visible rounded-none border-0 bg-transparent p-0 shadow-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="mx-auto mb-8 flex h-auto w-full max-w-3xl flex-wrap items-center justify-center gap-2 rounded-none border-0 bg-transparent p-0 shadow-none sm:gap-3"
           >
-            <span
-              ref={pillRef}
-              aria-hidden
-              className="pointer-events-none absolute top-0 left-0 rounded-full bg-brand-wine opacity-0 shadow-[0_4px_14px_-4px_rgba(71,19,28,0.35)] will-change-transform"
-              style={{
-                height: "100%",
-                transition:
-                  "transform 500ms cubic-bezier(0.22, 1, 0.36, 1), width 500ms cubic-bezier(0.22, 1, 0.36, 1)",
-              }}
-            />
-
-            {TABS.map((tab, i) => (
+            {TABS.map((tab) => (
               <TabsTrigger
                 key={tab.key}
-                ref={(el) => {
-                  triggerRefs.current[i] = el;
-                }}
                 value={tab.key}
-                className="relative z-10 h-auto !flex-none shrink-0 rounded-full border border-brand-wine/15 bg-transparent px-4 py-2.5 text-[10.5px] font-medium tracking-[0.2em] uppercase whitespace-nowrap text-ink-strong shadow-none transition-colors duration-200 hover:border-brand-wine/30 focus-visible:outline-none focus-visible:ring-0 sm:px-5 sm:text-[11px] data-[state=active]:bg-transparent data-[state=active]:text-brand-pink data-[state=active]:shadow-none"
+                className="h-auto !flex-none shrink-0 rounded-full border border-brand-wine/20 bg-transparent px-4 py-2.5 text-[10.5px] font-medium tracking-[0.2em] uppercase whitespace-nowrap text-ink-strong shadow-none transition-colors duration-300 hover:border-brand-wine/40 focus-visible:outline-none focus-visible:ring-0 sm:px-5 sm:text-[11px] data-[state=active]:border-brand-wine data-[state=active]:bg-brand-wine data-[state=active]:text-brand-pink data-[state=active]:shadow-[0_4px_14px_-4px_rgba(71,19,28,0.35)]"
               >
                 {tab.label}
               </TabsTrigger>
             ))}
           </TabsList>
 
-          {/* ── TabsContent ─────────────────────────────────────────
-              SEM animação de altura. Tentar animar `height` entre
-              conteúdos de tamanhos muito diferentes (ex.: DESCRIÇÃO
-              80px vs AVALIAÇÕES 800px) é o que causa a sensação de
-              "carrega o título primeiro depois o resto" — o wrapper
-              cresce ao longo do tempo, expondo a revelação top-down.
-              Aceitar o salto natural é mais honesto e mais leve.
-              Crossfade rápido (150ms) só sinaliza "troquei de tab". */}
+          {/* TabsContent:
+              - `minHeight` inline por tab (260px para tabs curtas,
+                null para AVALIAÇÕES que cresce com form/reviews).
+                Evita reajuste de altura quando troca entre as 3
+                tabs curtas.
+              - Crossfade rápido (150ms) sinaliza "troquei tab",
+                não "carregando". */}
           {TABS.map((tab) => (
             <TabsContent
               key={tab.key}
               value={tab.key}
+              style={tab.minH != null ? { minHeight: `${tab.minH}px` } : undefined}
               className="mx-auto max-w-2xl px-4 pb-6 text-left data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150 sm:px-6"
             >
               {tabContent[tab.key]}
