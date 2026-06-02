@@ -5,6 +5,7 @@
  * dependem do shape deste objeto, não do client diretamente (DIP).
  */
 import "server-only";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/shared/infrastructure/prisma-client";
 import type { OrderStatus } from "../../domain/order-types";
 
@@ -16,25 +17,33 @@ export interface ApplyPaymentConfirmationInput {
   source: "checkout" | "webhook";
 }
 
+/**
+ * Shape canônico do Order quando carregado com relations.
+ * Mantém o tipo explícito (não depende de inferência cruzando wrappers
+ * como `getOrderById` — robusto contra dessincronização de TS server/Prisma client).
+ */
+const ORDER_WITH_RELATIONS_INCLUDE = {
+  items: true,
+  events: { orderBy: { createdAt: "asc" } },
+} satisfies Prisma.OrderInclude;
+
+export type OrderWithRelations = Prisma.OrderGetPayload<{
+  include: typeof ORDER_WITH_RELATIONS_INCLUDE;
+}>;
+
 export const ordersRepository = {
-  findById(id: string) {
+  findById(id: string): Promise<OrderWithRelations | null> {
     return prisma.order.findUnique({
       where: { id },
-      include: {
-        items: true,
-        events: { orderBy: { createdAt: "asc" } },
-      },
+      include: ORDER_WITH_RELATIONS_INCLUDE,
     });
   },
 
-  findByEmail(email: string) {
+  findByEmail(email: string): Promise<OrderWithRelations[]> {
     return prisma.order.findMany({
       where: { customerEmail: email.toLowerCase() },
       orderBy: { createdAt: "desc" },
-      include: {
-        items: true,
-        events: { orderBy: { createdAt: "asc" } },
-      },
+      include: ORDER_WITH_RELATIONS_INCLUDE,
     });
   },
 
@@ -97,8 +106,4 @@ export const ordersRepository = {
   },
 };
 
-// Reexporta tipo do retorno para uso no application/.
-export type OrderWithRelations = NonNullable<
-  Awaited<ReturnType<typeof ordersRepository.findById>>
->;
 export type { OrderStatus };
