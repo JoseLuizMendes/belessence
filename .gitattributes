@@ -1,0 +1,22 @@
+# Normaliza quebras de linha: o repositório guarda SEMPRE em LF.
+# Mata os avisos "LF will be replaced by CRLF" e evita diffs só-de-quebra-de-linha
+# entre Windows (dev), Ubuntu (CI GitHub Actions) e Linux (build Vercel).
+* text=auto eol=lf
+
+# Scripts shell devem manter LF (rodam em Linux/CI).
+*.sh text eol=lf
+
+# Binários: nunca normalizar (evita corrupção).
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.avif binary
+*.ico  binary
+*.svg  text
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.pdf   binary
