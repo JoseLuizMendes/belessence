@@ -10,7 +10,7 @@
  *  - Tabs: Descrição | Ritual de Uso | Ingredientes
  */
 
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { useCart } from "@/components/cart";
 import { useRequireAuth } from "@/lib/hooks/use-require-auth";
@@ -37,11 +37,17 @@ interface ProductDetailsClientProps {
 
 type TabKey = "descricao" | "ritual" | "ingredientes" | "avaliacoes";
 
-const TABS: { key: TabKey; label: string }[] = [
-  { key: "descricao", label: "Descrição" },
-  { key: "ritual", label: "Ritual de Uso" },
-  { key: "ingredientes", label: "Ingredientes" },
-  { key: "avaliacoes", label: "Avaliações" },
+/**
+ * `minH` (px) por tab: as 3 primeiras compartilham uma altura fixa
+ * para evitar reajuste a cada troca. AVALIAÇÕES tem `null` porque o
+ * form + lista de reviews legitimamente cresce — não dá pra prever
+ * tamanho fixo sem cortar conteúdo.
+ */
+const TABS: { key: TabKey; label: string; minH: number | null }[] = [
+  { key: "descricao", label: "Descrição", minH: 260 },
+  { key: "ritual", label: "Ritual de Uso", minH: 260 },
+  { key: "ingredientes", label: "Ingredientes", minH: 260 },
+  { key: "avaliacoes", label: "Avaliações", minH: null },
 ];
 
 export default function ProductDetailsClient({ product }: ProductDetailsClientProps) {
@@ -57,12 +63,46 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
   const priceRef = useRef<HTMLDivElement>(null);
   const descRef = useRef<HTMLParagraphElement>(null);
 
+  // Refs do sliding pill das tabs
+  const pillRef = useRef<HTMLSpanElement>(null);
+  const triggerRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
   useGSAP(() => {
     if (imageRef.current) fadeInUp(imageRef.current, { y: 24, duration: 0.7 });
     if (titleRef.current) fadeInUp(titleRef.current, { y: 24, duration: 0.7, delay: 0.12 });
     if (priceRef.current) fadeInUp(priceRef.current, { y: 24, duration: 0.7, delay: 0.22 });
     if (descRef.current) fadeInUp(descRef.current, { y: 24, duration: 0.7, delay: 0.32 });
   }, { scope: pageRef });
+
+  /**
+   * Sliding pill — bordô que desliza entre tabs com `transform: translate(x,y)`.
+   * Usa `translate` (não só `translateX`) porque com `flex-wrap`, AVALIAÇÕES
+   * pode estar em row 2 — pill precisa descer diagonalmente até lá.
+   *
+   * Transição do pill (transform + width + height) tem MESMA duration/ease
+   * da transição do `color` dos triggers (500ms quart.out). Sincronia
+   * preserva legibilidade durante o slide: enquanto o pill cobre o novo
+   * tab, o texto novo já está fade-in pra brand-pink; enquanto o pill sai
+   * do velho tab, o texto velho está fade-out pra ink-strong.
+   *
+   * useLayoutEffect garante posicionamento ANTES da pintura (sem flicker).
+   */
+  useLayoutEffect(() => {
+    const positionPill = () => {
+      const activeIndex = TABS.findIndex((t) => t.key === activeTab);
+      const activeBtn = triggerRefs.current[activeIndex];
+      const pill = pillRef.current;
+      if (!activeBtn || !pill) return;
+      pill.style.transform = `translate(${activeBtn.offsetLeft}px, ${activeBtn.offsetTop}px)`;
+      pill.style.width = `${activeBtn.offsetWidth}px`;
+      pill.style.height = `${activeBtn.offsetHeight}px`;
+      pill.style.opacity = "1";
+    };
+    positionPill();
+    if (typeof window === "undefined") return;
+    window.addEventListener("resize", positionPill);
+    return () => window.removeEventListener("resize", positionPill);
+  }, [activeTab]);
 
   const handleAddToCart = () => {
     requireAuth(() => {
@@ -113,7 +153,7 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
   };
 
   return (
-    <div ref={pageRef} className="space-y-16">
+    <div ref={pageRef} className="space-y-7">
       {/* Layout principal: galeria + info */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
         {/* Galeria */}
@@ -299,30 +339,82 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
         </div>
       </div>
 
-      {/* Tabs: Descrição / Ritual / Ingredientes / Avaliações */}
-      <div className="border-t border-border-subtle pt-12">
+      {/* Tabs: Descrição / Ritual / Ingredientes / Avaliações
+          ────────────────────────────────────────────────────────
+          Arquitetura:
+          - Sliding pill bordô segue tab ativa via translate(x,y)
+            absoluto. transform+width+height transicionam em 500ms
+            com cubic-bezier ≈ quart.out.
+          - Cor dos triggers transiciona em MESMA duration/ease
+            (500ms quart.out). Sincronia preserva legibilidade
+            durante o slide: pill cobre o novo tab enquanto texto
+            faz fade pra brand-pink.
+          - Wrap natural: flex-wrap + justify-center + flex-none.
+            Quando AVALIAÇÕES desce pra row 2, pill segue diagonal.
+          - Triggers IDÊNTICOS exceto pelo `data-[state=active]:`
+            que zera border + text vira brand-pink (pill cuida do
+            bg). Radix controla data-state. */}
+      <div>
         <Tabs
           value={activeTab}
           onValueChange={(v) => setActiveTab(v as TabKey)}
           className="w-full"
         >
-          <TabsList className="mx-auto mb-10 flex h-auto flex-wrap items-center justify-center gap-6 sm:gap-12 bg-transparent p-0">
-            {TABS.map((tab) => (
+          <TabsList
+            className="relative mx-auto mb-20 flex h-auto w-full max-w-3xl flex-wrap items-center justify-center gap-2 rounded-none border-0 bg-transparent p-0 shadow-none sm:mb-14 sm:gap-3"
+          >
+            {/* Sliding pill — bordô que segue a tab ativa.
+                z-0 fica atrás dos triggers (que são z-10) — o texto
+                permanece no topo, sempre acessível ao Radix/a11y. */}
+            <span
+              ref={pillRef}
+              aria-hidden
+              className="pointer-events-none absolute top-0 left-0 z-0 rounded-full bg-brand-wine opacity-0 shadow-[0_4px_14px_-4px_rgba(71,19,28,0.35)] will-change-transform"
+              style={{
+                width: 0,
+                height: 0,
+                transition:
+                  "transform 500ms cubic-bezier(0.22, 1, 0.36, 1), width 500ms cubic-bezier(0.22, 1, 0.36, 1), height 500ms cubic-bezier(0.22, 1, 0.36, 1)",
+              }}
+            />
+
+            {TABS.map((tab, i) => (
               <TabsTrigger
                 key={tab.key}
+                ref={(el) => {
+                  triggerRefs.current[i] = el;
+                }}
                 value={tab.key}
-                className="relative h-auto px-0 pb-2 text-[11px] font-medium tracking-[0.24em] uppercase text-ink-muted shadow-none rounded-none bg-transparent transition-colors hover:text-ink-soft data-[state=active]:text-brand-wine data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:after:absolute data-[state=active]:after:-bottom-px data-[state=active]:after:left-0 data-[state=active]:after:right-0 data-[state=active]:after:h-px data-[state=active]:after:bg-brand-wine"
+                className="relative z-10 h-auto flex-none! shrink-0 rounded-full border border-brand-wine/20 bg-transparent px-4 py-2.5 text-[10.5px] font-medium tracking-[0.2em] uppercase whitespace-nowrap shadow-none transition-colors duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-brand-wine/40 focus-visible:outline-none focus-visible:ring-0 sm:px-5 sm:text-[11px] data-[state=active]:border-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none"
               >
-                {tab.label}
+                {/* Cor via span filho — vence a specificity de
+                    `data-[state=active]:text-foreground` que o shadcn
+                    base aplica no botão pai. Transição em 500ms
+                    sincronizada com o slide do pill. */}
+                <span
+                  className={`transition-colors duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                    activeTab === tab.key ? "text-brand-pink" : "text-ink-strong"
+                  }`}
+                >
+                  {tab.label}
+                </span>
               </TabsTrigger>
             ))}
           </TabsList>
 
+          {/* TabsContent:
+              - `minHeight` inline por tab (260px para tabs curtas,
+                null para AVALIAÇÕES que cresce com form/reviews).
+                Evita reajuste de altura quando troca entre as 3
+                tabs curtas.
+              - Crossfade rápido (150ms) sinaliza "troquei tab",
+                não "carregando". */}
           {TABS.map((tab) => (
             <TabsContent
               key={tab.key}
               value={tab.key}
-              className="max-w-2xl mx-auto text-center"
+              style={tab.minH != null ? { minHeight: `${tab.minH}px` } : undefined}
+              className="mx-auto max-w-2xl px-4 pb-6 text-left data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150 sm:px-6"
             >
               {tabContent[tab.key]}
             </TabsContent>

@@ -49,7 +49,7 @@ interface PageProps {
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   PENDING: { label: "Aguardando pagamento", color: "bg-yellow-100 text-yellow-800" },
   PAYMENT_CONFIRMED: { label: "Pagamento confirmado", color: "bg-emerald-100 text-emerald-800" },
-  PREPARING: { label: "Em separação", color: "bg-blue-100 text-blue-800" },
+  PREPARING: { label: "Em separação", color: "bg-accent text-accent-foreground" },
   SHIPPED: { label: "Enviado", color: "bg-indigo-100 text-indigo-800" },
   DELIVERED: { label: "Entregue", color: "bg-green-100 text-green-800" },
   CANCELLED: { label: "Cancelado", color: "bg-red-100 text-red-800" },
@@ -82,16 +82,6 @@ export default async function SucessoPage({ params }: PageProps) {
         <div className="container-belessence max-w-4xl">
           {/* Ícone de sucesso + título */}
           <div className="text-center mb-12">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-100 flex items-center justify-center">
-              <CheckCircle2
-                className="h-10 w-10 text-emerald-600"
-                strokeWidth={1.5}
-              />
-            </div>
-
-            <p className="text-[11px] font-medium tracking-[0.32em] uppercase text-brand-wine mb-4">
-              Mari Beauty
-            </p>
 
             <Typewriter
               as="h1"
