@@ -1,6 +1,6 @@
 ---
 template: "Design / Spec"
-status: "Aprovado para planejamento"
+status: "Em execução — Fase 0 concluída (2026-06-03)"
 data: 2026-06-03
 autor: "José Luiz Mendes + Claude"
 escopo: "Ambiente de desenvolvimento e pipeline de entrega — Belessence (Mari Beauty)"
@@ -108,7 +108,7 @@ Decisões tomadas em conjunto antes deste documento (registradas para histórico
 | ID | Decisão | Alternativas descartadas | Por quê |
 |---|---|---|---|
 | D1 | **GitHub Flow + Previews** | GitFlow (branch-por-ambiente); trunk+tags | Menos overhead p/ dev solo; padrão de quem usa Vercel; os mesmos ambientes lógicos com menos merges |
-| D2 | **Consolidar `master` → `main`** | manter `master`; manter ambos | Convenção de mercado; elimina split-brain |
+| D2 | **Manter `master` como trunk único** (rename → `main` adiado) | renomear já para `main`; manter `main` + `master` | Split-brain já resolvido (branches lixo deletadas em 2026-06-03); rename é só convenção, sem ganho funcional — fica opcional/futuro |
 | D3 | **Banco de dev = Postgres em Docker local** | branch Neon de dev; híbrido | Custo zero, offline, isolado, descartável |
 | D4 | **2 ambientes: dev + prod** (não 3) | dev/hom/prod | Dev solo sem usuários — `hom` fixo seria cerimônia sem ROI |
 | D5 | **Preview do PR = 1 branch Neon não-prod (opção B)** | desligar previews (opção A); per-PR efêmero | URL clicável pré-merge quase de graça, e **nunca** encosta no banco de prod |
@@ -264,21 +264,20 @@ todas as chaves e valores-placeholder, **sem segredos reais**. Corrigir o
 
 ### 5.7 Branching, fluxo e proteções
 
-**Consolidação (D2)** — limpeza única:
-
-1. Levar o conteúdo de `master` para `main` (a `main` atual está obsoleta).
-2. Definir `main` como **default** no GitHub e como **Production Branch** na
-   Vercel.
-3. **Aposentar `master`** e remover branches obsoletos
-   (`copilot/*`, `claude/*`, `vercel/*-cve`, features já mergeadas).
+**Estado (executado em 2026-06-03):** o split-brain foi resolvido — a `main`
+lixo e todos os branches obsoletos foram **removidos**; sobra **`master` como
+trunk único**. O rename `master → main` (convenção de mercado) é **opcional e
+adiado** — sem ganho funcional (ver D2). Se/quando for feito: push de `main` a
+partir de `master` → trocar default no GitHub → repontar Production Branch na
+Vercel → confirmar deploy de prod → deletar `master`.
 
 **Fluxo (GitHub Flow, D1):**
 
 ```
-feature/<slug>  →  Pull Request  →  Preview + CI  →  squash merge  →  main  →  prod
+feature/<slug>  →  Pull Request  →  Preview + CI  →  squash merge  →  master  →  prod
 ```
 
-**Proteções na `main`** (grátis em repo privado no GitHub):
+**Proteções na trunk `master`** (grátis em repo privado no GitHub):
 
 - Exigir status checks (CI) verdes antes do merge.
 - Proibir push direto (forçar PR).
@@ -356,11 +355,13 @@ conformidade de ToS (Hobby é não-comercial).
 Ordem honrando D4/D7: **ambientes primeiro**, com migrations como primeiro passo
 interno (é o que torna os ambientes reprodutíveis). Todas as fases são **grátis**.
 
-### Fase 0 — Higiene
-- [ ] Consolidar `master` → `main`; definir default no GitHub + Vercel.
-- [ ] Remover branches obsoletos.
-- [ ] Criar `.env.example` + corrigir `.gitignore` (`!.env.example`).
-- [ ] Criar `docker-compose.yml` (dev + teste).
+### Fase 0 — Higiene ✅ (concluída em 2026-06-03)
+- [x] Trunk única: `master` mantida; `main` lixo + branches obsoletos removidos
+      (rename → `main` adiado, opcional — ver D2).
+- [x] `.env.example` fiel ao código (inclui `MP_ACCESS_TOKEN`) + `.gitignore`
+      corrigido (`!.env.example`).
+- [x] `docker-compose.yml` (Postgres 16: dev 5432 + teste 5433).
+- [x] `.gitattributes` (normalização LF) — higiene extra adicionada.
 
 ### Fase 1 — Ambientes (núcleo)
 - [ ] **Baseline de migrations** (`0_init` + `migrate resolve --applied`).
@@ -403,7 +404,7 @@ interno (é o que torna os ambientes reprodutíveis). Todas as fases são **grá
 | Risco | Mitigação |
 |---|---|
 | Baseline de migrations divergir do banco real de prod | Reconciliar schema antes; usar `migrate diff` p/ conferir drift; `migrate resolve` em vez de re-executar |
-| Consolidação `master→main` perder histórico/quebrar Vercel | Operação única e revisada; reapontar a Production Branch na Vercel no mesmo passo; manter `master` arquivado até confirmar prod ok |
+| (Adiado) Rename `master → main` quebrar Vercel/prod | Rename é opcional e adiado; se feito, reapontar a Production Branch na Vercel **antes** de deletar `master` e confirmar 1 deploy de prod a partir de `main` |
 | Preview herdar banco de prod por engano | Escopo *Preview* da Vercel com `DATABASE_URL` do branch `preview` **antes** de habilitar; checagem no `.env.example`/docs |
 | Free-tier Neon estourar sem aviso | Acompanhar storage/compute no painel; gatilho de §6 antes de virar problema |
 | Hooks atrasarem commits | pre-commit só `lint-staged` (arquivos staged); typecheck pesado fica no pre-push/CI |
