@@ -5,11 +5,11 @@
 #   docker compose down         # para (dados de DEV persistem no volume)
 #   docker compose down -v      # para e APAGA os dados de DEV
 #
-#   DEV  → localhost:5432  · db belessence_dev   · dados persistem
+#   DEV  → localhost:5544  · db belessence_dev   · dados persistem (5432 evitada: ha Postgres no host)
 #   TEST → localhost:5433  · db belessence_test  · efêmero (use à vontade)
 #
 # Connection strings correspondentes:
-#   DEV : postgresql://belessence:belessence@localhost:5432/belessence_dev?schema=public
+#   DEV : postgresql://belessence:belessence@localhost:5544/belessence_dev?schema=public
 #   TEST: postgresql://belessence:belessence@localhost:5433/belessence_test?schema=public
 
 services:
@@ -22,7 +22,7 @@ services:
       POSTGRES_PASSWORD: belessence
       POSTGRES_DB: belessence_dev
     ports:
-      - "5432:5432"
+      - "5544:5432"
     volumes:
       - pgdata_dev:/var/lib/postgresql/data
     healthcheck:
@@ -47,6 +47,21 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  # UI web pra inspecionar o banco de DEV (estilo dashboard do Neon):
+  # editor de SQL + navegador de tabelas em http://localhost:8081
+  # (conecta sozinho no banco de dev via rede interna do compose).
+  pgweb:
+    image: sosedoff/pgweb:latest
+    container_name: belessence_pgweb
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      PGWEB_DATABASE_URL: postgres://belessence:belessence@db:5432/belessence_dev?sslmode=disable
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   pgdata_dev:
