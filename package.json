@@ -2,18 +2,28 @@
   "name": "mari-beauty",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.21.0",
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "postinstall": "prisma generate",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:reset": "prisma migrate reset",
+    "db:seed": "prisma db seed",
+    "migrate": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "prepare": "husky"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
@@ -84,7 +94,10 @@
     "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
+    "husky": "^9.1.7",
     "jsdom": "^26.1.0",
+    "lint-staged": "^17.0.7",
+    "prettier": "^3.8.3",
     "prisma": "^7.2.0",
     "qrcode": "^1.5.4",
     "qrcode-terminal": "^0.12.0",
@@ -96,5 +109,14 @@
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,jsonc,css,scss,md,mdx,yml,yaml,mjs,cjs}": [
+      "prettier --write"
+    ]
   }
 }

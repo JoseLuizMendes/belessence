@@ -17,13 +17,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # Versão do pnpm vem do campo "packageManager" do package.json (corepack/parity).
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
@@ -66,13 +65,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # Versão do pnpm vem do campo "packageManager" do package.json (corepack/parity).
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
