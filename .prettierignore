@@ -1,0 +1,22 @@
+# Artefatos gerados / build
+.next/
+out/
+build/
+coverage/
+playwright-report/
+test-results/
+node_modules/
+
+# Prisma client gerado (não tocar)
+src/generated/
+
+# Lockfile e SQL de migrations gerados
+pnpm-lock.yaml
+prisma/migrations/
+
+# Scratch de agentes/tooling (fora do app)
+.agents/
+.claude/
+
+# Docs long-form (specs/plans/runbooks): formatação manual, sem churn do Prettier
+docs/

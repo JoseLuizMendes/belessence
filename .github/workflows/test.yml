@@ -14,16 +14,16 @@ jobs:
   # ── Unit + integração (Vitest) ───────────────────────────────────────────
   unit:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
 
+      # Versão do pnpm vem do campo "packageManager" do package.json (corepack/parity).
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
@@ -45,6 +45,7 @@ jobs:
   # Sobe um Postgres efêmero, migra + seeda, e roda os fluxos contra o app.
   e2e:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     services:
       postgres:
         image: postgres:16
@@ -55,7 +56,7 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U belessence"
+          --health-cmd "pg_isready -U belessence -d belessence_test"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -66,13 +67,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # Versão do pnpm vem do campo "packageManager" do package.json (corepack/parity).
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
@@ -86,8 +86,22 @@ jobs:
           pnpm prisma migrate deploy
           pnpm prisma db seed
 
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium
+      - name: Install Playwright system deps
+        run: pnpm exec playwright install-deps chromium
+
+      # O download dos browsers na CDN da Playwright às vezes estanca sem timeout
+      # próprio (já travou um run por ~35min). Aborta cada tentativa em 4min e
+      # tenta de novo (até 3x) — self-heal de flake de rede.
+      - name: Install Playwright browser (chromium, com retry)
+        run: |
+          n=0
+          until [ "$n" -ge 3 ]; do
+            timeout 240 pnpm exec playwright install chromium && exit 0
+            n=$((n + 1))
+            echo "Tentativa $n de baixar o chromium falhou/travou; retry em 5s..."
+            sleep 5
+          done
+          echo "playwright install chromium falhou após 3 tentativas"; exit 1
 
       - name: Run E2E
         run: pnpm test:e2e --project=chromium
