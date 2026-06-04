@@ -16,6 +16,9 @@ const eslintConfig = defineConfig([
     "coverage/**",
     "playwright-report/**",
     "test-results/**",
+    // Scratch de agentes/tooling (skills, scripts auxiliares) — fora do app
+    ".agents/**",
+    ".claude/**",
   ]),
 ]);
 
