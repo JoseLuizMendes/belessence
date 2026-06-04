@@ -397,6 +397,14 @@ interno (é o que torna os ambientes reprodutíveis). Todas as fases são **grá
 - [x] **`CONTRIBUTING.md`** (setup, scripts, GitHub Flow, Conventional Commits,
       hooks).
 
+> Nota de execução (CI): o bump pra Node 24 expôs um bug do **Playwright < 1.60** —
+> o `playwright install` **trava após baixar o browser a 100%** sob Node 24.16+
+> (workers de download morrem na extração; microsoft/playwright#40998, #41092).
+> Resolvido subindo `@playwright/test` p/ **1.60.0** (pulo mínimo 1.59.1→1.60.0; o
+> e2e voltou a verde em ~2min, 21 passed / 7 skipped, sem flakiness). Como
+> blindagem permanente, o CI ganhou `timeout-minutes` (unit 10 / e2e 20) + retry no
+> install do browser — um hang futuro morre em minutos, não em 6h. (PR #11)
+
 ### Fase 3 — Qualidade / Observabilidade
 - [ ] `/api/health` + uptime grátis.
 - [ ] Aprofundar e2e; subir thresholds de cobertura.
