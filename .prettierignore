@@ -17,3 +17,6 @@ prisma/migrations/
 # Scratch de agentes/tooling (fora do app)
 .agents/
 .claude/
+
+# Docs long-form (specs/plans/runbooks): formatação manual, sem churn do Prettier
+docs/

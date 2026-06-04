@@ -1,6 +1,6 @@
 ---
 template: "Design / Spec"
-status: "Em execução — Fases 0 e 1 concluídas (2026-06-04)"
+status: "Em execução — Fases 0, 1 e 2 concluídas (2026-06-04)"
 data: 2026-06-03
 autor: "José Luiz Mendes + Claude"
 escopo: "Ambiente de desenvolvimento e pipeline de entrega — Belessence (Mari Beauty)"
@@ -242,7 +242,8 @@ todas as chaves e valores-placeholder, **sem segredos reais**. Corrigir o
     pós-§5.3) → `db seed` → `playwright install` → `test:e2e` → upload de
     artefato com path **corrigido** (`playwright-report`).
 - **Caching** pnpm + **`concurrency`** (cancela runs antigos do mesmo PR).
-- **Node 20** + pnpm via `pnpm/action-setup` (alinhado ao `.nvmrc`/corepack).
+- **Node 24** + pnpm via `pnpm/action-setup` lendo o campo `packageManager`
+    (alinhado ao `.nvmrc`/corepack).
 
 **Vercel**:
 
@@ -315,7 +316,7 @@ feature/<slug>  →  Pull Request  →  Preview + CI  →  squash merge  →  ma
     mudou**).
   - `tsc --noEmit` é projeto-inteiro: roda no **pre-push** e no CI (não no
     pre-commit, para não travar cada commit).
-- **Pin de runtime**: `.nvmrc` (Node 20) + campo `packageManager` no
+- **Pin de runtime**: `.nvmrc` (Node 24) + campo `packageManager` no
   `package.json` (pnpm via corepack) — bate com a CI.
 - **`CONTRIBUTING.md`** curto: subir Docker, copiar `.env.example` → `.env`,
   `migrate dev`, `db seed`, `pnpm dev`.
@@ -378,12 +379,23 @@ interno (é o que torna os ambientes reprodutíveis). Todas as fases são **grá
 - [x] `tsc --noEmit` no CI + script `typecheck` (PR #10); os 5 erros de tipo em
       mocks `auth`/`CartItem` foram corrigidos.
 
-### Fase 2 — DX
-- [ ] Scripts pnpm (`db:*`, `migrate*`, `typecheck`).
-- [ ] husky + lint-staged (pre-commit) + typecheck no pre-push.
-- [ ] `.nvmrc` + `packageManager`/corepack.
-- [ ] Branch protection na `main` + PR template + Conventional Commits.
-- [ ] `CONTRIBUTING.md`.
+### Fase 2 — DX ✅ (concluída em 2026-06-04)
+- [x] **Scripts pnpm**: `db:up`/`db:down`/`db:reset`/`db:seed`, `migrate`
+      (`migrate dev`), `migrate:deploy`, `format`/`format:check` (`typecheck` já
+      existia). Casam com o `docker-compose.yml` real (dev 5544, teste 5433).
+- [x] **husky + lint-staged** no pre-commit (`eslint --fix` + `prettier --write`
+      só no staged) e **`typecheck` no pre-push**. **Prettier adotado** como
+      formatador (`.prettierrc.json` + `.prettierignore`; lockfile, `src/generated`
+      e `docs/` long-form protegidos do churn).
+- [x] **`.nvmrc` (Node 24** — paridade com a máquina e o CI; o "Node 20" original
+      ficou desatualizado**) + `packageManager: pnpm@10.21.0`**. CI alinhado:
+      Node 24 e pnpm lido do `packageManager` (removido o `version: 9` fixo).
+- [x] **Branch protection na `master`** (trunk; rename→`main` adiado por D2):
+      exige PR + checks `unit`/`e2e`, `enforce_admins` (bloqueia push direto), sem
+      force-push/deleção. **PR template** em `.github/`. **Conventional Commits**
+      documentados (PR template + `CONTRIBUTING.md`) — sem commitlint por ora.
+- [x] **`CONTRIBUTING.md`** (setup, scripts, GitHub Flow, Conventional Commits,
+      hooks).
 
 ### Fase 3 — Qualidade / Observabilidade
 - [ ] `/api/health` + uptime grátis.
