@@ -27,7 +27,10 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
 
-  timeout: 30_000,
+  // 60s (não 30s): os e2e usam `page.goto` com waitUntil 'load' (espera todos os
+  // recursos, incl. imagens do Cloudinary). Em runner de CI lento, a página de
+  // produto estourava 30s (flake do PR #9). 60s dá folga sem afrouxar asserts.
+  timeout: 60_000,
   expect: { timeout: 5_000 },
 
   use: {
@@ -53,6 +56,7 @@ export default defineConfig({
     command: process.env.CI ? "pnpm build && pnpm start" : "pnpm dev",
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    // 180s: o build+start de produção pode demorar em runner de CI de 2 núcleos.
+    timeout: 180_000,
   },
 });
