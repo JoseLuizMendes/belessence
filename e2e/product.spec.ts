@@ -10,6 +10,14 @@ import { test, expect } from "@playwright/test";
 const SLUG = "midnight-velvet";
 
 test.describe("Produto /product/[slug]", () => {
+  // Aborta imagens externas (Cloudinary) para o evento `load` do page.goto não
+  // ficar refém da rede externa — causava timeout/flake no CI (página de produto
+  // tem muitas imagens). DOM e hidratação seguem normais; os testes não checam
+  // as imagens em si.
+  test.beforeEach(async ({ page }) => {
+    await page.route("**res.cloudinary.com**", (route) => route.abort());
+  });
+
   test("renderiza nome, preço e CTA de adicionar", async ({ page }) => {
     await page.goto(`/product/${SLUG}`);
     await expect(
