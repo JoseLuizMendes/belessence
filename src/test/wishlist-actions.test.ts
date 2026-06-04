@@ -32,7 +32,10 @@ import {
   clearWishlistAction,
 } from "@/lib/wishlist/presentation/wishlist-actions";
 
-const authMock = vi.mocked(auth);
+// Mesmo motivo do cart-actions: tipamos o mock do `auth` como função simples.
+const authMock = vi.mocked(
+  auth as unknown as () => Promise<{ user: { id: string } } | null>,
+);
 const repoMock = vi.mocked(repo);
 
 describe("Wishlist Server Actions", () => {

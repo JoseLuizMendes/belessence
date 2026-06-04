@@ -34,7 +34,6 @@ import { MediaBackground, type MediaType } from "./ui/media-background";
 import {
   ChevronLeft,
   ChevronRight,
-  ChevronDown,
   Gift,
   Copy,
   Check,

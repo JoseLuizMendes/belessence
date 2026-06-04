@@ -21,7 +21,6 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "./ui/navigation-menu";
-import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Heart, Menu, Search, ShoppingBag } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "./ui/sheet";
