@@ -1,6 +1,6 @@
 ---
 template: "Design / Spec"
-status: "Em execução — Fase 0 concluída (2026-06-03)"
+status: "Em execução — Fases 0 e 1 concluídas (2026-06-04)"
 data: 2026-06-03
 autor: "José Luiz Mendes + Claude"
 escopo: "Ambiente de desenvolvimento e pipeline de entrega — Belessence (Mari Beauty)"
@@ -363,13 +363,19 @@ interno (é o que torna os ambientes reprodutíveis). Todas as fases são **grá
 - [x] `docker-compose.yml` (Postgres 16: dev 5432 + teste 5433).
 - [x] `.gitattributes` (normalização LF) — higiene extra adicionada.
 
-### Fase 1 — Ambientes (núcleo)
-- [ ] **Baseline de migrations** (`0_init` + `migrate resolve --applied`).
-- [ ] Arquivar `prisma/sql/add_product_status.sql`.
-- [ ] Criar branch Neon `preview`; configurar escopo *Preview* da Vercel.
-- [ ] Configurar escopos de variáveis na Vercel (Production vs Preview).
-- [ ] **Corrigir a CI**: triggers, `tsc --noEmit`, e2e com migrations, path de
-      artefato, concurrency, cache.
+### Fase 1 — Ambientes (núcleo) ✅ (concluída em 2026-06-04, exceto onde notado)
+- [x] **Baseline de migrations** — `0_init` aplicado em dev; **prod baselineada**
+      com `migrate resolve --applied 0_init` (diff vazio confirmou paridade).
+- [ ] Arquivar `prisma/sql/add_product_status.sql` (redundante após o baseline;
+      pendente — não roda automaticamente, baixo risco).
+- [x] Branch Neon `preview` criado + escopo *Preview* da Vercel apontando p/ ele
+      (validado por PR real: o Preview deployment subiu usando o banco `preview`).
+- [x] Escopos de variáveis na Vercel: Production = banco prod · Preview = `preview`.
+- [x] **CI corrigida e verde**: trigger `master`, e2e com migrations, path de
+      artefato, concurrency, cache pnpm. Extras: stub `client-only`, ratchet de
+      cobertura (75→73), actions em Node 24, e2e timeout 30→60s.
+- [ ] `tsc --noEmit` no CI — **adiado** (depende de corrigir 5 erros de tipo em
+      mocks de teste `auth`/`CartItem`).
 
 ### Fase 2 — DX
 - [ ] Scripts pnpm (`db:*`, `migrate*`, `typecheck`).
