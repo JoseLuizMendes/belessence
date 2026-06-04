@@ -32,7 +32,12 @@ import {
   clearCartAction,
 } from "@/lib/cart/presentation/cart-actions";
 
-const authMock = vi.mocked(auth);
+// `auth` (NextAuth v5) tem assinatura sobrecarregada; tipamos o mock como uma
+// função simples que devolve a sessão (ou null), para o vi.mocked não inferir o
+// overload de middleware. Cast via unknown (sem `any`).
+const authMock = vi.mocked(
+  auth as unknown as () => Promise<{ user: { id: string } } | null>,
+);
 const repoMock = vi.mocked(repo);
 
 describe("Cart Server Actions", () => {
@@ -68,7 +73,9 @@ describe("Cart Server Actions", () => {
     );
 
     it("getCartAction delega para getCart(userId)", async () => {
-      repoMock.getCart.mockResolvedValueOnce([{ productId: "p-1", quantity: 2 }]);
+      repoMock.getCart.mockResolvedValueOnce([
+        { productId: "p-1", quantity: 2 },
+      ] as unknown as Awaited<ReturnType<typeof repo.getCart>>);
       const items = await getCartAction();
       expect(repoMock.getCart).toHaveBeenCalledWith("u-42");
       expect(items).toHaveLength(1);
