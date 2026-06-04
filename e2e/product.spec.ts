@@ -10,12 +10,17 @@ import { test, expect } from "@playwright/test";
 const SLUG = "midnight-velvet";
 
 test.describe("Produto /product/[slug]", () => {
-  // Aborta imagens externas (Cloudinary) para o evento `load` do page.goto não
-  // ficar refém da rede externa — causava timeout/flake no CI (página de produto
-  // tem muitas imagens). DOM e hidratação seguem normais; os testes não checam
-  // as imagens em si.
+  // Aborta TODAS as imagens (qualquer URL) para o evento `load` do page.goto não
+  // ficar refém de rede externa. No CI (next start) as imagens passam pelo
+  // otimizador same-origin `/_next/image` (que busca o Cloudinary NO SERVIDOR e
+  // é lento), então filtrar por host não bastava — filtramos por resourceType.
+  // DOM/hidratação seguem normais; os testes não checam as imagens em si.
   test.beforeEach(async ({ page }) => {
-    await page.route("**res.cloudinary.com**", (route) => route.abort());
+    await page.route("**/*", (route) =>
+      route.request().resourceType() === "image"
+        ? route.abort()
+        : route.continue(),
+    );
   });
 
   test("renderiza nome, preço e CTA de adicionar", async ({ page }) => {
