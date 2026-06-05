@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Entregar `GET /api/health` (200/503 + ping de banco + commit de deploy), um bounded context `health/` hexagonal, testes unit, e o runbook `docs/observabilidade.md` (UptimeRobot + Sentry opt-in desligado).
+**Goal:** Entregar `GET /api/health` (200/503 + checagem de banco + commit de deploy), um bounded context `health/` hexagonal **com porta `HealthProbe`** (SOLID à risca), testes unit, e o runbook `docs/observabilidade.md` (UptimeRobot + Sentry opt-in desligado).
 
-**Architecture:** Bounded context `src/lib/health/` com 3 camadas (`domain` puro → `application` use case → `infrastructure/persistence` adapter Prisma), espelhando `orders/`. Sem porta formal (YAGNI-rígido, `preferences-dev.md §1.1`); DIP pelo shape do objeto. O Route Handler `src/app/api/health/route.ts` é a porta HTTP magra que delega ao use case.
+**Architecture:** Bounded context `src/lib/health/` com `domain` (tipos) → `application/ports` (porta `HealthProbe`) + `application` (use case `checkHealth`) → `infrastructure/persistence` (adapter `databaseProbe`). O use case depende da **porta** (DIP) e itera `HealthProbe[]` (OCP). O Route Handler `src/app/api/health/route.ts` é o **composition root**: injeta `[databaseProbe]` no `checkHealth` e mapeia pra HTTP.
 
 **Tech Stack:** Next.js 16 (Route Handler), TypeScript estrito, Prisma 7 (`$queryRaw`), Vitest. Sem novas dependências, sem schema, sem `.env` novo.
 
@@ -17,69 +17,65 @@
 | Arquivo | Responsabilidade |
 |---|---|
 | `src/lib/health/domain/health-types.ts` | Tipos puros `ProbeResult`, `HealthReport` (sem Prisma/IO). |
-| `src/lib/health/infrastructure/persistence/database-health.ts` | `databaseHealth.ping()` — `SELECT 1` + latência; único a tocar Prisma. |
-| `src/lib/health/application/check-health.ts` | `checkHealth()` — roda o probe, deriva status, monta o report. |
-| `src/app/api/health/route.ts` | Porta HTTP `GET` → `checkHealth()` → 200/503 JSON. |
-| `src/test/health.test.ts` | Unit de `checkHealth()` (mocka `databaseHealth`). |
+| `src/lib/health/application/ports/health-probe.ts` | Interface `HealthProbe` (porta, ISP). |
+| `src/lib/health/application/check-health.ts` | `checkHealth(probes: HealthProbe[])` — DIP + OCP. |
+| `src/lib/health/infrastructure/persistence/database-health.ts` | `databaseProbe: HealthProbe` — `SELECT 1` + latência; único a tocar Prisma. |
+| `src/app/api/health/route.ts` | Composition root: injeta `[databaseProbe]` → 200/503 JSON. |
+| `src/test/health.test.ts` | Unit de `checkHealth()` (probes fake injetados). |
 | `src/test/api-health.test.ts` | Unit da route `GET` (mocka `checkHealth`). |
 | `vitest.config.ts` (modificar) | Excluir `database-health.ts` da cobertura (adapter Prisma, E2E-coberto). |
 | `docs/observabilidade.md` | Runbook: UptimeRobot + Sentry opt-in (desligado). |
-| `src/lib/health/CLAUDE.md` | Doc do bounded context (estilo `orders/CLAUDE.md`). |
-| `src/app/api/health/CLAUDE.md` | Doc da rota (estilo `products/CLAUDE.md`). |
+| `src/lib/health/CLAUDE.md` | Doc do bounded context. |
+| `src/app/api/health/CLAUDE.md` | Doc da rota. |
 
 ---
 
-## Task 1: Bounded context `health/` + use case `checkHealth`
+## Task 1: Bounded context `health/` (porta + adapter + use case)
 
 **Files:**
 - Create: `src/lib/health/domain/health-types.ts`
+- Create: `src/lib/health/application/ports/health-probe.ts`
 - Create: `src/lib/health/infrastructure/persistence/database-health.ts`
 - Create: `src/lib/health/application/check-health.ts`
 - Test: `src/test/health.test.ts`
-- Modify: `vitest.config.ts` (exclude do adapter na cobertura)
+- Modify: `vitest.config.ts`
 
 - [ ] **Step 1: Write the failing test** — `src/test/health.test.ts`
 
 ```ts
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { checkHealth } from "@/lib/health/application/check-health";
-import { databaseHealth } from "@/lib/health/infrastructure/persistence/database-health";
+import type { HealthProbe } from "@/lib/health/application/ports/health-probe";
 
-vi.mock("@/lib/health/infrastructure/persistence/database-health", () => ({
-  databaseHealth: { ping: vi.fn() },
-}));
-
-const pingMock = vi.mocked(databaseHealth.ping);
+const okProbe: HealthProbe = {
+  name: "db",
+  check: async () => ({ ok: true, latencyMs: 12 }),
+};
+const failingProbe: HealthProbe = {
+  name: "extra",
+  check: async () => ({ ok: false, latencyMs: 5000 }),
+};
 
 describe("checkHealth", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("retorna status 'ok' quando o banco responde", async () => {
-    pingMock.mockResolvedValue({ ok: true, latencyMs: 12 });
-
-    const report = await checkHealth();
+  it("status 'ok' quando todos os probes passam", async () => {
+    const report = await checkHealth([okProbe]);
 
     expect(report.status).toBe("ok");
-    expect(report.db).toEqual({ ok: true, latencyMs: 12 });
+    expect(report.checks.db).toEqual({ ok: true, latencyMs: 12 });
     expect(typeof report.timestamp).toBe("string");
   });
 
-  it("retorna status 'error' quando o ping do banco falha", async () => {
-    pingMock.mockResolvedValue({ ok: false, latencyMs: 5000 });
-
-    const report = await checkHealth();
+  it("status 'error' quando algum probe falha", async () => {
+    const report = await checkHealth([okProbe, failingProbe]);
 
     expect(report.status).toBe("error");
-    expect(report.db.ok).toBe(false);
+    expect(report.checks.extra.ok).toBe(false);
   });
 
   it("expõe o commit do deploy quando VERCEL_GIT_COMMIT_SHA existe", async () => {
-    pingMock.mockResolvedValue({ ok: true, latencyMs: 1 });
     vi.stubEnv("VERCEL_GIT_COMMIT_SHA", "abc123");
 
-    const report = await checkHealth();
+    const report = await checkHealth([okProbe]);
 
     expect(report.commit).toBe("abc123");
     vi.unstubAllEnvs();
@@ -90,7 +86,7 @@ describe("checkHealth", () => {
 - [ ] **Step 2: Run the test to verify it fails**
 
 Run: `pnpm test:run src/test/health.test.ts`
-Expected: FAIL — erro de resolução de import (`Failed to resolve import "@/lib/health/application/check-health"`), pois os arquivos ainda não existem.
+Expected: FAIL — `Failed to resolve import "@/lib/health/application/check-health"` (arquivos ainda não existem).
 
 - [ ] **Step 3: Create the domain types** — `src/lib/health/domain/health-types.ts`
 
@@ -109,7 +105,8 @@ export type ProbeResult = {
 /** Relatório agregado de saúde do sistema (corpo do /api/health). */
 export type HealthReport = {
   status: "ok" | "error";
-  db: ProbeResult;
+  /** Resultados por nome de probe (ex.: { db: {...} }). */
+  checks: Record<string, ProbeResult>;
   /** SHA do commit do deploy (VERCEL_GIT_COMMIT_SHA) ou null fora da Vercel. */
   commit: string | null;
   /** Momento da checagem, ISO 8601. */
@@ -117,25 +114,45 @@ export type HealthReport = {
 };
 ```
 
-- [ ] **Step 4: Create the Prisma adapter** — `src/lib/health/infrastructure/persistence/database-health.ts`
+- [ ] **Step 4: Create the port (interface)** — `src/lib/health/application/ports/health-probe.ts`
 
 ```ts
 /**
- * database-health — adapter de liveness do Postgres (bounded context Health).
+ * HealthProbe — porta (interface) do bounded context Health.
  *
- * Único arquivo do contexto que conhece o Prisma. Faz um ping barato
- * (`SELECT 1`) e mede a latência. Uma queda de banco é estado ESPERADO de
- * saúde (retorna { ok: false }), não exceção — por isso o try/catch.
+ * Contrato mínimo (ISP): quem implementa expõe só `name` + `check()`. O use
+ * case `checkHealth` depende DESTA abstração, não de adapters concretos (DIP).
+ * Somar uma sonda = criar outro adapter que implementa esta porta (OCP).
+ */
+import type { ProbeResult } from "../../domain/health-types";
+
+export interface HealthProbe {
+  readonly name: string;
+  check(): Promise<ProbeResult>;
+}
+```
+
+- [ ] **Step 5: Create the Prisma adapter** — `src/lib/health/infrastructure/persistence/database-health.ts`
+
+```ts
+/**
+ * databaseProbe — adapter de liveness do Postgres (implementa HealthProbe).
  *
- * `$queryRaw` é justificado (apesar de lib/CLAUDE.md §8): liveness não é uma
- * query de modelo; `SELECT 1` é a sonda canônica e barata.
+ * Único arquivo do contexto que conhece o Prisma. Ping barato (`SELECT 1`) +
+ * latência. Queda de banco é estado ESPERADO (retorna { ok: false }), não
+ * exceção — por isso o try/catch.
+ *
+ * `$queryRaw` é justificado (apesar de lib/CLAUDE.md §8): liveness não é query
+ * de modelo; `SELECT 1` é a sonda canônica.
  */
 import "server-only";
 import { prisma } from "@/lib/shared/infrastructure/prisma-client";
+import type { HealthProbe } from "../../application/ports/health-probe";
 import type { ProbeResult } from "../../domain/health-types";
 
-export const databaseHealth = {
-  async ping(): Promise<ProbeResult> {
+export const databaseProbe: HealthProbe = {
+  name: "db",
+  async check(): Promise<ProbeResult> {
     const start = Date.now();
     try {
       await prisma.$queryRaw`SELECT 1`;
@@ -148,32 +165,40 @@ export const databaseHealth = {
 };
 ```
 
-- [ ] **Step 5: Create the use case** — `src/lib/health/application/check-health.ts`
+- [ ] **Step 6: Create the use case** — `src/lib/health/application/check-health.ts`
 
 ```ts
 /**
  * check-health — use case de saúde (bounded context Health).
  *
- * Orquestra as sondas, deriva o status e monta o HealthReport. Depende do
- * SHAPE de `databaseHealth` (DIP pragmático), não do Prisma. Pronto para OCP:
- * um 2º probe entra agregando aqui, sem mudar a route.
+ * Recebe a lista de probes (depende da PORTA HealthProbe, não dos concretos →
+ * DIP), roda todos, deriva o status (ok ⇔ todos ok) e monta o HealthReport.
+ * Somar um probe = passá-lo na lista; este arquivo nunca muda (OCP).
  */
 import "server-only";
-import { databaseHealth } from "../infrastructure/persistence/database-health";
-import type { HealthReport } from "../domain/health-types";
+import type { HealthProbe } from "./ports/health-probe";
+import type { HealthReport, ProbeResult } from "../domain/health-types";
 
-export async function checkHealth(): Promise<HealthReport> {
-  const db = await databaseHealth.ping();
+export async function checkHealth(probes: HealthProbe[]): Promise<HealthReport> {
+  const entries = await Promise.all(
+    probes.map(
+      async (probe): Promise<[string, ProbeResult]> => [
+        probe.name,
+        await probe.check(),
+      ],
+    ),
+  );
+
   return {
-    status: db.ok ? "ok" : "error",
-    db,
+    status: entries.every(([, result]) => result.ok) ? "ok" : "error",
+    checks: Object.fromEntries(entries),
     commit: process.env.VERCEL_GIT_COMMIT_SHA ?? null,
     timestamp: new Date().toISOString(),
   };
 }
 ```
 
-- [ ] **Step 6: Exclude the adapter from coverage** — `vitest.config.ts`
+- [ ] **Step 7: Exclude the adapter from coverage** — `vitest.config.ts`
 
 Na array `test.coverage.exclude`, logo após a linha `"src/lib/shared/infrastructure/prisma-client.ts", // singleton, mockado`, adicionar:
 
@@ -183,21 +208,21 @@ Na array `test.coverage.exclude`, logo após a linha `"src/lib/shared/infrastruc
         "src/lib/health/infrastructure/persistence/database-health.ts",
 ```
 
-- [ ] **Step 7: Run the test to verify it passes**
+- [ ] **Step 8: Run the test to verify it passes**
 
 Run: `pnpm test:run src/test/health.test.ts`
 Expected: PASS — `3 passed`.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 9: Commit**
 
 ```bash
 git add src/lib/health src/test/health.test.ts vitest.config.ts
-git commit -m "feat(health): bounded context health + use case checkHealth"
+git commit -m "feat(health): bounded context health com porta HealthProbe + checkHealth"
 ```
 
 ---
 
-## Task 2: Route Handler `GET /api/health`
+## Task 2: Route Handler `GET /api/health` (composition root)
 
 **Files:**
 - Create: `src/app/api/health/route.ts`
@@ -224,7 +249,7 @@ describe("GET /api/health", () => {
   it("responde 200 quando o status é 'ok'", async () => {
     checkHealthMock.mockResolvedValue({
       status: "ok",
-      db: { ok: true, latencyMs: 8 },
+      checks: { db: { ok: true, latencyMs: 8 } },
       commit: "abc123",
       timestamp: "2026-06-04T00:00:00.000Z",
     });
@@ -239,7 +264,7 @@ describe("GET /api/health", () => {
   it("responde 503 quando o status é 'error'", async () => {
     checkHealthMock.mockResolvedValue({
       status: "error",
-      db: { ok: false, latencyMs: 5000 },
+      checks: { db: { ok: false, latencyMs: 5000 } },
       commit: "abc123",
       timestamp: "2026-06-04T00:00:00.000Z",
     });
@@ -272,22 +297,26 @@ Expected: FAIL — `Failed to resolve import "@/app/api/health/route"` (a route 
 /**
  * /api/health — GET
  * ─────────────────────────────────────────────────────────────────────
- * Healthcheck público: 200 com ping leve no banco; 503 se o banco não
- * responde. Inclui o commit do deploy (smoke pós-deploy). Sem auth — o
- * middleware só guarda /admin* e /api/admin*.
+ * Healthcheck público: 200 com checagem leve do banco; 503 se algum check
+ * falha. Inclui o commit do deploy (smoke pós-deploy). Sem auth — o middleware
+ * só guarda /admin* e /api/admin*.
  *
- * Porta HTTP (driving adapter): delega toda a lógica para
- * `@/lib/health/application/check-health`.
+ * Composition root: casa a porta (checkHealth) com o adapter concreto
+ * (databaseProbe), injetando a lista de probes.
  */
 import { NextResponse } from "next/server";
 import { checkHealth } from "@/lib/health/application/check-health";
+import { databaseProbe } from "@/lib/health/infrastructure/persistence/database-health";
 
 // Nunca cachear a saúde — sempre refletir o estado atual.
 export const dynamic = "force-dynamic";
 
+// Probes ativos. Adicionar observabilidade = somar um adapter aqui (OCP).
+const probes = [databaseProbe];
+
 export async function GET() {
   try {
-    const report = await checkHealth();
+    const report = await checkHealth(probes);
     return NextResponse.json(report, {
       status: report.status === "ok" ? 200 : 503,
     });
@@ -296,7 +325,7 @@ export async function GET() {
     return NextResponse.json(
       {
         status: "error",
-        db: { ok: false, latencyMs: 0 },
+        checks: {},
         commit: process.env.VERCEL_GIT_COMMIT_SHA ?? null,
         timestamp: new Date().toISOString(),
       },
@@ -315,7 +344,7 @@ Expected: PASS — `3 passed`.
 
 ```bash
 git add src/app/api/health/route.ts src/test/api-health.test.ts
-git commit -m "feat(health): add GET /api/health route handler"
+git commit -m "feat(health): add GET /api/health (composition root injeta databaseProbe)"
 ```
 
 ---
@@ -327,7 +356,7 @@ git commit -m "feat(health): add GET /api/health route handler"
 - Create: `src/lib/health/CLAUDE.md`
 - Create: `src/app/api/health/CLAUDE.md`
 
-> Nota de fence: os blocos abaixo usam **cerca de 4 crases** (````) por fora porque o conteúdo dos arquivos tem blocos de 3 crases dentro. Ao criar cada arquivo, use apenas o conteúdo interno (com as cercas de 3 crases normais).
+> Nota de fence: os blocos abaixo usam **4 crases** (````) por fora porque o conteúdo dos arquivos tem blocos de 3 crases dentro. Ao criar cada arquivo, use só o conteúdo interno (com as cercas de 3 crases normais).
 
 - [ ] **Step 1: Create the runbook** — `docs/observabilidade.md`
 
@@ -340,12 +369,12 @@ git commit -m "feat(health): add GET /api/health route handler"
 
 ## 1. Healthcheck — `GET /api/health`
 
-Endpoint público que responde **200** (app e banco de pé) ou **503** (ping no
-banco falhou). Corpo:
+Endpoint público que responde **200** (app e banco de pé) ou **503** (algum
+check falhou). Corpo:
 
 ```jsonc
 { "status": "ok",
-  "db": { "ok": true, "latencyMs": 12 },
+  "checks": { "db": { "ok": true, "latencyMs": 12 } },
   "commit": "<sha-do-deploy>",   // VERCEL_GIT_COMMIT_SHA, ou null fora da Vercel
   "timestamp": "2026-06-04T20:00:00.000Z" }
 ```
@@ -363,8 +392,8 @@ O `commit` confirma **qual versão está no ar** após um deploy
    `"status":"ok"` — pega o 503 (banco fora) mesmo com o app respondendo.
 6. **Alert contacts:** seu email.
 
-Como o endpoint devolve **503 quando o banco cai**, o monitor detecta tanto app
-fora do ar quanto **queda de banco**.
+Como o endpoint devolve **503 quando um check falha**, o monitor detecta tanto
+app fora do ar quanto **queda de banco**.
 
 ## 3. Sentry — opt-in (desligado)
 
@@ -391,36 +420,43 @@ Nenhuma dependência de Sentry é instalada neste ciclo.
 ````markdown
 # `src/lib/health/` — Bounded Context Health
 
-> **Hexagonal.** Observabilidade de saúde do sistema. O endpoint público
-> `GET /api/health` (`src/app/api/health/route.ts`) é só a porta HTTP — a
-> lógica vive aqui.
+> **Hexagonal + SOLID à risca.** Observabilidade de saúde do sistema. O endpoint
+> público `GET /api/health` (`src/app/api/health/route.ts`) é o composition root —
+> a lógica vive aqui, atrás da porta `HealthProbe`.
 
 ## Estrutura
 
 ```
 src/lib/health/
 ├── domain/
-│   └── health-types.ts          # ProbeResult, HealthReport (tipos puros)
+│   └── health-types.ts            # ProbeResult, HealthReport (tipos puros)
 ├── application/
-│   └── check-health.ts          # checkHealth(): roda o probe, deriva status, monta o report
+│   ├── ports/
+│   │   └── health-probe.ts        # interface HealthProbe (porta — ISP)
+│   └── check-health.ts            # checkHealth(probes): DIP + OCP
 └── infrastructure/
     └── persistence/
-        └── database-health.ts   # databaseHealth.ping(): SELECT 1 + latência — único a tocar Prisma
+        └── database-health.ts     # databaseProbe: HealthProbe — único a tocar Prisma
 ```
 
-## Diretrizes
+## Diretrizes (SOLID)
 
-- **Server-only:** `application/` e `infrastructure/` têm `import "server-only"`.
-  `domain/` é puro.
-- **DIP pragmático:** `check-health` depende do **shape** de `databaseHealth`,
-  não do Prisma. **Sem porta formal** (YAGNI-rígido, `preferences-dev.md §1.1`).
-- **OCP:** um 2º probe entra agregando em `checkHealth`, sem mudar a route.
-- **Queda de banco é estado esperado:** `ping()` captura o erro e retorna
-  `{ ok: false }` (vira 503 na route).
+- **S:** cada arquivo, uma razão de mudar (tipos · porta · use case · adapter).
+- **O:** `checkHealth` itera `HealthProbe[]`; novo probe = nova entrada na lista,
+  sem editar o use case nem a route.
+- **I:** `HealthProbe` é mínima (`name` + `check()`).
+- **D:** `check-health` depende da **porta** (abstração); o adapter a implementa;
+  o concreto (`databaseProbe`) é **injetado no composition root** (`route.ts`).
+  `application/` **não** importa `infrastructure/`.
+- **Server-only:** `application/check-health` e `infrastructure/*` têm
+  `import "server-only"`; `domain/` e a porta são puros.
+- **Queda de banco é estado esperado:** `databaseProbe.check()` captura o erro e
+  retorna `{ ok: false }` (vira 503 na route).
 
 ## Testes
 
-- `src/test/health.test.ts` — `checkHealth()` (mocka `databaseHealth`).
+- `src/test/health.test.ts` — `checkHealth()` com **probes fake injetados** (sem
+  `vi.mock` — payoff do DIP).
 - `src/test/api-health.test.ts` — route `GET` (mocka `checkHealth`).
 - `database-health.ts` (adapter Prisma) é coberto por integração/E2E, excluído
   da cobertura unit como o `prisma-client.ts`.
@@ -437,23 +473,24 @@ src/lib/health/
 # health
 
 > **Nota de Uso:** Endpoint HTTP público de healthcheck (`GET /api/health`).
-> Porta HTTP (driving adapter) — delega a lógica para
-> `@/lib/health/application/check-health`. Não consumir de RSC.
+> **Composition root** — injeta `[databaseProbe]` no `checkHealth` (porta
+> `@/lib/health/application`). Não consumir de RSC.
 
 ## Escopo do Diretório
 
-Healthcheck público para uptime/smoke pós-deploy. 200 (app+banco ok) ou 503
-(banco fora). Sem auth — o middleware só guarda `/admin*` e `/api/admin*`.
+Healthcheck público para uptime/smoke pós-deploy. 200 (todos os checks ok) ou
+503 (algum falhou). Sem auth — o middleware só guarda `/admin*` e `/api/admin*`.
 
 ## Diretrizes Específicas
 
-- Route Handler magro: `try/catch` + `NextResponse.json(report, { status })`.
+- Route Handler magro: monta `const probes = [databaseProbe]`, chama
+  `checkHealth(probes)`, mapeia pra `NextResponse.json(report, { status })`.
 - `export const dynamic = "force-dynamic"` — nunca cachear a saúde.
-- Toda a lógica vem de `@/lib/health/*` (nada de Prisma direto aqui).
+- Adicionar observabilidade = somar um adapter na lista `probes` (OCP).
 
 ## Referências
 
-- `src/lib/health/CLAUDE.md` — o bounded context
+- `src/lib/health/CLAUDE.md` — o bounded context e a porta
 - `docs/observabilidade.md` — runbook
 ````
 
@@ -466,7 +503,7 @@ Run: `pnpm lint`
 Expected: PASS (exit 0).
 
 Run: `pnpm test:coverage`
-Expected: PASS — todas as suites verdes (incl. `health.test.ts` e `api-health.test.ts`); o gate de cobertura não regride (o adapter está excluído).
+Expected: PASS — todas as suites verdes (incl. `health.test.ts` e `api-health.test.ts`); o gate de cobertura não regride (o adapter está excluído; a porta é interface, sem runtime).
 
 - [ ] **Step 5: Commit**
 
