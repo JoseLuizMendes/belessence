@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { loginAsUser } from "./support/auth";
 
 /**
  * E2E — Página de produto (/product/[slug])
@@ -36,9 +37,11 @@ test.describe("Produto /product/[slug]", () => {
 
   // Após Rodada Auth: add-to-cart exige login (auth-gate). Skip até criar
   // helper loginAsUser (T-extra-4).
-  test.skip("aumentar quantidade e adicionar à bag abre o carrinho — requer login (T-extra-4)", async ({
+  test("aumentar quantidade e adicionar à bag abre o carrinho", async ({
     page,
+    context,
   }) => {
+    await loginAsUser(context);
     await page.goto(`/product/${SLUG}`);
     await page.getByRole("button", { name: /aumentar quantidade/i }).click();
     await page.getByRole("button", { name: /adicionar à bag/i }).click();
