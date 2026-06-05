@@ -26,12 +26,15 @@ test.beforeEach(async ({ context, page }) => {
 // Após Rodada Auth: cookie admin_session agora é JWT assinado via jose
 // (não mais string === ADMIN_SECRET). O helper loginAsAdmin precisa ser
 // atualizado pra gerar um JWT válido. Skip até T-extra-4.
-test.skip("login admin dá acesso à área protegida de produtos — helper precisa de JWT (T-extra-4)", async ({ page }) => {
+test("login admin dá acesso à área protegida de produtos", async ({ page }) => {
   await page.goto("/admin/produtos");
   await expect(page).not.toHaveURL(/\/admin\/login/);
 });
 
-test.skip("criar produto persiste no catálogo — depende de login admin (T-extra-4)", async ({ page }) => {
+// Login OK; o form exige imagem (o teste não anexa) → fica em /novo. A debugar.
+test.skip("criar produto persiste no catálogo — form exige imagem, a debugar (login OK)", async ({
+  page,
+}) => {
   await page.goto("/admin/produtos/novo");
 
   await page.getByLabel(/nome do produto/i).fill("Produto E2E");
@@ -46,17 +49,23 @@ test.skip("criar produto persiste no catálogo — depende de login admin (T-ext
   // O CloudinaryUpload pode expor um botão "Enviar"/"Upload" ou um input.
   const uploadBtn = page.getByRole("button", { name: /enviar|upload|imagem/i });
   if (await uploadBtn.count()) {
-    await uploadBtn.first().click().catch(() => {});
+    await uploadBtn
+      .first()
+      .click()
+      .catch(() => {});
   }
 
-  await page.getByRole("button", { name: /salvar|criar|publicar/i }).first().click();
+  await page
+    .getByRole("button", { name: /salvar|criar|publicar/i })
+    .first()
+    .click();
 
   // Após sucesso, redireciona para a lista de produtos.
   await expect(page).toHaveURL(/\/admin\/produtos(\?|$)/, { timeout: 15_000 });
 
   // Persistência real
   const rows = await query<{ count: string }>(
-    'SELECT COUNT(*)::text AS count FROM products WHERE slug = $1',
+    "SELECT COUNT(*)::text AS count FROM products WHERE slug = $1",
     [SLUG],
   );
   expect(Number(rows[0]?.count ?? 0)).toBe(1);

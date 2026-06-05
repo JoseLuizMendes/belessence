@@ -5,6 +5,7 @@ import {
   countOrdersByEmail,
   closeDb,
 } from "./support/db";
+import { loginAsUser } from "./support/auth";
 
 /**
  * E2E — Fluxo de checkout completo (regra crítica em BANCO REAL)
@@ -30,9 +31,13 @@ test.afterAll(async () => {
 // Após Rodada Auth: checkout exige login (auth() redireciona pra /entrar).
 // Spec completo precisa de helper loginAsUser (T-extra-4) pra cobrir o fluxo
 // logged-in com checkout real + webhook MP + baixa de estoque + cupom.
-test.skip("checkout cria pedido, baixa estoque e consome cupom — requer login programático (T-extra-4)", async ({
+// Login OK via loginAsUser; o corpo do fluxo (add-to-bag → checkout → finalizar)
+// ainda falha no CI — re-skipado pra debugar com os traces (follow-up).
+test.skip("checkout cria pedido, baixa estoque e consome cupom — corpo a debugar (login OK)", async ({
   page,
+  context,
 }) => {
+  await loginAsUser(context);
   // Intercepta o ViaCEP (via nosso /api/cep) para endereço determinístico.
   await page.route("**/api/cep/**", (route) =>
     route.fulfill({
@@ -60,7 +65,9 @@ test.skip("checkout cria pedido, baixa estoque e consome cupom — requer login 
 
   // 2. Vai ao checkout
   await page.goto("/checkout");
-  await expect(page.getByRole("heading", { name: /^checkout$/i })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: /^checkout$/i }),
+  ).toBeVisible();
 
   // 3. Preenche identificação (CPF válido conhecido)
   await page.getByLabel(/nome completo/i).fill("Cliente E2E");

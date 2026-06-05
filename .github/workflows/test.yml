@@ -63,6 +63,8 @@ jobs:
     env:
       DATABASE_URL: postgresql://belessence:belessence@localhost:5432/belessence_test
       ADMIN_SECRET: e2e-secret
+      # Mesmo segredo lido pelo app (Auth.js) e pelo loginAsUser (forja o JWT).
+      AUTH_SECRET: e2e-auth-secret-fixo-para-ci
       NODE_ENV: test
     steps:
       - uses: actions/checkout@v5

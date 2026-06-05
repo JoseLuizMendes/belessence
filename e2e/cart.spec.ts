@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { loginAsUser } from "./support/auth";
 
 /**
  * Smoke — Carrinho (client-side Zustand + persist)
@@ -11,9 +12,15 @@ test.describe("Carrinho", () => {
   // é privado por usuário e exige login. Testar o fluxo completo requer login
   // programático (cookie Auth.js JWT) — registrado como T-extra-4 (helper
   // loginAsUser em e2e/support/) pra próxima rodada. Por ora, skip com nota.
-  test.skip("adicionar produto abre a gaveta e mostra o item — requer login programático (T-extra-4)", async ({ page }) => {
+  test("adicionar produto abre a gaveta e mostra o item", async ({
+    page,
+    context,
+  }) => {
+    await loginAsUser(context);
     await page.goto("/allProducts");
-    const addButton = page.getByRole("button", { name: /adicionar .* ao carrinho/i }).first();
+    const addButton = page
+      .getByRole("button", { name: /adicionar .* ao carrinho/i })
+      .first();
     if (!(await addButton.count())) {
       test.skip(true, "Nenhum produto comprável no seed");
       return;
@@ -22,7 +29,9 @@ test.describe("Carrinho", () => {
     await expect(page.getByText(/seu carrinho/i)).toBeVisible();
   });
 
-  test("/checkout deslogado redireciona para /entrar (sucessor de 'bolsa vazia')", async ({ page }) => {
+  test("/checkout deslogado redireciona para /entrar (sucessor de 'bolsa vazia')", async ({
+    page,
+  }) => {
     // Após a Rodada Auth, /checkout tem proteção server-side via auth() e redireciona
     // para /entrar?callbackUrl=/checkout quando deslogado. O empty state "Bolsa vazia"
     // só renderiza para usuário autenticado COM carrinho vazio (cenário coberto via
