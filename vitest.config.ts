@@ -27,6 +27,9 @@ export default defineConfig({
         "src/components/providers/**",
         // Paths atualizados após Rodada 4 Hexagonal (Belessence)
         "src/lib/shared/infrastructure/prisma-client.ts", // singleton, mockado
+        // Adapter Prisma de liveness — coberto por integração/E2E (smoke) e
+        // redundante com o runProbe do use case. Unit cobre a orquestração.
+        "src/lib/health/infrastructure/persistence/database-health.ts",
         "src/lib/motion/**", // GSAP helpers — efeito visual, sem assert significativo
         "src/components/admin/cloudinary-upload.tsx",
         // Auth.js v5 config + Arctic OAuth — wiring declarativo, sem lógica
